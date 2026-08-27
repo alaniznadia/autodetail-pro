@@ -96,8 +96,8 @@ model User {
 
 model Address {
   id         String   @id @default(cuid())
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String? // null = dirección de un pedido hecho como invitado
+  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   label      String? // "Casa", "Trabajo"
   street     String
   number     String

@@ -1,11 +1,7 @@
-import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { InsufficientStockError } from "@/lib/errors";
+import { decrementStock, priceOrderItems, type SaleItemInput } from "@/lib/stock";
 
-export type SaleItemInput = {
-  variantId: string;
-  quantity: number;
-};
+export type { SaleItemInput };
 
 export type CreatePosSaleInput = {
   locationId: string;
@@ -20,8 +16,9 @@ export type CreatePosSaleInput = {
  * transacción de base de datos. Si el stock de cualquier ítem no alcanza,
  * se aborta toda la operación (no se vende "a medias").
  *
- * Esta misma función es la que garantiza la sincronización de stock entre
- * la tienda online y el POS: ambos canales pasan por acá.
+ * Esta misma función (a través de lib/stock.ts) es la que garantiza la
+ * sincronización de stock entre la tienda online y el POS: ambos canales
+ * pasan por el mismo descuento atómico.
  */
 export async function createPosSale(input: CreatePosSaleInput) {
   if (input.items.length === 0) {
@@ -29,44 +26,8 @@ export async function createPosSale(input: CreatePosSaleInput) {
   }
 
   return prisma.$transaction(async (tx) => {
-    const variants = await tx.productVariant.findMany({
-      where: { id: { in: input.items.map((i) => i.variantId) } },
-    });
-    const variantById = new Map(variants.map((v) => [v.id, v]));
-
-    let subtotal = new Prisma.Decimal(0);
-    const orderItemsData: Prisma.OrderItemCreateManyOrderInput[] = [];
-
-    for (const item of input.items) {
-      const variant = variantById.get(item.variantId);
-      if (!variant) throw new Error(`Variante no encontrada: ${item.variantId}`);
-
-      // Descuento condicionado: solo resta si hay stock suficiente en esta
-      // misma sentencia UPDATE, evitando condiciones de carrera entre
-      // ventas simultáneas (dos cajeros vendiendo el último producto a la vez).
-      const updated = await tx.stockItem.updateMany({
-        where: {
-          variantId: item.variantId,
-          locationId: input.locationId,
-          quantity: { gte: item.quantity },
-        },
-        data: { quantity: { decrement: item.quantity } },
-      });
-
-      if (updated.count === 0) {
-        throw new InsufficientStockError(item.variantId, item.quantity);
-      }
-
-      const totalPrice = variant.price.mul(item.quantity);
-      subtotal = subtotal.add(totalPrice);
-
-      orderItemsData.push({
-        variantId: item.variantId,
-        quantity: item.quantity,
-        unitPrice: variant.price,
-        totalPrice,
-      });
-    }
+    const { subtotal, orderItemsData } = await priceOrderItems(tx, input.items);
+    await decrementStock(tx, input.locationId, input.items);
 
     const order = await tx.order.create({
       data: {

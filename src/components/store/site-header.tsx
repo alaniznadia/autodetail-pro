@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CartLink } from "@/components/store/cart-link";
 
 const NAV_LINKS = [
   { href: "/catalogo", label: "Catálogo" },
@@ -32,13 +33,7 @@ export function SiteHeader() {
           ))}
         </nav>
         <div className="flex items-center gap-4">
-          <Link
-            href="/carrito"
-            aria-label="Ver carrito de compras"
-            className="font-display text-sm hover:text-foreground/80"
-          >
-            Carrito
-          </Link>
+          <CartLink />
           <Link
             href="/login"
             aria-label="Ingresar a mi cuenta"
