@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CartLink } from "@/components/store/cart-link";
+import { auth } from "@/lib/auth";
 
 const NAV_LINKS = [
   { href: "/catalogo", label: "Catálogo" },
@@ -8,7 +9,9 @@ const NAV_LINKS = [
   { href: "/catalogo?categoria=microfibras", label: "Microfibras" },
 ];
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const session = await auth();
+
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
       <a
@@ -35,8 +38,8 @@ export function SiteHeader() {
         <div className="flex items-center gap-4">
           <CartLink />
           <Link
-            href="/login"
-            aria-label="Ingresar a mi cuenta"
+            href={session?.user ? "/mi-cuenta" : "/login"}
+            aria-label={session?.user ? "Ver mi cuenta" : "Ingresar a mi cuenta"}
             className="font-display text-sm hover:text-foreground/80"
           >
             Mi cuenta

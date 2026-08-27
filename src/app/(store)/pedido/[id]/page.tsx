@@ -1,18 +1,8 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { ORDER_STATUS_LABEL } from "@/lib/order-status";
 
 export const dynamic = "force-dynamic";
-
-const STATUS_LABEL: Record<string, string> = {
-  PENDING: "Pendiente de pago",
-  PAID: "Pagado",
-  PREPARING: "En preparación",
-  SHIPPED: "Enviado",
-  DELIVERED: "Entregado",
-  PICKED_UP: "Retirado",
-  CANCELLED: "Cancelado",
-  REFUNDED: "Reembolsado",
-};
 
 export default async function OrderConfirmationPage({
   params,
@@ -37,7 +27,7 @@ export default async function OrderConfirmationPage({
     <div className="mx-auto max-w-2xl px-4 py-12">
       <h1 className="font-display text-2xl font-bold">¡Gracias por tu pedido!</h1>
       <p className="mt-2 text-foreground/70">
-        Pedido #{order.orderNumber} — estado: {STATUS_LABEL[order.status] ?? order.status}
+        Pedido #{order.orderNumber} — estado: {ORDER_STATUS_LABEL[order.status] ?? order.status}
       </p>
 
       <ul className="mt-6 divide-y divide-border rounded border border-border">

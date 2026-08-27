@@ -3,14 +3,16 @@ import { NextResponse } from "next/server";
 
 const ADMIN_ONLY_PREFIXES = ["/admin", "/api/admin"];
 const STAFF_PREFIXES = ["/admin", "/api/admin", "/pos", "/api/pos"]; // ADMIN o EMPLOYEE
+const ACCOUNT_PREFIXES = ["/mi-cuenta"]; // cualquier usuario logueado
 
 export default auth((req) => {
   const { pathname } = req.nextUrl;
   const role = req.auth?.user?.role;
   const isApiRoute = pathname.startsWith("/api/");
 
+  const isAccountRoute = ACCOUNT_PREFIXES.some((p) => pathname.startsWith(p));
   const isStaffRoute = STAFF_PREFIXES.some((p) => pathname.startsWith(p));
-  if (!isStaffRoute) return NextResponse.next();
+  if (!isStaffRoute && !isAccountRoute) return NextResponse.next();
 
   if (!req.auth) {
     if (isApiRoute) {
@@ -20,6 +22,10 @@ export default auth((req) => {
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }
+
+  // /mi-cuenta es para cualquier usuario logueado (cliente, empleado o admin),
+  // no hace falta el chequeo de rol que sí aplica a las rutas de staff.
+  if (isAccountRoute) return NextResponse.next();
 
   const isAdminRoute = ADMIN_ONLY_PREFIXES.some((p) => pathname.startsWith(p));
   const allowed = isAdminRoute ? role === "ADMIN" : role === "ADMIN" || role === "EMPLOYEE";
@@ -35,5 +41,11 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*", "/pos/:path*", "/api/pos/:path*"],
+  matcher: [
+    "/admin/:path*",
+    "/api/admin/:path*",
+    "/pos/:path*",
+    "/api/pos/:path*",
+    "/mi-cuenta/:path*",
+  ],
 };
