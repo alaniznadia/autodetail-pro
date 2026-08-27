@@ -8,8 +8,9 @@ en tiempo real entre ambos canales.
 > Mercado Pago, cotizador de envío por peso y cupones de descuento), POS
 > con venta presencial, cupones y cierre de caja, y panel de
 > administración completo (productos, stock, pedidos, proveedores/compras,
-> envíos, cupones, usuarios, reportes). Falta: facturación electrónica
-> AFIP (pendiente de definir con el dueño del negocio). Ver "Próximos pasos".
+> envíos, cupones, usuarios, reportes). La facturación electrónica AFIP
+> queda fuera de alcance por ahora (decisión del negocio). Ver "Próximos
+> pasos".
 
 ## Stack
 
@@ -160,6 +161,9 @@ cambian.
 
 ## Próximos pasos (ver plan de etapas completo en la conversación)
 
-- Facturación electrónica AFIP (a definir según situación fiscal).
 - Cotización de envío en vivo con Correo Argentino/Andreani cuando haya
   cuenta comercial (ver sección "Cotizador de envío" arriba).
+- Facturación electrónica AFIP: fuera de alcance por decisión del
+  negocio. Requiere un certificado digital (clave privada + certificado
+  X.509) generado con Clave Fiscal y asociado al CUIT de la tienda —
+  se puede retomar cuando haga falta, siguiendo ese trámite primero.
