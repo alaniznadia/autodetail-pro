@@ -8,7 +8,8 @@ en tiempo real entre ambos canales.
 > Mercado Pago, cotizador de envío por peso y cupones de descuento), POS
 > con venta presencial, cupones y cierre de caja, y panel de
 > administración completo (productos, stock, pedidos, proveedores/compras,
-> envíos, cupones, usuarios, reportes). La facturación electrónica AFIP
+> envíos, cupones, usuarios, apariencia de la tienda, reportes). La
+> facturación electrónica AFIP
 > queda fuera de alcance por ahora (decisión del negocio). Ver "Próximos
 > pasos".
 

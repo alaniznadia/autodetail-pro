@@ -135,6 +135,25 @@ model Location {
 }
 
 // ---------------------------------------------------------------------------
+// Apariencia de la tienda pública, editable desde /admin/apariencia.
+// Fila única (id fijo "default"), igual que Location usa "main-location".
+// Los nombres de tipografía son claves de una lista cerrada definida en
+// lib/store-theme.ts (no texto libre), así el layout puede armar la URL de
+// Google Fonts sin validar/escapar nada del lado del cliente.
+// ---------------------------------------------------------------------------
+
+model StoreTheme {
+  id              String   @id
+  headingFont     String   @default("oswald")
+  bodyFont        String   @default("inter")
+  baseFontSizePx  Int      @default(16)
+  backgroundColor String   @default("#0a0a0a")
+  textColor       String   @default("#f5f5f5")
+  accentColor     String   @default("#ffffff")
+  updatedAt       DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
 // Catálogo: categorías, productos y variantes
 // ---------------------------------------------------------------------------
 
