@@ -3,10 +3,12 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { createPosSale } from "@/lib/sales";
 import { InsufficientStockError } from "@/lib/errors";
+import { InvalidCouponError } from "@/lib/coupons";
 
 const saleSchema = z.object({
   locationId: z.string().min(1),
   paymentMethod: z.enum(["CASH", "CARD", "MERCADO_PAGO", "TRANSFER"]),
+  couponCode: z.string().min(1).optional(),
   items: z
     .array(
       z.object({
@@ -38,6 +40,9 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     if (err instanceof InsufficientStockError) {
       return NextResponse.json({ error: err.message }, { status: 409 });
+    }
+    if (err instanceof InvalidCouponError) {
+      return NextResponse.json({ error: err.message }, { status: 400 });
     }
     console.error("Error creando venta POS", err);
     return NextResponse.json({ error: "No se pudo registrar la venta." }, { status: 500 });

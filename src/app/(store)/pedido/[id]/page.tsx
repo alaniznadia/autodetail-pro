@@ -27,6 +27,7 @@ export default async function OrderConfirmationPage({
       items: { include: { variant: { include: { product: true } } } },
       address: true,
       payments: true,
+      coupon: true,
     },
   });
 
@@ -59,6 +60,12 @@ export default async function OrderConfirmationPage({
           <span>Envío</span>
           <span>${order.shippingCost.toString()}</span>
         </p>
+        {order.coupon && (
+          <p className="flex justify-between">
+            <span>Descuento ({order.coupon.code})</span>
+            <span>-${order.discountTotal.toString()}</span>
+          </p>
+        )}
         <p className="mt-2 flex justify-between font-display text-lg">
           <span>Total</span>
           <span>${order.total.toString()}</span>

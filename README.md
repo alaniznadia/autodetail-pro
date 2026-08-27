@@ -5,10 +5,11 @@ en tiempo real entre ambos canales.
 
 > **Estado del proyecto**: tienda online funcional de punta a punta
 > (catálogo, ficha de producto, carrito, checkout como invitado, pago con
-> Mercado Pago y cotizador de envío por peso), POS con venta presencial y
-> cierre de caja, y panel de administración completo (productos, stock,
-> pedidos, proveedores/compras, envíos, usuarios, reportes). Falta:
-> facturación electrónica AFIP y cupones/descuentos. Ver "Próximos pasos".
+> Mercado Pago, cotizador de envío por peso y cupones de descuento), POS
+> con venta presencial, cupones y cierre de caja, y panel de
+> administración completo (productos, stock, pedidos, proveedores/compras,
+> envíos, cupones, usuarios, reportes). Falta: facturación electrónica
+> AFIP (pendiente de definir con el dueño del negocio). Ver "Próximos pasos".
 
 ## Stack
 
@@ -160,7 +161,5 @@ cambian.
 ## Próximos pasos (ver plan de etapas completo en la conversación)
 
 - Facturación electrónica AFIP (a definir según situación fiscal).
-- Cupones/descuentos (modelo `Coupon` ya existe, falta la UI y aplicarlo
-  en checkout/POS).
 - Cotización de envío en vivo con Correo Argentino/Andreani cuando haya
   cuenta comercial (ver sección "Cotizador de envío" arriba).

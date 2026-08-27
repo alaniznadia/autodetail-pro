@@ -29,7 +29,37 @@ export function PosTerminal({ locationId }: { locationId: string }) {
   const [submitting, setSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const total = cart.reduce((sum, line) => sum + Number(line.price) * line.quantity, 0);
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(
+    null
+  );
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
+
+  const subtotal = cart.reduce((sum, line) => sum + Number(line.price) * line.quantity, 0);
+  const total = subtotal - (appliedCoupon?.discount ?? 0);
+
+  async function applyCoupon() {
+    setApplyingCoupon(true);
+    setCouponError(null);
+
+    const res = await fetch("/api/coupons/validate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: couponCode, subtotal }),
+    });
+    const data = await res.json();
+
+    setApplyingCoupon(false);
+
+    if (!res.ok) {
+      setCouponError(typeof data.error === "string" ? data.error : "Cupón inválido.");
+      setAppliedCoupon(null);
+      return;
+    }
+
+    setAppliedCoupon({ code: couponCode.toUpperCase(), discount: Number(data.discountTotal) });
+  }
 
   async function handleSearch(value: string) {
     setQuery(value);
@@ -86,6 +116,7 @@ export function PosTerminal({ locationId }: { locationId: string }) {
       body: JSON.stringify({
         locationId,
         paymentMethod,
+        couponCode: appliedCoupon?.code,
         items: cart.map((l) => ({ variantId: l.id, quantity: l.quantity })),
       }),
     });
@@ -103,6 +134,8 @@ export function PosTerminal({ locationId }: { locationId: string }) {
     }
 
     setCart([]);
+    setCouponCode("");
+    setAppliedCoupon(null);
     setStatus("Venta registrada correctamente.");
   }
 
@@ -169,7 +202,40 @@ export function PosTerminal({ locationId }: { locationId: string }) {
           ))}
         </ul>
 
-        <p className="mt-4 flex justify-between font-display text-xl">
+        <div className="mt-4">
+          <div className="flex gap-2">
+            <input
+              value={couponCode}
+              onChange={(e) => {
+                setCouponCode(e.target.value);
+                setAppliedCoupon(null);
+                setCouponError(null);
+              }}
+              placeholder="Código de cupón"
+              className="w-full rounded border border-border bg-background px-3 py-1.5 text-sm uppercase"
+            />
+            <button
+              type="button"
+              onClick={applyCoupon}
+              disabled={!couponCode || applyingCoupon || cart.length === 0}
+              className="shrink-0 rounded border border-border px-3 py-1.5 text-sm hover:border-accent disabled:opacity-50"
+            >
+              Aplicar
+            </button>
+          </div>
+          {couponError && <p className="mt-1 text-xs text-red-400">{couponError}</p>}
+          {appliedCoupon && (
+            <p className="mt-1 text-xs text-green-500">
+              Cupón {appliedCoupon.code}: -${appliedCoupon.discount.toFixed(2)}
+            </p>
+          )}
+        </div>
+
+        <p className="mt-4 flex justify-between text-sm text-foreground/70">
+          <span>Subtotal</span>
+          <span>${subtotal.toFixed(2)}</span>
+        </p>
+        <p className="flex justify-between font-display text-xl">
           <span>Total</span>
           <span>${total.toFixed(2)}</span>
         </p>

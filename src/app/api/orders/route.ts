@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { createOnlineOrder } from "@/lib/orders";
 import { InsufficientStockError } from "@/lib/errors";
+import { InvalidCouponError } from "@/lib/coupons";
 
 const orderSchema = z.object({
   fulfillmentMethod: z.enum(["SHIPPING", "STORE_PICKUP"]),
@@ -11,6 +12,7 @@ const orderSchema = z.object({
   guestName: z.string().min(1),
   guestEmail: z.string().email(),
   guestPhone: z.string().min(6),
+  couponCode: z.string().min(1).optional(),
   shippingAddress: z
     .object({
       street: z.string().min(1),
@@ -66,6 +68,7 @@ export async function POST(req: NextRequest) {
       guestName: data.guestName,
       guestEmail: data.guestEmail,
       guestPhone: data.guestPhone,
+      couponCode: data.couponCode,
       shippingAddress: data.shippingAddress,
     });
     return NextResponse.json({ order }, { status: 201 });
@@ -75,6 +78,9 @@ export async function POST(req: NextRequest) {
         { error: "Uno de los productos ya no tiene stock suficiente. Revisá tu carrito." },
         { status: 409 }
       );
+    }
+    if (err instanceof InvalidCouponError) {
+      return NextResponse.json({ error: err.message }, { status: 400 });
     }
     console.error("Error creando pedido online", err);
     return NextResponse.json({ error: "No se pudo crear el pedido." }, { status: 500 });

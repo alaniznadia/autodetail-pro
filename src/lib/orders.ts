@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { decrementStock, priceOrderItems, type SaleItemInput } from "@/lib/stock";
 import { calculateShippingCost } from "@/lib/shipping";
+import { claimCoupon } from "@/lib/coupons";
 
 export type CreateOnlineOrderInput = {
   locationId: string;
@@ -12,6 +13,7 @@ export type CreateOnlineOrderInput = {
   guestName: string;
   guestEmail: string;
   guestPhone: string;
+  couponCode?: string;
   shippingAddress?: {
     street: string;
     number: string;
@@ -46,7 +48,15 @@ export async function createOnlineOrder(input: CreateOnlineOrderInput) {
     const { subtotal, orderItemsData } = await priceOrderItems(tx, input.items);
     await decrementStock(tx, input.locationId, input.items);
 
-    const total = subtotal.add(shippingCost);
+    let couponId: string | undefined;
+    let discountTotal = new Prisma.Decimal(0);
+    if (input.couponCode) {
+      const claimed = await claimCoupon(tx, input.couponCode, subtotal);
+      couponId = claimed.couponId;
+      discountTotal = claimed.discountTotal;
+    }
+
+    const total = subtotal.add(shippingCost).sub(discountTotal);
 
     let addressId: string | undefined;
     if (input.fulfillmentMethod === "SHIPPING" && input.shippingAddress) {
@@ -73,7 +83,9 @@ export async function createOnlineOrder(input: CreateOnlineOrderInput) {
         guestEmail: input.guestEmail,
         guestPhone: input.guestPhone,
         addressId,
+        couponId,
         subtotal,
+        discountTotal,
         shippingCost,
         total,
         shippingProvider: input.fulfillmentMethod === "SHIPPING" ? "tarifa_propia" : null,

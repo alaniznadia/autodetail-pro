@@ -33,7 +33,40 @@ export default function CheckoutPage() {
   const [failedOrderId, setFailedOrderId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const total = subtotal + (fulfillmentMethod === "SHIPPING" ? shippingCost : 0);
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(
+    null
+  );
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
+
+  const total =
+    subtotal +
+    (fulfillmentMethod === "SHIPPING" ? shippingCost : 0) -
+    (appliedCoupon?.discount ?? 0);
+
+  async function handleApplyCoupon(e: React.FormEvent) {
+    e.preventDefault();
+    setApplyingCoupon(true);
+    setCouponError(null);
+
+    const res = await fetch("/api/coupons/validate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: couponCode, subtotal }),
+    });
+    const data = await res.json();
+
+    setApplyingCoupon(false);
+
+    if (!res.ok) {
+      setCouponError(typeof data.error === "string" ? data.error : "Cupón inválido.");
+      setAppliedCoupon(null);
+      return;
+    }
+
+    setAppliedCoupon({ code: couponCode.toUpperCase(), discount: Number(data.discountTotal) });
+  }
 
   useEffect(() => {
     // Fuera de "envío" el costo cotizado no se muestra ni se usa (ver el
@@ -109,6 +142,7 @@ export default function CheckoutPage() {
         guestEmail,
         guestPhone,
         shippingAddress: fulfillmentMethod === "SHIPPING" ? address : undefined,
+        couponCode: appliedCoupon?.code,
         items: items.map((i) => ({ variantId: i.variantId, quantity: i.quantity })),
       }),
     });
@@ -348,6 +382,39 @@ export default function CheckoutPage() {
           )}
         </fieldset>
 
+        <div>
+          <label htmlFor="coupon" className="block font-display text-sm">
+            Cupón de descuento
+          </label>
+          <div className="mt-1 flex max-w-sm gap-2">
+            <input
+              id="coupon"
+              value={couponCode}
+              onChange={(e) => {
+                setCouponCode(e.target.value);
+                setAppliedCoupon(null);
+                setCouponError(null);
+              }}
+              placeholder="CÓDIGO"
+              className="w-full rounded border border-border bg-background px-3 py-2 uppercase"
+            />
+            <button
+              type="button"
+              onClick={handleApplyCoupon}
+              disabled={!couponCode || applyingCoupon}
+              className="shrink-0 rounded border border-border px-4 py-2 text-sm hover:border-accent disabled:opacity-50"
+            >
+              {applyingCoupon ? "Validando..." : "Aplicar"}
+            </button>
+          </div>
+          {couponError && <p className="mt-1 text-sm text-red-400">{couponError}</p>}
+          {appliedCoupon && (
+            <p className="mt-1 text-sm text-green-500">
+              Cupón {appliedCoupon.code} aplicado: -${appliedCoupon.discount.toFixed(2)}
+            </p>
+          )}
+        </div>
+
         <div className="rounded border border-border p-4">
           <p className="flex justify-between text-sm">
             <span>Subtotal</span>
@@ -363,6 +430,12 @@ export default function CheckoutPage() {
                   : `$${shippingCost.toFixed(2)}`}
             </span>
           </p>
+          {appliedCoupon && (
+            <p className="flex justify-between text-sm">
+              <span>Descuento ({appliedCoupon.code})</span>
+              <span>-${appliedCoupon.discount.toFixed(2)}</span>
+            </p>
+          )}
           <p className="mt-2 flex justify-between font-display text-xl">
             <span>Total</span>
             <span>${total.toFixed(2)}</span>

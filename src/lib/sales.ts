@@ -1,5 +1,7 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { decrementStock, priceOrderItems, type SaleItemInput } from "@/lib/stock";
+import { claimCoupon } from "@/lib/coupons";
 
 export type { SaleItemInput };
 
@@ -8,6 +10,7 @@ export type CreatePosSaleInput = {
   soldById: string;
   items: SaleItemInput[];
   paymentMethod: "CASH" | "CARD" | "MERCADO_PAGO" | "TRANSFER";
+  couponCode?: string;
 };
 
 /**
@@ -29,6 +32,15 @@ export async function createPosSale(input: CreatePosSaleInput) {
     const { subtotal, orderItemsData } = await priceOrderItems(tx, input.items);
     await decrementStock(tx, input.locationId, input.items);
 
+    let couponId: string | undefined;
+    let discountTotal = new Prisma.Decimal(0);
+    if (input.couponCode) {
+      const claimed = await claimCoupon(tx, input.couponCode, subtotal);
+      couponId = claimed.couponId;
+      discountTotal = claimed.discountTotal;
+    }
+    const total = subtotal.sub(discountTotal);
+
     const order = await tx.order.create({
       data: {
         channel: "POS",
@@ -36,14 +48,16 @@ export async function createPosSale(input: CreatePosSaleInput) {
         fulfillmentMethod: "STORE_PICKUP",
         locationId: input.locationId,
         soldById: input.soldById,
+        couponId,
         subtotal,
-        total: subtotal,
+        discountTotal,
+        total,
         items: { createMany: { data: orderItemsData } },
         payments: {
           create: {
             method: input.paymentMethod,
             status: "APPROVED",
-            amount: subtotal,
+            amount: total,
           },
         },
         statusHistory: { create: { status: "PAID", note: "Venta POS confirmada" } },
