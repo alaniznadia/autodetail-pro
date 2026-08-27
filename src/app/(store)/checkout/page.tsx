@@ -14,7 +14,9 @@ export default function CheckoutPage() {
   const [fulfillmentMethod, setFulfillmentMethod] = useState<"STORE_PICKUP" | "SHIPPING">(
     "STORE_PICKUP"
   );
-  const [paymentMethod, setPaymentMethod] = useState<"CASH" | "TRANSFER">("CASH");
+  const [paymentMethod, setPaymentMethod] = useState<"CASH" | "TRANSFER" | "MERCADO_PAGO">(
+    "MERCADO_PAGO"
+  );
   const [guestName, setGuestName] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
@@ -27,6 +29,7 @@ export default function CheckoutPage() {
     postalCode: "",
   });
   const [error, setError] = useState<string | null>(null);
+  const [failedOrderId, setFailedOrderId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const total = subtotal + (fulfillmentMethod === "SHIPPING" ? SHIPPING_FLAT_COST : 0);
@@ -74,7 +77,31 @@ export default function CheckoutPage() {
 
     const { order } = await res.json();
     clear();
-    router.push(`/pedido/${order.id}`);
+
+    if (paymentMethod !== "MERCADO_PAGO") {
+      router.push(`/pedido/${order.id}`);
+      return;
+    }
+
+    const mpRes = await fetch("/api/checkout/mercadopago", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderId: order.id }),
+    });
+
+    if (!mpRes.ok) {
+      const data = await mpRes.json().catch(() => ({}));
+      setError(
+        typeof data.error === "string"
+          ? `${data.error} Tu pedido #${order.orderNumber} quedó registrado.`
+          : "No se pudo iniciar el pago con Mercado Pago. Tu pedido quedó registrado."
+      );
+      setFailedOrderId(order.id);
+      return;
+    }
+
+    const { initPoint } = await mpRes.json();
+    window.location.href = initPoint;
   }
 
   return (
@@ -230,11 +257,16 @@ export default function CheckoutPage() {
 
         <fieldset>
           <legend className="font-display text-lg">Pago</legend>
-          <p className="mt-1 text-sm text-foreground/60">
-            Todavía no está integrado Mercado Pago: coordinamos el pago por WhatsApp o lo
-            abonás al retirar/recibir.
-          </p>
           <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+            <label className="flex items-center gap-2 rounded border border-border p-3">
+              <input
+                type="radio"
+                name="payment"
+                checked={paymentMethod === "MERCADO_PAGO"}
+                onChange={() => setPaymentMethod("MERCADO_PAGO")}
+              />
+              Mercado Pago
+            </label>
             <label className="flex items-center gap-2 rounded border border-border p-3">
               <input
                 type="radio"
@@ -254,6 +286,11 @@ export default function CheckoutPage() {
               Transferencia
             </label>
           </div>
+          {paymentMethod !== "MERCADO_PAGO" && (
+            <p className="mt-2 text-xs text-foreground/60">
+              Coordinamos el pago por WhatsApp o lo abonás al retirar/recibir.
+            </p>
+          )}
         </fieldset>
 
         <div className="rounded border border-border p-4">
@@ -276,6 +313,14 @@ export default function CheckoutPage() {
         {error && (
           <p role="alert" className="text-sm text-red-400">
             {error}
+            {failedOrderId && (
+              <>
+                {" "}
+                <Link href={`/pedido/${failedOrderId}`} className="underline underline-offset-4">
+                  Ver mi pedido
+                </Link>
+              </>
+            )}
           </p>
         )}
 

@@ -3,12 +3,11 @@
 Tienda online + punto de venta (POS) para Epic Shine, con stock sincronizado
 en tiempo real entre ambos canales.
 
-> **Estado del proyecto**: base funcional (etapa 1-2 del plan). Ya están
-> resueltos el modelo de datos, autenticación con roles, el panel de admin
-> (esqueleto), la tienda pública (home + catálogo básico) y el POS con venta
-> presencial que descuenta stock de forma atómica. Faltan: fichas de
-> producto completas, carrito/checkout online, integración de Mercado Pago,
-> envíos, reportes y cierre de caja. Ver la sección "Próximos pasos".
+> **Estado del proyecto**: tienda online funcional de punta a punta
+> (catálogo, ficha de producto, carrito, checkout como invitado y pago con
+> Mercado Pago), CRUD de productos en el panel admin, y POS con venta
+> presencial. Faltan: cotizador de envío real, reportes, cierre de caja y
+> gestión de usuarios desde el panel. Ver la sección "Próximos pasos".
 
 ## Stack
 
@@ -85,6 +84,34 @@ mismo tiempo (dos cajeros, o un cajero y un cliente online, vendiendo el
 La tienda pública no cachea el catálogo de forma estática (`dynamic =
 "force-dynamic"` en la home) para reflejar el stock real en cada request.
 
+## Mercado Pago (Checkout Pro)
+
+El checkout online ya integra Mercado Pago; para probarlo en desarrollo:
+
+1. Entrá a https://www.mercadopago.com.ar/developers/panel/app y creá (o
+   usá) una aplicación. En la pestaña **Credenciales de prueba** copiá el
+   `Access Token` a `MERCADOPAGO_ACCESS_TOKEN`.
+2. En la pestaña **Webhooks** de la misma app, copiá la **Clave secreta**
+   a `MERCADOPAGO_WEBHOOK_SECRET`. Sin este secreto, el webhook igual
+   funciona pero sin validar que la notificación venga realmente de
+   Mercado Pago (nunca lo dejes vacío en producción).
+3. Mercado Pago necesita poder llamar a tu `notification_url`
+   (`NEXT_PUBLIC_SITE_URL/api/webhooks/mercadopago`) desde internet, así
+   que en local hace falta un túnel (`ngrok http 3000`, por ejemplo) y
+   setear `NEXT_PUBLIC_SITE_URL` a esa URL pública mientras probás pagos.
+4. Para pagar de prueba, usá las tarjetas de test de Mercado Pago
+   (https://www.mercadopago.com.ar/developers/es/docs/checkout-pro/additional-content/your-integrations/test/cards)
+   y un usuario comprador de prueba (se crea en la sección **Usuarios de
+   prueba** del panel de developers).
+5. Cuando la tienda esté lista para vender de verdad, solo hay que
+   reemplazar `MERCADOPAGO_ACCESS_TOKEN`/`MERCADOPAGO_WEBHOOK_SECRET` por
+   las credenciales de **producción** de la cuenta real de Epic Shine; el
+   código no cambia.
+
+Si estas variables no están configuradas, el checkout sigue funcionando
+con efectivo/transferencia; solo la opción de Mercado Pago devuelve un
+error explícito en vez de romper el resto de la compra.
+
 ## Estructura del proyecto
 
 ```
@@ -120,9 +147,8 @@ src/app/api/                 Rutas de API (búsqueda de productos, venta POS, au
 
 ## Próximos pasos (ver plan de etapas completo en la conversación)
 
-- Ficha de producto completa, carrito persistente y checkout online.
-- Integración de pagos con Mercado Pago (Checkout Pro + webhooks).
-- Cotizador de envío (Correo Argentino / Andreani) y retiro en el local.
+- Cotizador de envío real (Correo Argentino / Andreani); hoy el costo de
+  envío es una tarifa fija provisoria.
 - Reportes (ventas, productos más vendidos, stock valorizado) y cierre de
   caja diario del POS.
 - Gestión de usuarios/roles desde el panel, gestión de proveedores/compras.
