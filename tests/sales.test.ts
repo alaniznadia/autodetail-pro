@@ -11,6 +11,8 @@ import { InsufficientStockError } from "@/lib/errors";
 describe("createPosSale", () => {
   let locationId: string;
   let userId: string;
+  let categoryId: string;
+  let productId: string;
   let variantId: string;
 
   beforeAll(async () => {
@@ -27,6 +29,7 @@ describe("createPosSale", () => {
     const category = await prisma.category.create({
       data: { name: "Test", slug: `test-${Date.now()}` },
     });
+    categoryId = category.id;
 
     const product = await prisma.product.create({
       data: {
@@ -35,6 +38,7 @@ describe("createPosSale", () => {
         categoryId: category.id,
       },
     });
+    productId = product.id;
 
     const variant = await prisma.productVariant.create({
       data: {
@@ -52,6 +56,23 @@ describe("createPosSale", () => {
   });
 
   afterAll(async () => {
+    // Los tests escriben contra la base real (no hay mocks para la
+    // transacción atómica de stock), así que hay que deshacer todo lo que
+    // se creó: si no, cada corrida deja pedidos/usuarios/sucursales de
+    // prueba acumulándose en la base para siempre.
+    const orders = await prisma.order.findMany({ where: { locationId }, select: { id: true } });
+    const orderIds = orders.map((o) => o.id);
+    await prisma.stockMovement.deleteMany({ where: { locationId } });
+    await prisma.payment.deleteMany({ where: { orderId: { in: orderIds } } });
+    await prisma.orderStatusHistory.deleteMany({ where: { orderId: { in: orderIds } } });
+    await prisma.orderItem.deleteMany({ where: { orderId: { in: orderIds } } });
+    await prisma.order.deleteMany({ where: { id: { in: orderIds } } });
+    await prisma.stockItem.deleteMany({ where: { locationId } });
+    await prisma.productVariant.delete({ where: { id: variantId } });
+    await prisma.product.delete({ where: { id: productId } });
+    await prisma.category.delete({ where: { id: categoryId } });
+    await prisma.user.delete({ where: { id: userId } });
+    await prisma.location.delete({ where: { id: locationId } });
     await prisma.$disconnect();
   });
 
