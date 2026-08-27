@@ -210,8 +210,11 @@ export function ProductForm({
                 Variante {index + 1}
               </legend>
               <div>
-                <label className="block text-xs text-foreground/60">SKU</label>
+                <label htmlFor={`variant-${index}-sku`} className="block text-xs text-foreground/60">
+                  SKU
+                </label>
                 <input
+                  id={`variant-${index}-sku`}
                   required
                   value={variant.sku}
                   onChange={(e) => updateVariant(index, { sku: e.target.value })}
@@ -219,10 +222,11 @@ export function ProductForm({
                 />
               </div>
               <div>
-                <label className="block text-xs text-foreground/60">
+                <label htmlFor={`variant-${index}-name`} className="block text-xs text-foreground/60">
                   Nombre (ej: 500 ml)
                 </label>
                 <input
+                  id={`variant-${index}-name`}
                   required
                   value={variant.name}
                   onChange={(e) => updateVariant(index, { name: e.target.value })}
@@ -230,16 +234,22 @@ export function ProductForm({
                 />
               </div>
               <div>
-                <label className="block text-xs text-foreground/60">Código de barras</label>
+                <label htmlFor={`variant-${index}-barcode`} className="block text-xs text-foreground/60">
+                  Código de barras
+                </label>
                 <input
+                  id={`variant-${index}-barcode`}
                   value={variant.barcode}
                   onChange={(e) => updateVariant(index, { barcode: e.target.value })}
                   className="mt-1 w-full rounded border border-border bg-background px-2 py-1.5"
                 />
               </div>
               <div>
-                <label className="block text-xs text-foreground/60">Precio de venta</label>
+                <label htmlFor={`variant-${index}-price`} className="block text-xs text-foreground/60">
+                  Precio de venta
+                </label>
                 <input
+                  id={`variant-${index}-price`}
                   required
                   type="number"
                   min="0"
@@ -250,8 +260,11 @@ export function ProductForm({
                 />
               </div>
               <div>
-                <label className="block text-xs text-foreground/60">Costo</label>
+                <label htmlFor={`variant-${index}-cost`} className="block text-xs text-foreground/60">
+                  Costo
+                </label>
                 <input
+                  id={`variant-${index}-cost`}
                   type="number"
                   min="0"
                   step="0.01"
@@ -261,10 +274,11 @@ export function ProductForm({
                 />
               </div>
               <div>
-                <label className="block text-xs text-foreground/60">
+                <label htmlFor={`variant-${index}-stock`} className="block text-xs text-foreground/60">
                   Stock {isEdit ? "(sucursal principal)" : "inicial"}
                 </label>
                 <input
+                  id={`variant-${index}-stock`}
                   required
                   type="number"
                   min="0"

@@ -134,6 +134,23 @@ Mercado Pago). Es otro placeholder honesto: usa SMTP genérico
    nuevo evento (por ejemplo, avisar al admin de un pedido nuevo) es
    agregar una función ahí y llamarla donde corresponda.
 
+## Accesibilidad
+
+Además del linting estático de JSX (`eslint-plugin-jsx-a11y`, ya incluido
+en la config de Next y corriendo en `npm run lint`), se auditaron todas
+las páginas públicas, del panel admin y del POS con axe-core (motor de
+reglas WCAG 2.1 A/AA) contra una instancia real corriendo con datos de
+prueba — no solo una revisión de código. Encontró y se corrigieron 3
+problemas reales: inputs de variantes de producto sin `<label>` asociado
+(`/admin/productos/nuevo`), y dos `<select>` sin nombre accesible (cambiar
+estado de un pedido en `/admin/pedidos`, cambiar rol de un usuario en
+`/admin/usuarios`). Además ya existían de antes: skip link al contenido
+principal, foco visible en toda la navegación por teclado, y texto
+alternativo obligatorio en las imágenes de producto subidas desde el
+admin. Para volver a correr una auditoría similar, instalar `axe-core`
+como dependencia de desarrollo e inyectarlo con Playwright contra cada
+ruta (ver historial de commits de esta sección para el script usado).
+
 ## Estructura del proyecto
 
 ```

@@ -44,6 +44,7 @@ export function OrderStatusSelect({ orderId, status }: { orderId: string; status
 
   return (
     <select
+      aria-label="Estado del pedido"
       value={current}
       disabled={saving}
       onChange={(e) => handleChange(e.target.value)}

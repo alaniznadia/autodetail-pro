@@ -166,6 +166,7 @@ export function UsersPanel({ users, currentUserId }: { users: User[]; currentUse
                 <td className="p-3">{u.email}</td>
                 <td className="p-3">
                   <select
+                    aria-label={`Rol de ${u.name}`}
                     value={u.role}
                     onChange={(e) => updateUser(u.id, { role: e.target.value })}
                     className="rounded border border-border bg-background px-2 py-1"
