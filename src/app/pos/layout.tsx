@@ -6,7 +6,7 @@ export default async function PosLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen">
-      <header className="flex items-center justify-between border-b border-border p-4">
+      <header className="print:hidden flex items-center justify-between border-b border-border p-4">
         <div className="flex items-center gap-6">
           <p className="font-display text-lg font-bold">Epic Shine POS</p>
           <nav aria-label="Navegación del POS" className="flex gap-4">
@@ -35,7 +35,7 @@ export default async function PosLayout({ children }: { children: React.ReactNod
           </form>
         </div>
       </header>
-      <main className="p-4">{children}</main>
+      <main className="p-4 print:p-0">{children}</main>
     </div>
   );
 }

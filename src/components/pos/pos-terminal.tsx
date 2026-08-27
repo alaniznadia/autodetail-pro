@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import Link from "next/link";
 
 type SearchResult = {
   id: string;
@@ -26,6 +27,7 @@ export function PosTerminal({ locationId }: { locationId: string }) {
   const [paymentMethod, setPaymentMethod] =
     useState<(typeof PAYMENT_METHODS)[number]["value"]>("CASH");
   const [status, setStatus] = useState<string | null>(null);
+  const [lastSaleId, setLastSaleId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -114,6 +116,7 @@ export function PosTerminal({ locationId }: { locationId: string }) {
     if (cart.length === 0) return;
     setSubmitting(true);
     setStatus(null);
+    setLastSaleId(null);
 
     const res = await fetch("/api/pos/sale", {
       method: "POST",
@@ -139,11 +142,14 @@ export function PosTerminal({ locationId }: { locationId: string }) {
       return;
     }
 
+    const { order } = await res.json();
+
     setCart([]);
     setCouponCode("");
     setAppliedCoupon(null);
     setIdempotencyKey(crypto.randomUUID());
     setStatus("Venta registrada correctamente.");
+    setLastSaleId(order.id);
   }
 
   return (
@@ -270,6 +276,18 @@ export function PosTerminal({ locationId }: { locationId: string }) {
         {status && (
           <p role="status" className="mt-4 text-sm">
             {status}
+            {lastSaleId && (
+              <>
+                {" "}
+                <Link
+                  href={`/pos/venta/${lastSaleId}/ticket`}
+                  target="_blank"
+                  className="underline underline-offset-4"
+                >
+                  Imprimir ticket
+                </Link>
+              </>
+            )}
           </p>
         )}
 
