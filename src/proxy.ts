@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 
 const ADMIN_ONLY_PREFIXES = ["/admin", "/api/admin"];
-const STAFF_PREFIXES = ["/admin", "/api/admin", "/pos"]; // ADMIN o EMPLOYEE
+const STAFF_PREFIXES = ["/admin", "/api/admin", "/pos", "/api/pos"]; // ADMIN o EMPLOYEE
 
 export default auth((req) => {
   const { pathname } = req.nextUrl;
@@ -35,5 +35,5 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*", "/pos/:path*"],
+  matcher: ["/admin/:path*", "/api/admin/:path*", "/pos/:path*", "/api/pos/:path*"],
 };
