@@ -7,6 +7,7 @@ import {
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { mapMercadoPagoStatus } from "@/lib/mercadopago";
+import { RESTOCK_STATUSES, restockOrderItems } from "@/lib/stock-returns";
 
 /**
  * Recibe las notificaciones de pago de Mercado Pago. Valida la firma
@@ -90,6 +91,10 @@ export async function POST(req: NextRequest) {
             note: `Actualizado por webhook de Mercado Pago (pago ${mpPayment.status})`,
           },
         });
+
+        if (RESTOCK_STATUSES.has(orderStatus) && !RESTOCK_STATUSES.has(order.status)) {
+          await restockOrderItems(tx, orderId, order.locationId);
+        }
       }
     }
   });
