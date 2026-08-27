@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { ProductForm } from "@/components/admin/product-form";
+import { ProductImagesManager } from "@/components/admin/product-images-manager";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +15,10 @@ export default async function EditProductPage({
   const [product, categories] = await Promise.all([
     prisma.product.findUnique({
       where: { id },
-      include: { variants: { include: { stockItems: true } } },
+      include: {
+        variants: { include: { stockItems: true } },
+        images: { orderBy: { position: "asc" } },
+      },
     }),
     prisma.category.findMany({ orderBy: { name: "asc" } }),
   ]);
@@ -43,6 +47,7 @@ export default async function EditProductPage({
     <div>
       <h1 className="font-display text-2xl font-bold">Editar producto</h1>
       <ProductForm categories={categories} initial={initial} />
+      <ProductImagesManager productId={product.id} images={product.images} />
     </div>
   );
 }

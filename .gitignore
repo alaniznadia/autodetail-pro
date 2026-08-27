@@ -40,3 +40,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# imágenes de producto subidas desde el admin (almacenamiento local de dev,
+# ver src/lib/product-images.ts)
+/public/uploads/
