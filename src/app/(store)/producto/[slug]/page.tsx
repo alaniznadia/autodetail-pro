@@ -1,7 +1,10 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
+import { hasVerifiedPurchase } from "@/lib/reviews";
 import { AddToCart } from "@/components/store/add-to-cart";
+import { ReviewForm } from "@/components/store/review-form";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +25,10 @@ async function getProduct(slug: string) {
       category: true,
       images: { orderBy: { position: "asc" } },
       variants: { where: { active: true }, include: { stockItems: true } },
+      reviews: {
+        include: { customer: { select: { name: true } } },
+        orderBy: { createdAt: "desc" },
+      },
     },
   });
 }
@@ -71,6 +78,20 @@ export default async function ProductPage({
   const totalStock = variants.reduce((sum, v) => sum + v.stock, 0);
   const prices = variants.map((v) => Number(v.price));
 
+  const reviewCount = product.reviews.length;
+  const averageRating =
+    reviewCount > 0
+      ? product.reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
+      : null;
+
+  const session = await auth();
+  const canReview = session?.user
+    ? await hasVerifiedPurchase(session.user.id, product.id)
+    : false;
+  const myReview = session?.user
+    ? product.reviews.find((r) => r.customerId === session.user.id)
+    : undefined;
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -78,6 +99,13 @@ export default async function ProductPage({
     description: product.description ?? undefined,
     brand: product.brand ? { "@type": "Brand", name: product.brand } : undefined,
     image: product.images.map((img) => toAbsoluteImageUrl(img.url)),
+    aggregateRating: averageRating
+      ? {
+          "@type": "AggregateRating",
+          ratingValue: Number(averageRating.toFixed(1)),
+          reviewCount,
+        }
+      : undefined,
     offers:
       prices.length > 0
         ? {
@@ -117,6 +145,16 @@ export default async function ProductPage({
 
         <div>
           <h1 className="font-display text-3xl font-bold">{product.name}</h1>
+          {averageRating && (
+            <p className="mt-1 text-sm text-foreground/70">
+              <span aria-hidden="true">{"★".repeat(Math.round(averageRating))}</span>
+              <span className="sr-only">
+                {averageRating.toFixed(1)} de 5 estrellas
+              </span>{" "}
+              {averageRating.toFixed(1)} ({reviewCount}{" "}
+              {reviewCount === 1 ? "reseña" : "reseñas"})
+            </p>
+          )}
           {product.brand && <p className="mt-1 text-foreground/60">{product.brand}</p>}
           {product.description && (
             <p className="mt-4 text-foreground/80">{product.description}</p>
@@ -133,6 +171,39 @@ export default async function ProductPage({
             <p className="mt-6 text-foreground/60">Este producto no tiene stock cargado.</p>
           )}
         </div>
+      </div>
+
+      <div className="mt-12 max-w-2xl">
+        <h2 className="font-display text-lg">Reseñas</h2>
+
+        {canReview && (
+          <ReviewForm
+            productId={product.id}
+            initial={myReview ? { rating: myReview.rating, comment: myReview.comment } : undefined}
+          />
+        )}
+
+        {product.reviews.length === 0 ? (
+          <p className="mt-4 text-sm text-foreground/60">Todavía no hay reseñas.</p>
+        ) : (
+          <ul className="mt-4 flex flex-col gap-4">
+            {product.reviews.map((review) => (
+              <li key={review.id} className="rounded border border-border p-4 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="font-display">{review.customer.name ?? "Cliente"}</span>
+                  <span aria-label={`${review.rating} de 5 estrellas`} className="text-accent">
+                    {"★".repeat(review.rating)}
+                    <span className="text-foreground/30">{"★".repeat(5 - review.rating)}</span>
+                  </span>
+                </div>
+                {review.comment && <p className="mt-2 text-foreground/80">{review.comment}</p>}
+                <p className="mt-2 text-xs text-foreground/50">
+                  {review.createdAt.toLocaleDateString("es-AR")}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );

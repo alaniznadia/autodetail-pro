@@ -90,6 +90,7 @@ model User {
   stockMovements StockMovement[]       @relation("StockMovementUser")
   cashSessions   CashRegisterSession[]
   purchaseOrders PurchaseOrder[]
+  reviews        Review[]
 
   @@index([role])
 }
@@ -194,6 +195,7 @@ model Product {
   category    Category         @relation(fields: [categoryId], references: [id])
   images      ProductImage[]
   variants    ProductVariant[]
+  reviews     Review[]
   active      Boolean          @default(true) // publicado en la tienda o no
   metaTitle   String? // SEO
   metaDesc    String? // SEO
@@ -201,6 +203,25 @@ model Product {
   updatedAt   DateTime         @updatedAt
 
   @@index([categoryId])
+}
+
+// Reseñas de compra verificada: solo puede reseñar un producto quien
+// tenga un pedido no cancelado/pendiente/reembolsado que lo incluya (ver
+// lib/reviews.ts). Una reseña por cliente y producto (se edita, no se
+// duplica).
+model Review {
+  id         String   @id @default(cuid())
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  customerId String
+  customer   User     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  rating     Int // 1 a 5
+  comment    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([productId, customerId])
+  @@index([productId])
 }
 
 model ProductImage {
