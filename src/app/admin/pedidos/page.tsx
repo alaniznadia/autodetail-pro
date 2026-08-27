@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { OrderStatusSelect } from "@/components/admin/order-status-select";
 
@@ -28,7 +29,11 @@ export default async function AdminOrdersPage() {
           <tbody>
             {orders.map((o) => (
               <tr key={o.id} className="border-b border-border last:border-0">
-                <td className="p-3">{o.orderNumber}</td>
+                <td className="p-3">
+                  <Link href={`/admin/pedidos/${o.id}`} className="underline underline-offset-4">
+                    {o.orderNumber}
+                  </Link>
+                </td>
                 <td className="p-3">{o.channel === "ONLINE" ? "Online" : "Local"}</td>
                 <td className="p-3">{o.customer?.name ?? o.guestName ?? "—"}</td>
                 <td className="p-3">${o.total.toString()}</td>

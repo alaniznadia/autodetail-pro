@@ -20,7 +20,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
-      <aside className="border-b border-border p-4 md:w-56 md:border-b-0 md:border-r">
+      <aside className="print:hidden border-b border-border p-4 md:w-56 md:border-b-0 md:border-r">
         <p className="font-display text-lg font-bold">Epic Shine Admin</p>
         <nav aria-label="Navegación del panel" className="mt-6 flex flex-row flex-wrap gap-3 md:flex-col">
           {NAV.map((item) => (
@@ -47,7 +47,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </form>
         </div>
       </aside>
-      <main className="flex-1 p-6">{children}</main>
+      <main className="flex-1 p-6 print:p-0">{children}</main>
     </div>
   );
 }
