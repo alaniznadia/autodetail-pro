@@ -179,17 +179,28 @@ src/app/api/                 Rutas de API (búsqueda de productos, venta POS, au
 
 ## Deploy
 
-1. **Base de datos**: crear un proyecto en Supabase o Railway y copiar la
-   `DATABASE_URL`.
-2. **Vercel**: importar el repo, configurar las mismas variables de entorno
-   que en `.env.example` (`DATABASE_URL`, `AUTH_SECRET`,
-   `NEXT_PUBLIC_SITE_URL`, credenciales de Mercado Pago cuando estén
-   listas).
-3. Antes del primer deploy (o en un paso de build), correr las migraciones
-   contra la base de producción:
-   ```bash
-   npx prisma migrate deploy
-   ```
+1. **Base de datos**: crear un proyecto en Supabase o Railway.
+   - En **Supabase**: `DATABASE_URL` es la cadena del pooler en modo
+     transacción (puerto 6543, con `?pgbouncer=true`) y `DIRECT_URL` es la
+     misma pero al puerto 5432 (conexión directa, sin pooler) — Supabase
+     las muestra juntas en el botón **Connect** del proyecto. Las
+     migraciones necesitan `DIRECT_URL` porque el modo transacción del
+     pooler no soporta todo lo que usa el motor de migraciones de Prisma.
+   - En **Railway** (o Postgres propio, sin pooler): `DIRECT_URL` es
+     igual a `DATABASE_URL`.
+   - **Ojo con la contraseña**: si tiene caracteres especiales (`%`, `&`,
+     `#`, etc.), hay que codificarlos con `encodeURIComponent` antes de
+     pegarlos en la URL — si no, la conexión falla con "URI malformed" o
+     un error de conexión poco claro. Por ejemplo, una contraseña
+     `%3Z&9_Tn` se escribe en la URL como `%253Z%269_Tn`.
+2. **Vercel**: importar el repo, configurar las variables de entorno de
+   `.env.example` (`DATABASE_URL`, `DIRECT_URL`, `AUTH_SECRET`,
+   `NEXT_PUBLIC_SITE_URL`, credenciales de Mercado Pago y SMTP cuando
+   estén listas).
+3. Las migraciones corren solas en cada deploy: `package.json` tiene un
+   script `vercel-build` (`prisma migrate deploy && next build`) que
+   Vercel usa automáticamente en vez de `build` cuando existe. No hace
+   falta correrlas a mano salvo que se despliegue en otra plataforma.
 4. Cargar el usuario admin de producción con `npm run db:seed` (con las
    variables `SEED_ADMIN_EMAIL`/`SEED_ADMIN_PASSWORD` de producción), o
    creándolo manualmente desde Prisma Studio.
