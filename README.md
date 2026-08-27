@@ -116,6 +116,24 @@ Si estas variables no están configuradas, el checkout sigue funcionando
 con efectivo/transferencia; solo la opción de Mercado Pago devuelve un
 error explícito en vez de romper el resto de la compra.
 
+## Notificaciones por email
+
+El cliente recibe un email de confirmación al crear un pedido online, y
+otro cada vez que su estado cambia (pagado, enviado, cancelado, etc. —
+tanto desde `/admin/pedidos` como automáticamente vía el webhook de
+Mercado Pago). Es otro placeholder honesto: usa SMTP genérico
+(`src/lib/email.ts`) para no atarse a un proveedor en particular.
+
+1. Completá `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER` y `SMTP_PASS` en `.env`
+   con cualquier proveedor SMTP (Gmail con contraseña de aplicación,
+   SendGrid, Mailgun, el relay SMTP de Resend, etc.).
+2. Sin `SMTP_HOST` configurado, el envío se salta con un aviso en consola
+   en vez de romper el checkout o el cambio de estado que lo dispara —
+   podés probar toda la tienda sin tener credenciales de email todavía.
+3. Las plantillas están en `src/lib/order-notifications.ts`; agregar un
+   nuevo evento (por ejemplo, avisar al admin de un pedido nuevo) es
+   agregar una función ahí y llamarla donde corresponda.
+
 ## Estructura del proyecto
 
 ```

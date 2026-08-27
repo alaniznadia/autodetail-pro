@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { createOnlineOrder } from "@/lib/orders";
 import { InsufficientStockError } from "@/lib/errors";
 import { InvalidCouponError } from "@/lib/coupons";
+import { notifyOrderCreated } from "@/lib/order-notifications";
 
 const orderSchema = z.object({
   fulfillmentMethod: z.enum(["SHIPPING", "STORE_PICKUP"]),
@@ -73,6 +74,7 @@ export async function POST(req: NextRequest) {
       idempotencyKey: data.idempotencyKey,
       shippingAddress: data.shippingAddress,
     });
+    await notifyOrderCreated(order.id);
     return NextResponse.json({ order }, { status: 201 });
   } catch (err) {
     if (err instanceof InsufficientStockError) {

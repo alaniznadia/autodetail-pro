@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { RESTOCK_STATUSES, restockOrderItems } from "@/lib/stock-returns";
+import { notifyOrderStatusChanged } from "@/lib/order-notifications";
 
 const schema = z.object({
   status: z.enum([
@@ -51,6 +52,8 @@ export async function PATCH(
 
     return updated;
   });
+
+  await notifyOrderStatusChanged(order.id);
 
   return NextResponse.json({ order });
 }

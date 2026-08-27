@@ -8,6 +8,7 @@ import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { mapMercadoPagoStatus } from "@/lib/mercadopago";
 import { RESTOCK_STATUSES, restockOrderItems } from "@/lib/stock-returns";
+import { notifyOrderStatusChanged } from "@/lib/order-notifications";
 
 /**
  * Recibe las notificaciones de pago de Mercado Pago. Valida la firma
@@ -65,11 +66,11 @@ export async function POST(req: NextRequest) {
 
   const { paymentStatus, orderStatus } = mapMercadoPagoStatus(mpPayment.status ?? "pending");
 
-  await prisma.$transaction(async (tx) => {
+  const statusChanged = await prisma.$transaction(async (tx) => {
     const payment = await tx.payment.findFirst({
       where: { orderId, method: "MERCADO_PAGO" },
     });
-    if (!payment) return;
+    if (!payment) return false;
 
     await tx.payment.update({
       where: { id: payment.id },
@@ -95,9 +96,13 @@ export async function POST(req: NextRequest) {
         if (RESTOCK_STATUSES.has(orderStatus) && !RESTOCK_STATUSES.has(order.status)) {
           await restockOrderItems(tx, orderId, order.locationId);
         }
+        return true;
       }
     }
+    return false;
   });
+
+  if (statusChanged) await notifyOrderStatusChanged(orderId);
 
   return NextResponse.json({ received: true });
 }
