@@ -1,5 +1,8 @@
-export const metadata = {
-  title: "Cambios y devoluciones — Epic Shine",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Cambios y devoluciones",
+  alternates: { canonical: "/devoluciones" },
 };
 
 export default function ReturnsPolicyPage() {

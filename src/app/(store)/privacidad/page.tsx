@@ -1,5 +1,8 @@
-export const metadata = {
-  title: "Política de privacidad — Epic Shine",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Política de privacidad",
+  alternates: { canonical: "/privacidad" },
 };
 
 export default function PrivacyPolicyPage() {

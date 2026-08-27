@@ -5,6 +5,16 @@ import { AddToCart } from "@/components/store/add-to-cart";
 
 export const dynamic = "force-dynamic";
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
+// Los datos de ejemplo (seed) usan imágenes inline (data: URI) en vez de
+// archivos subidos; a diferencia de una ruta relativa como
+// /uploads/products/x.png, esas ya son autocontenidas y no hay que
+// anteponerles la URL del sitio.
+function toAbsoluteImageUrl(url: string) {
+  return url.startsWith("/") ? `${SITE_URL}${url}` : url;
+}
+
 async function getProduct(slug: string) {
   return prisma.product.findUnique({
     where: { slug, active: true },
@@ -25,9 +35,20 @@ export async function generateMetadata({
   const product = await getProduct(slug);
   if (!product) return {};
 
+  const title = product.metaTitle ?? product.name;
+  const description = product.metaDesc ?? product.description ?? undefined;
+  const image = product.images[0];
+
   return {
-    title: product.metaTitle ?? product.name,
-    description: product.metaDesc ?? product.description ?? undefined,
+    title,
+    description,
+    alternates: { canonical: `/producto/${product.slug}` },
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      images: image ? [{ url: image.url, alt: image.altText }] : undefined,
+    },
   };
 }
 
@@ -47,8 +68,37 @@ export default async function ProductPage({
     stock: v.stockItems.reduce((sum, s) => sum + s.quantity, 0),
   }));
 
+  const totalStock = variants.reduce((sum, v) => sum + v.stock, 0);
+  const prices = variants.map((v) => Number(v.price));
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description ?? undefined,
+    brand: product.brand ? { "@type": "Brand", name: product.brand } : undefined,
+    image: product.images.map((img) => toAbsoluteImageUrl(img.url)),
+    offers:
+      prices.length > 0
+        ? {
+            "@type": "AggregateOffer",
+            priceCurrency: "ARS",
+            lowPrice: Math.min(...prices),
+            highPrice: Math.max(...prices),
+            offerCount: prices.length,
+            availability:
+              totalStock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+            url: `${SITE_URL}/producto/${product.slug}`,
+          }
+        : undefined,
+  };
+
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <nav aria-label="Categoría" className="text-sm text-foreground/60">
         {product.category.name}
       </nav>

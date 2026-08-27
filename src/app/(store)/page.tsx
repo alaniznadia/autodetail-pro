@@ -1,9 +1,14 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 
 // El stock y el catálogo cambian en tiempo real (ventas online + POS),
 // así que esta página no se debe pre-renderizar como estática.
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 export default async function HomePage() {
   const categories = await prisma.category.findMany({

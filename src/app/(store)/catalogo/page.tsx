@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Catálogo",
   description: "Todos los productos de detailing de Epic Shine.",
+  alternates: { canonical: "/catalogo" },
 };
 
 export default async function CatalogPage({

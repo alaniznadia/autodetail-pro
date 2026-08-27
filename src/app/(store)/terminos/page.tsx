@@ -1,5 +1,8 @@
-export const metadata = {
-  title: "Términos y condiciones — Epic Shine",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Términos y condiciones",
+  alternates: { canonical: "/terminos" },
 };
 
 export default function TermsPage() {
