@@ -151,6 +151,16 @@ admin. Para volver a correr una auditoría similar, instalar `axe-core`
 como dependencia de desarrollo e inyectarlo con Playwright contra cada
 ruta (ver historial de commits de esta sección para el script usado).
 
+## CI
+
+`.github/workflows/ci.yml` corre en cada push a `main` y en cada pull
+request: levanta un Postgres de servicio, aplica las migraciones
+(`prisma migrate deploy`) y corre lint, build y la suite de tests contra
+esa base real — el mismo Postgres real que usa el resto del proyecto,
+no mocks. Verificado localmente reproduciendo los mismos pasos contra
+una base recién creada (sin datos) antes de confiar en que el workflow
+funciona en GitHub.
+
 ## Estructura del proyecto
 
 ```
