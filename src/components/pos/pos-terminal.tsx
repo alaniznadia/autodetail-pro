@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
+import { fetchWithRetry } from "@/lib/fetch-retry";
 
 type SearchResult = {
   id: string;
@@ -118,17 +119,31 @@ export function PosTerminal({ locationId }: { locationId: string }) {
     setStatus(null);
     setLastSaleId(null);
 
-    const res = await fetch("/api/pos/sale", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        locationId,
-        paymentMethod,
-        couponCode: appliedCoupon?.code,
-        idempotencyKey,
-        items: cart.map((l) => ({ variantId: l.id, quantity: l.quantity })),
-      }),
-    });
+    // La idempotencyKey no cambia hasta que la venta se confirme, así que
+    // reintentar (automático de fetchWithRetry, o volviendo a apretar el
+    // botón después de un error) nunca cobra dos veces la misma venta.
+    let res: Response;
+    try {
+      res = await fetchWithRetry("/api/pos/sale", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          locationId,
+          paymentMethod,
+          couponCode: appliedCoupon?.code,
+          idempotencyKey,
+          items: cart.map((l) => ({ variantId: l.id, quantity: l.quantity })),
+        }),
+      });
+    } catch (err) {
+      setSubmitting(false);
+      setStatus(
+        err instanceof Error
+          ? err.message
+          : "No se pudo conectar con el servidor. Revisá la conexión e intentá de nuevo."
+      );
+      return;
+    }
 
     setSubmitting(false);
 

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/components/store/cart-context";
+import { fetchWithRetry } from "@/lib/fetch-retry";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -138,25 +139,40 @@ export default function CheckoutPage() {
     setSubmitting(true);
     setError(null);
 
-    const res = await fetch("/api/orders", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        fulfillmentMethod,
-        paymentMethod,
-        guestName,
-        guestEmail,
-        guestPhone,
-        shippingAddress: fulfillmentMethod === "SHIPPING" ? address : undefined,
-        couponCode: appliedCoupon?.code,
-        idempotencyKey,
-        items: items.map((i) => ({ variantId: i.variantId, quantity: i.quantity })),
-      }),
-    });
-
-    setSubmitting(false);
+    // La clave de idempotencia no cambia entre reintentos (ni los
+    // automáticos de fetchWithRetry ni uno manual del usuario después de
+    // un error): si el pedido ya se había creado en un intento anterior
+    // que falló solo al volver la respuesta, esto devuelve ese mismo
+    // pedido en vez de duplicar la compra.
+    let res: Response;
+    try {
+      res = await fetchWithRetry("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fulfillmentMethod,
+          paymentMethod,
+          guestName,
+          guestEmail,
+          guestPhone,
+          shippingAddress: fulfillmentMethod === "SHIPPING" ? address : undefined,
+          couponCode: appliedCoupon?.code,
+          idempotencyKey,
+          items: items.map((i) => ({ variantId: i.variantId, quantity: i.quantity })),
+        }),
+      });
+    } catch (err) {
+      setSubmitting(false);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "No se pudo conectar con el servidor. Revisá tu conexión e intentá de nuevo."
+      );
+      return;
+    }
 
     if (!res.ok) {
+      setSubmitting(false);
       const data = await res.json().catch(() => ({}));
       setError(typeof data.error === "string" ? data.error : "No se pudo crear el pedido.");
       return;
@@ -166,17 +182,29 @@ export default function CheckoutPage() {
     clear();
 
     if (paymentMethod !== "MERCADO_PAGO") {
+      setSubmitting(false);
       router.push(`/pedido/${order.id}`);
       return;
     }
 
-    const mpRes = await fetch("/api/checkout/mercadopago", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ orderId: order.id }),
-    });
+    let mpRes: Response;
+    try {
+      mpRes = await fetchWithRetry("/api/checkout/mercadopago", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: order.id }),
+      });
+    } catch {
+      setSubmitting(false);
+      setError(
+        `No se pudo conectar con Mercado Pago. Tu pedido #${order.orderNumber} quedó registrado; podés reintentar el pago.`
+      );
+      setFailedOrderId(order.id);
+      return;
+    }
 
     if (!mpRes.ok) {
+      setSubmitting(false);
       const data = await mpRes.json().catch(() => ({}));
       setError(
         typeof data.error === "string"
