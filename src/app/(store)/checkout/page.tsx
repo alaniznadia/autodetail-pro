@@ -33,6 +33,12 @@ export default function CheckoutPage() {
   const [failedOrderId, setFailedOrderId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  // Se genera una sola vez por visita al checkout: si el usuario reintenta
+  // (doble clic, o el fetch falló pero el pedido ya se había creado en el
+  // servidor), el backend detecta la misma clave y devuelve el pedido
+  // existente en vez de duplicar la compra.
+  const [idempotencyKey] = useState(() => crypto.randomUUID());
+
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(
     null
@@ -143,6 +149,7 @@ export default function CheckoutPage() {
         guestPhone,
         shippingAddress: fulfillmentMethod === "SHIPPING" ? address : undefined,
         couponCode: appliedCoupon?.code,
+        idempotencyKey,
         items: items.map((i) => ({ variantId: i.variantId, quantity: i.quantity })),
       }),
     });

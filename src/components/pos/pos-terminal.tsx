@@ -29,6 +29,11 @@ export function PosTerminal({ locationId }: { locationId: string }) {
   const [submitting, setSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Se regenera después de cada venta confirmada; mientras dure la venta
+  // actual se mantiene fija, así un reintento (doble clic, red lenta) no
+  // termina cobrando dos veces la misma venta.
+  const [idempotencyKey, setIdempotencyKey] = useState(() => crypto.randomUUID());
+
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(
     null
@@ -117,6 +122,7 @@ export function PosTerminal({ locationId }: { locationId: string }) {
         locationId,
         paymentMethod,
         couponCode: appliedCoupon?.code,
+        idempotencyKey,
         items: cart.map((l) => ({ variantId: l.id, quantity: l.quantity })),
       }),
     });
@@ -136,6 +142,7 @@ export function PosTerminal({ locationId }: { locationId: string }) {
     setCart([]);
     setCouponCode("");
     setAppliedCoupon(null);
+    setIdempotencyKey(crypto.randomUUID());
     setStatus("Venta registrada correctamente.");
   }
 

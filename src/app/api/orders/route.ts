@@ -13,6 +13,7 @@ const orderSchema = z.object({
   guestEmail: z.string().email(),
   guestPhone: z.string().min(6),
   couponCode: z.string().min(1).optional(),
+  idempotencyKey: z.string().min(1).max(100).optional(),
   shippingAddress: z
     .object({
       street: z.string().min(1),
@@ -69,6 +70,7 @@ export async function POST(req: NextRequest) {
       guestEmail: data.guestEmail,
       guestPhone: data.guestPhone,
       couponCode: data.couponCode,
+      idempotencyKey: data.idempotencyKey,
       shippingAddress: data.shippingAddress,
     });
     return NextResponse.json({ order }, { status: 201 });

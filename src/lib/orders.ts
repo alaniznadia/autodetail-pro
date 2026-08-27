@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { decrementStock, priceOrderItems, type SaleItemInput } from "@/lib/stock";
 import { calculateShippingCost } from "@/lib/shipping";
 import { claimCoupon } from "@/lib/coupons";
+import { withIdempotency } from "@/lib/idempotency";
 
 export type CreateOnlineOrderInput = {
   locationId: string;
@@ -14,6 +15,7 @@ export type CreateOnlineOrderInput = {
   guestEmail: string;
   guestPhone: string;
   couponCode?: string;
+  idempotencyKey?: string;
   shippingAddress?: {
     street: string;
     number: string;
@@ -44,6 +46,23 @@ export async function createOnlineOrder(input: CreateOnlineOrderInput) {
       ? await calculateShippingCost(input.items)
       : new Prisma.Decimal(0);
 
+  return withIdempotency(
+    input.idempotencyKey,
+    () =>
+      input.idempotencyKey
+        ? prisma.order.findUnique({
+            where: { idempotencyKey: input.idempotencyKey },
+            include: { items: true },
+          })
+        : Promise.resolve(null),
+    () => createOnlineOrderTransaction(input, shippingCost)
+  );
+}
+
+async function createOnlineOrderTransaction(
+  input: CreateOnlineOrderInput,
+  shippingCost: Prisma.Decimal
+) {
   return prisma.$transaction(async (tx) => {
     const { subtotal, orderItemsData } = await priceOrderItems(tx, input.items);
     await decrementStock(tx, input.locationId, input.items);
@@ -84,6 +103,7 @@ export async function createOnlineOrder(input: CreateOnlineOrderInput) {
         guestPhone: input.guestPhone,
         addressId,
         couponId,
+        idempotencyKey: input.idempotencyKey,
         subtotal,
         discountTotal,
         shippingCost,

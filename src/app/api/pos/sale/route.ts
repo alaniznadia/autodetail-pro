@@ -9,6 +9,7 @@ const saleSchema = z.object({
   locationId: z.string().min(1),
   paymentMethod: z.enum(["CASH", "CARD", "MERCADO_PAGO", "TRANSFER"]),
   couponCode: z.string().min(1).optional(),
+  idempotencyKey: z.string().min(1).max(100).optional(),
   items: z
     .array(
       z.object({

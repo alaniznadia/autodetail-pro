@@ -360,6 +360,10 @@ model Order {
   shippingProvider  String? // "correo_argentino" | "andreani" | null (retiro en local)
   trackingCode      String?
   notes             String?
+  // Clave que manda el cliente (checkout online) o el POS al confirmar.
+  // Si llega dos veces la misma clave (doble clic, reintento de red),
+  // se devuelve el pedido ya creado en vez de duplicar la venta.
+  idempotencyKey    String?           @unique
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
 

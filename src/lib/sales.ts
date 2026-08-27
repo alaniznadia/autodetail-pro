@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { decrementStock, priceOrderItems, type SaleItemInput } from "@/lib/stock";
 import { claimCoupon } from "@/lib/coupons";
+import { withIdempotency } from "@/lib/idempotency";
 
 export type { SaleItemInput };
 
@@ -11,6 +12,7 @@ export type CreatePosSaleInput = {
   items: SaleItemInput[];
   paymentMethod: "CASH" | "CARD" | "MERCADO_PAGO" | "TRANSFER";
   couponCode?: string;
+  idempotencyKey?: string;
 };
 
 /**
@@ -28,6 +30,20 @@ export async function createPosSale(input: CreatePosSaleInput) {
     throw new Error("La venta no tiene productos.");
   }
 
+  return withIdempotency(
+    input.idempotencyKey,
+    () =>
+      input.idempotencyKey
+        ? prisma.order.findUnique({
+            where: { idempotencyKey: input.idempotencyKey },
+            include: { items: true },
+          })
+        : Promise.resolve(null),
+    () => createPosSaleTransaction(input)
+  );
+}
+
+async function createPosSaleTransaction(input: CreatePosSaleInput) {
   return prisma.$transaction(async (tx) => {
     const { subtotal, orderItemsData } = await priceOrderItems(tx, input.items);
     await decrementStock(tx, input.locationId, input.items);
@@ -49,6 +65,7 @@ export async function createPosSale(input: CreatePosSaleInput) {
         locationId: input.locationId,
         soldById: input.soldById,
         couponId,
+        idempotencyKey: input.idempotencyKey,
         subtotal,
         discountTotal,
         total,
