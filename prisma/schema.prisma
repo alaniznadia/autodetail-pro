@@ -1,0 +1,482 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum Role {
+  ADMIN // gestiona todo: productos, precios, usuarios, reportes
+  EMPLOYEE // vende en el local (POS), no gestiona usuarios ni reportes globales
+  CUSTOMER // cliente de la tienda online
+}
+
+enum OrderChannel {
+  ONLINE // compra desde la tienda online
+  POS // venta presencial en el local
+}
+
+enum OrderStatus {
+  PENDING // creada, esperando pago (online) o en curso (POS)
+  PAID
+  PREPARING
+  SHIPPED
+  DELIVERED
+  PICKED_UP // retirada en el local
+  CANCELLED
+  REFUNDED
+}
+
+enum FulfillmentMethod {
+  SHIPPING
+  STORE_PICKUP
+}
+
+enum PaymentMethod {
+  MERCADO_PAGO
+  CASH
+  CARD
+  TRANSFER
+}
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REFUNDED
+  CANCELLED
+}
+
+enum StockMovementType {
+  SALE_ONLINE
+  SALE_POS
+  PURCHASE_IN // ingreso por compra a proveedor
+  ADJUSTMENT // ajuste manual (rotura, conteo físico, etc.)
+  RETURN_IN // devolución de un cliente, vuelve a stock
+  RETURN_OUT // devolución a proveedor
+  TRANSFER // movimiento entre sucursales (futuro multi-sucursal)
+}
+
+// ---------------------------------------------------------------------------
+// Usuarios y autenticación
+// ---------------------------------------------------------------------------
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  passwordHash  String? // null para usuarios que solo usan OAuth (futuro)
+  role          Role      @default(CUSTOMER)
+  phone         String?
+  active        Boolean   @default(true) // permite desactivar empleados sin borrarlos
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  addresses      Address[]
+  orders         Order[]
+  stockMovements StockMovement[]       @relation("StockMovementUser")
+  cashSessions   CashRegisterSession[]
+  purchaseOrders PurchaseOrder[]
+  reviews        Review[]
+
+  @@index([role])
+}
+
+model Address {
+  id         String   @id @default(cuid())
+  userId     String? // null = dirección de un pedido hecho como invitado
+  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label      String? // "Casa", "Trabajo"
+  street     String
+  number     String
+  floorApt   String?
+  city       String
+  province   String
+  postalCode String
+  country    String   @default("Argentina")
+  phone      String?
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  orders Order[]
+
+  @@index([userId])
+}
+
+// ---------------------------------------------------------------------------
+// Sucursales (preparado para multi-sucursal a futuro; hoy se usa una sola)
+// ---------------------------------------------------------------------------
+
+model Location {
+  id        String   @id @default(cuid())
+  name      String
+  isMain    Boolean  @default(false)
+  address   String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  stockItems     StockItem[]
+  stockMovements StockMovement[]
+  orders         Order[]
+  cashSessions   CashRegisterSession[]
+  purchaseOrders PurchaseOrder[]
+}
+
+// ---------------------------------------------------------------------------
+// Apariencia de la tienda pública, editable desde /admin/apariencia.
+// Fila única (id fijo "default"), igual que Location usa "main-location".
+// Los nombres de tipografía son claves de una lista cerrada definida en
+// lib/store-theme.ts (no texto libre), así el layout puede armar la URL de
+// Google Fonts sin validar/escapar nada del lado del cliente.
+// ---------------------------------------------------------------------------
+
+model StoreTheme {
+  id              String   @id
+  headingFont     String   @default("oswald")
+  bodyFont        String   @default("inter")
+  baseFontSizePx  Int      @default(16)
+  backgroundColor String   @default("#0a0a0a")
+  textColor       String   @default("#f5f5f5")
+  accentColor     String   @default("#ffffff")
+  updatedAt       DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Catálogo: categorías, productos y variantes
+// ---------------------------------------------------------------------------
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String     @unique
+  description String?
+  imageUrl    String?
+  parentId    String?
+  parent      Category?  @relation("CategoryChildren", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryChildren")
+  products    Product[]
+  createdAt   DateTime   @default(now())
+
+  @@index([parentId])
+}
+
+model Supplier {
+  id             String          @id @default(cuid())
+  name           String
+  contactName    String?
+  phone          String?
+  email          String?
+  notes          String?
+  active         Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  purchaseOrders PurchaseOrder[]
+}
+
+model Product {
+  id          String           @id @default(cuid())
+  name        String
+  slug        String           @unique
+  description String?
+  brand       String?
+  categoryId  String
+  category    Category         @relation(fields: [categoryId], references: [id])
+  images      ProductImage[]
+  variants    ProductVariant[]
+  reviews     Review[]
+  active      Boolean          @default(true) // publicado en la tienda o no
+  metaTitle   String? // SEO
+  metaDesc    String? // SEO
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([categoryId])
+}
+
+// Reseñas de compra verificada: solo puede reseñar un producto quien
+// tenga un pedido no cancelado/pendiente/reembolsado que lo incluya (ver
+// lib/reviews.ts). Una reseña por cliente y producto (se edita, no se
+// duplica).
+model Review {
+  id         String   @id @default(cuid())
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  customerId String
+  customer   User     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  rating     Int // 1 a 5
+  comment    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([productId, customerId])
+  @@index([productId])
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  altText   String // accesibilidad: texto alternativo obligatorio
+  position  Int     @default(0)
+
+  @@index([productId])
+}
+
+// Una variante = una combinación concreta vendible (ej: "500ml", "Kit x3").
+// Si un producto no tiene variantes reales, se crea una única variante default.
+model ProductVariant {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku       String   @unique
+  barcode   String?  @unique // preparado para lector de código de barras
+  name      String // ej: "500 ml", "Kit x3 unidades"
+  price     Decimal  @db.Decimal(10, 2)
+  costPrice Decimal? @db.Decimal(10, 2) // para calcular margen/rentabilidad
+  weightGr  Int? // para cotizador de envío
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  stockItems     StockItem[]
+  orderItems     OrderItem[]
+  stockMovements StockMovement[]
+  purchaseItems  PurchaseOrderItem[]
+
+  @@index([productId])
+}
+
+// Stock por variante y por sucursal. Esta es la tabla que garantiza que
+// tienda online y POS vean siempre el mismo número: toda venta (de
+// cualquier canal) descuenta acá dentro de una transacción atómica.
+model StockItem {
+  id            String         @id @default(cuid())
+  variantId     String
+  variant       ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  locationId    String
+  location      Location       @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  quantity      Int            @default(0)
+  lowStockAlert Int            @default(5) // debajo de este número se dispara alerta
+  updatedAt     DateTime       @updatedAt
+
+  @@unique([variantId, locationId])
+  @@index([locationId])
+}
+
+// Historial de todo movimiento de stock, sin importar el origen.
+// Es la fuente de verdad para auditoría (quién, cuándo, por qué).
+model StockMovement {
+  id         String            @id @default(cuid())
+  variantId  String
+  variant    ProductVariant    @relation(fields: [variantId], references: [id])
+  locationId String
+  location   Location          @relation(fields: [locationId], references: [id])
+  type       StockMovementType
+  quantity   Int // positivo = entrada, negativo = salida
+  reason     String? // obligatorio en ajustes manuales
+  orderId    String?
+  order      Order?            @relation(fields: [orderId], references: [id])
+  userId     String? // quién generó el movimiento (null = sistema/automático)
+  user       User?             @relation("StockMovementUser", fields: [userId], references: [id])
+  createdAt  DateTime          @default(now())
+
+  @@index([variantId])
+  @@index([locationId])
+  @@index([createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Compras a proveedores (ingreso de stock con costo real)
+// ---------------------------------------------------------------------------
+
+model PurchaseOrder {
+  id          String              @id @default(cuid())
+  supplierId  String
+  supplier    Supplier            @relation(fields: [supplierId], references: [id])
+  locationId  String
+  location    Location            @relation(fields: [locationId], references: [id])
+  createdById String
+  createdBy   User                @relation(fields: [createdById], references: [id])
+  status      String              @default("RECEIVED") // simple por ahora: DRAFT | RECEIVED
+  notes       String?
+  createdAt   DateTime            @default(now())
+  items       PurchaseOrderItem[]
+
+  @@index([supplierId])
+}
+
+model PurchaseOrderItem {
+  id              String         @id @default(cuid())
+  purchaseOrderId String
+  purchaseOrder   PurchaseOrder  @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  variantId       String
+  variant         ProductVariant @relation(fields: [variantId], references: [id])
+  quantity        Int
+  unitCost        Decimal        @db.Decimal(10, 2)
+
+  @@index([purchaseOrderId])
+}
+
+// ---------------------------------------------------------------------------
+// Envíos: tarifas propias por peso, configurables desde el panel.
+//
+// Correo Argentino y Andreani requieren cuenta comercial (contrato +
+// credenciales de API) para cotizar en tiempo real; hasta que la tienda
+// tenga esa cuenta, el costo de envío se calcula con esta tabla de tramos
+// de peso que el propio negocio carga y ajusta. El día que haya cuenta
+// comercial, alcanza con reemplazar calculateShippingCost (lib/shipping.ts)
+// por la llamada a la API del correo — el resto del checkout no cambia.
+// ---------------------------------------------------------------------------
+
+model ShippingRate {
+  id          String   @id @default(cuid())
+  name        String // "Hasta 1kg", "1kg a 3kg", etc.
+  maxWeightGr Int // límite superior (inclusive) de peso para este tramo
+  cost        Decimal  @db.Decimal(10, 2)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  @@index([maxWeightGr])
+}
+
+// ---------------------------------------------------------------------------
+// Descuentos / cupones (modelo preparado desde ahora, activación a futuro)
+// ---------------------------------------------------------------------------
+
+model Coupon {
+  id            String    @id @default(cuid())
+  code          String    @unique
+  percentOff    Int? // 0-100
+  amountOff     Decimal?  @db.Decimal(10, 2)
+  minOrderTotal Decimal?  @db.Decimal(10, 2)
+  maxUses       Int?
+  usedCount     Int       @default(0)
+  active        Boolean   @default(true)
+  startsAt      DateTime?
+  expiresAt     DateTime?
+  createdAt     DateTime  @default(now())
+
+  orders Order[]
+}
+
+// ---------------------------------------------------------------------------
+// Pedidos / ventas (unifica tienda online y POS)
+// ---------------------------------------------------------------------------
+
+model Order {
+  id                String            @id @default(cuid())
+  orderNumber       Int               @unique @default(autoincrement())
+  channel           OrderChannel
+  status            OrderStatus       @default(PENDING)
+  fulfillmentMethod FulfillmentMethod
+  customerId        String?
+  customer          User?             @relation(fields: [customerId], references: [id])
+  guestEmail        String? // checkout como invitado
+  guestName         String?
+  guestPhone        String?
+  addressId         String?
+  address           Address?          @relation(fields: [addressId], references: [id])
+  locationId        String // sucursal que despacha o donde se vendió
+  location          Location          @relation(fields: [locationId], references: [id])
+  soldById          String? // empleado que cobró (ventas POS)
+  couponId          String?
+  coupon            Coupon?           @relation(fields: [couponId], references: [id])
+  subtotal          Decimal           @db.Decimal(10, 2)
+  discountTotal     Decimal           @default(0) @db.Decimal(10, 2)
+  shippingCost      Decimal           @default(0) @db.Decimal(10, 2)
+  total             Decimal           @db.Decimal(10, 2)
+  shippingProvider  String? // "correo_argentino" | "andreani" | null (retiro en local)
+  trackingCode      String?
+  notes             String?
+  // Clave que manda el cliente (checkout online) o el POS al confirmar.
+  // Si llega dos veces la misma clave (doble clic, reintento de red),
+  // se devuelve el pedido ya creado en vez de duplicar la venta.
+  idempotencyKey    String?           @unique
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  items          OrderItem[]
+  payments       Payment[]
+  stockMovements StockMovement[]
+  statusHistory  OrderStatusHistory[]
+
+  @@index([customerId])
+  @@index([status])
+  @@index([channel])
+}
+
+model OrderItem {
+  id         String         @id @default(cuid())
+  orderId    String
+  order      Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variantId  String
+  variant    ProductVariant @relation(fields: [variantId], references: [id])
+  quantity   Int
+  unitPrice  Decimal        @db.Decimal(10, 2) // precio al momento de la venta
+  totalPrice Decimal        @db.Decimal(10, 2)
+
+  @@index([orderId])
+}
+
+model OrderStatusHistory {
+  id        String      @id @default(cuid())
+  orderId   String
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    OrderStatus
+  note      String?
+  createdAt DateTime    @default(now())
+
+  @@index([orderId])
+}
+
+model Payment {
+  id             String        @id @default(cuid())
+  orderId        String
+  order          Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  method         PaymentMethod
+  status         PaymentStatus @default(PENDING)
+  amount         Decimal       @db.Decimal(10, 2)
+  mpPaymentId    String?       @unique // id de pago de Mercado Pago
+  mpPreferenceId String?
+  rawWebhookData Json? // guarda el payload del webhook para auditoría/debug
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([orderId])
+  @@index([mpPaymentId])
+}
+
+// ---------------------------------------------------------------------------
+// Caja del local (cierre de caja diario del POS)
+// ---------------------------------------------------------------------------
+
+model CashRegisterSession {
+  id            String    @id @default(cuid())
+  locationId    String
+  location      Location  @relation(fields: [locationId], references: [id])
+  openedById    String
+  openedBy      User      @relation(fields: [openedById], references: [id])
+  openingAmount Decimal   @default(0) @db.Decimal(10, 2)
+  closingAmount Decimal?  @db.Decimal(10, 2)
+  cashTotal     Decimal?  @db.Decimal(10, 2)
+  cardTotal     Decimal?  @db.Decimal(10, 2)
+  mpTotal       Decimal?  @db.Decimal(10, 2)
+  transferTotal Decimal?  @db.Decimal(10, 2)
+  notes         String?
+  openedAt      DateTime  @default(now())
+  closedAt      DateTime?
+
+  @@index([locationId])
+}

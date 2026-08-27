@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  DATABASE_URL: postgresql://epicshine:epicshine@localhost:5432/epicshine
+  AUTH_SECRET: ci-only-secret-not-for-production
+  NEXT_PUBLIC_SITE_URL: http://localhost:3000
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: epicshine
+          POSTGRES_PASSWORD: epicshine
+          POSTGRES_DB: epicshine
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Aplicar migraciones de Prisma
+        run: npx prisma migrate deploy
+
+      - run: npm run lint
+
+      - run: npm run build
+
+      - run: npm run test

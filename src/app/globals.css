@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0a0a0a;
+  --foreground: #f5f5f5;
+  --accent: #ffffff;
+  --muted: #1a1a1a;
+  --border: #2a2a2a;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --font-display: var(--font-condensed);
+  --font-sans: var(--font-body);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body), Arial, Helvetica, sans-serif;
+}
+
+/* La tienda y el admin usan tema oscuro por defecto (y la tienda puede
+   personalizarse con cualquier color de fondo/texto, ver /admin/apariencia),
+   pero eso arruina lo que se imprime (remitos, tickets): fondo negro sólido
+   gasta tinta y puede terminar en texto ilegible según el navegador. Al
+   imprimir, siempre se fuerza claro/oscuro estándar sin importar el tema. */
+@media print {
+  :root {
+    --background: #ffffff;
+    --foreground: #111111;
+    --accent: #111111;
+    --muted: #f0f0f0;
+    --border: #cccccc;
+  }
+
+  body {
+    background: #ffffff;
+  }
+}
+
+.font-display {
+  font-family: var(--font-condensed), Arial, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* Foco visible siempre: accesibilidad de navegación por teclado */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

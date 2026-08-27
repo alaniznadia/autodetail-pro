@@ -1,0 +1,52 @@
+import { prisma } from "@/lib/prisma";
+
+export const STORE_THEME_ID = "default";
+
+// Lista cerrada: el admin elige de acá, nunca escribe el nombre de la
+// fuente a mano. Así el layout puede armar la URL de Google Fonts sin
+// necesidad de validar/escapar nada.
+export const HEADING_FONTS = [
+  { value: "oswald", family: "Oswald", label: "Oswald (condensada, la actual)", google: "Oswald:wght@500;600;700" },
+  { value: "bebas-neue", family: "Bebas Neue", label: "Bebas Neue", google: "Bebas+Neue" },
+  { value: "anton", family: "Anton", label: "Anton", google: "Anton" },
+  { value: "archivo-black", family: "Archivo Black", label: "Archivo Black", google: "Archivo+Black" },
+  {
+    value: "barlow-condensed",
+    family: "Barlow Condensed",
+    label: "Barlow Condensed",
+    google: "Barlow+Condensed:wght@500;600;700",
+  },
+] as const;
+
+export const BODY_FONTS = [
+  { value: "inter", family: "Inter", label: "Inter (la actual)", google: "Inter:wght@400;500;600" },
+  { value: "roboto", family: "Roboto", label: "Roboto", google: "Roboto:wght@400;500;600" },
+  { value: "open-sans", family: "Open Sans", label: "Open Sans", google: "Open+Sans:wght@400;500;600" },
+  { value: "lato", family: "Lato", label: "Lato", google: "Lato:wght@400;700" },
+  { value: "poppins", family: "Poppins", label: "Poppins", google: "Poppins:wght@400;500;600" },
+] as const;
+
+export type HeadingFontValue = (typeof HEADING_FONTS)[number]["value"];
+export type BodyFontValue = (typeof BODY_FONTS)[number]["value"];
+
+export const DEFAULT_STORE_THEME = {
+  headingFont: "oswald" as HeadingFontValue,
+  bodyFont: "inter" as BodyFontValue,
+  baseFontSizePx: 16,
+  backgroundColor: "#0a0a0a",
+  textColor: "#f5f5f5",
+  accentColor: "#ffffff",
+};
+
+export function findHeadingFont(value: string) {
+  return HEADING_FONTS.find((f) => f.value === value) ?? HEADING_FONTS[0];
+}
+
+export function findBodyFont(value: string) {
+  return BODY_FONTS.find((f) => f.value === value) ?? BODY_FONTS[0];
+}
+
+export async function getStoreTheme() {
+  const theme = await prisma.storeTheme.findUnique({ where: { id: STORE_THEME_ID } });
+  return theme ?? { id: STORE_THEME_ID, ...DEFAULT_STORE_THEME, updatedAt: new Date() };
+}
