@@ -290,6 +290,28 @@ model PurchaseOrderItem {
 }
 
 // ---------------------------------------------------------------------------
+// Envíos: tarifas propias por peso, configurables desde el panel.
+//
+// Correo Argentino y Andreani requieren cuenta comercial (contrato +
+// credenciales de API) para cotizar en tiempo real; hasta que la tienda
+// tenga esa cuenta, el costo de envío se calcula con esta tabla de tramos
+// de peso que el propio negocio carga y ajusta. El día que haya cuenta
+// comercial, alcanza con reemplazar calculateShippingCost (lib/shipping.ts)
+// por la llamada a la API del correo — el resto del checkout no cambia.
+// ---------------------------------------------------------------------------
+
+model ShippingRate {
+  id          String   @id @default(cuid())
+  name        String // "Hasta 1kg", "1kg a 3kg", etc.
+  maxWeightGr Int // límite superior (inclusive) de peso para este tramo
+  cost        Decimal  @db.Decimal(10, 2)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  @@index([maxWeightGr])
+}
+
+// ---------------------------------------------------------------------------
 // Descuentos / cupones (modelo preparado desde ahora, activación a futuro)
 // ---------------------------------------------------------------------------
 

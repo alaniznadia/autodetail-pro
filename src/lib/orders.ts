@@ -1,10 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { decrementStock, priceOrderItems, type SaleItemInput } from "@/lib/stock";
-
-// Costo de envío fijo mientras no esté integrado el cotizador real de
-// Correo Argentino / Andreani (ver README, sección "Próximos pasos").
-const FLAT_SHIPPING_COST = new Prisma.Decimal(4500);
+import { calculateShippingCost } from "@/lib/shipping";
 
 export type CreateOnlineOrderInput = {
   locationId: string;
@@ -40,12 +37,15 @@ export async function createOnlineOrder(input: CreateOnlineOrderInput) {
     throw new Error("Falta la dirección de envío.");
   }
 
+  const shippingCost =
+    input.fulfillmentMethod === "SHIPPING"
+      ? await calculateShippingCost(input.items)
+      : new Prisma.Decimal(0);
+
   return prisma.$transaction(async (tx) => {
     const { subtotal, orderItemsData } = await priceOrderItems(tx, input.items);
     await decrementStock(tx, input.locationId, input.items);
 
-    const shippingCost =
-      input.fulfillmentMethod === "SHIPPING" ? FLAT_SHIPPING_COST : new Prisma.Decimal(0);
     const total = subtotal.add(shippingCost);
 
     let addressId: string | undefined;
@@ -76,7 +76,7 @@ export async function createOnlineOrder(input: CreateOnlineOrderInput) {
         subtotal,
         shippingCost,
         total,
-        shippingProvider: input.fulfillmentMethod === "SHIPPING" ? "a_coordinar" : null,
+        shippingProvider: input.fulfillmentMethod === "SHIPPING" ? "tarifa_propia" : null,
         items: { createMany: { data: orderItemsData } },
         payments: {
           create: {

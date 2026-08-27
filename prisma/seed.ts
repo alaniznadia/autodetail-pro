@@ -56,8 +56,8 @@ async function main() {
       brand: "Epic Shine",
       categoryId: shampoo.id,
       variants: [
-        { sku: "SH-PHN-500", name: "500 ml", price: "6500.00" },
-        { sku: "SH-PHN-1000", name: "1 L", price: "11500.00" },
+        { sku: "SH-PHN-500", name: "500 ml", price: "6500.00", weightGr: 550 },
+        { sku: "SH-PHN-1000", name: "1 L", price: "11500.00", weightGr: 1050 },
       ],
     },
     {
@@ -66,7 +66,7 @@ async function main() {
       description: "Cera natural de alto brillo y protección duradera.",
       brand: "Epic Shine",
       categoryId: ceras.id,
-      variants: [{ sku: "CE-CAR-200", name: "200 g", price: "15900.00" }],
+      variants: [{ sku: "CE-CAR-200", name: "200 g", price: "15900.00", weightGr: 250 }],
     },
   ];
 
@@ -92,6 +92,7 @@ async function main() {
           sku: v.sku,
           name: v.name,
           price: v.price,
+          weightGr: v.weightGr,
         },
       });
 
@@ -105,6 +106,19 @@ async function main() {
           lowStockAlert: 5,
         },
       });
+    }
+  }
+
+  const defaultShippingRates = [
+    { name: "Hasta 1kg", maxWeightGr: 1000, cost: "3500.00" },
+    { name: "1 a 3kg", maxWeightGr: 3000, cost: "5000.00" },
+    { name: "3 a 5kg", maxWeightGr: 5000, cost: "7000.00" },
+    { name: "Más de 5kg", maxWeightGr: 15000, cost: "9500.00" },
+  ];
+  for (const rate of defaultShippingRates) {
+    const existing = await prisma.shippingRate.findFirst({ where: { name: rate.name } });
+    if (!existing) {
+      await prisma.shippingRate.create({ data: rate });
     }
   }
 

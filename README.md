@@ -4,10 +4,11 @@ Tienda online + punto de venta (POS) para Epic Shine, con stock sincronizado
 en tiempo real entre ambos canales.
 
 > **Estado del proyecto**: tienda online funcional de punta a punta
-> (catálogo, ficha de producto, carrito, checkout como invitado y pago con
-> Mercado Pago), CRUD de productos en el panel admin, y POS con venta
-> presencial. Faltan: cotizador de envío real, reportes, cierre de caja y
-> gestión de usuarios desde el panel. Ver la sección "Próximos pasos".
+> (catálogo, ficha de producto, carrito, checkout como invitado, pago con
+> Mercado Pago y cotizador de envío por peso), POS con venta presencial y
+> cierre de caja, y panel de administración completo (productos, stock,
+> pedidos, proveedores/compras, envíos, usuarios, reportes). Falta:
+> facturación electrónica AFIP y cupones/descuentos. Ver "Próximos pasos".
 
 ## Stack
 
@@ -145,12 +146,21 @@ src/app/api/                 Rutas de API (búsqueda de productos, venta POS, au
    variables `SEED_ADMIN_EMAIL`/`SEED_ADMIN_PASSWORD` de producción), o
    creándolo manualmente desde Prisma Studio.
 
+## Cotizador de envío
+
+El costo de envío se calcula sumando el peso de las variantes del carrito
+(`weightGr`) contra los tramos configurados en `/admin/envios`. Es un
+placeholder honesto: Correo Argentino y Andreani recién cotizan en vivo
+con una cuenta comercial (contrato + credenciales de API), que la tienda
+todavía no tiene. El día que exista esa cuenta, alcanza con reemplazar
+`calculateShippingCost` (`src/lib/shipping.ts`) por la llamada a la API
+del correo — el checkout, la creación de pedidos y el resto del código no
+cambian.
+
 ## Próximos pasos (ver plan de etapas completo en la conversación)
 
-- Cotizador de envío real (Correo Argentino / Andreani); hoy el costo de
-  envío es una tarifa fija provisoria.
-- Reportes (ventas, productos más vendidos, stock valorizado) y cierre de
-  caja diario del POS.
-- Gestión de usuarios/roles desde el panel, gestión de proveedores/compras.
 - Facturación electrónica AFIP (a definir según situación fiscal).
-- Tests automatizados para las funciones críticas de stock, pagos y checkout.
+- Cupones/descuentos (modelo `Coupon` ya existe, falta la UI y aplicarlo
+  en checkout/POS).
+- Cotización de envío en vivo con Correo Argentino/Andreani cuando haya
+  cuenta comercial (ver sección "Cotizador de envío" arriba).

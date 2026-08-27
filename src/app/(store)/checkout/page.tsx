@@ -1,11 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/components/store/cart-context";
-
-const SHIPPING_FLAT_COST = 4500;
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -14,6 +12,9 @@ export default function CheckoutPage() {
   const [fulfillmentMethod, setFulfillmentMethod] = useState<"STORE_PICKUP" | "SHIPPING">(
     "STORE_PICKUP"
   );
+  const [shippingCost, setShippingCost] = useState(0);
+  const [shippingError, setShippingError] = useState<string | null>(null);
+  const [quoting, setQuoting] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"CASH" | "TRANSFER" | "MERCADO_PAGO">(
     "MERCADO_PAGO"
   );
@@ -32,7 +33,52 @@ export default function CheckoutPage() {
   const [failedOrderId, setFailedOrderId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const total = subtotal + (fulfillmentMethod === "SHIPPING" ? SHIPPING_FLAT_COST : 0);
+  const total = subtotal + (fulfillmentMethod === "SHIPPING" ? shippingCost : 0);
+
+  useEffect(() => {
+    // Fuera de "envío" el costo cotizado no se muestra ni se usa (ver el
+    // cálculo de `total` más arriba), así que no hace falta resetearlo acá.
+    if (fulfillmentMethod !== "SHIPPING" || items.length === 0) {
+      return;
+    }
+
+    let cancelled = false;
+    // Arranca el indicador de "cotizando" antes del fetch que dispara este
+    // mismo efecto al cambiar de método de entrega o de carrito.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setQuoting(true);
+    setShippingError(null);
+
+    fetch("/api/shipping/quote", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        items: items.map((i) => ({ variantId: i.variantId, quantity: i.quantity })),
+      }),
+    })
+      .then(async (res) => {
+        const data = await res.json();
+        if (cancelled) return;
+        if (!res.ok) {
+          setShippingError(
+            typeof data.error === "string" ? data.error : "No se pudo cotizar el envío."
+          );
+          setShippingCost(0);
+          return;
+        }
+        setShippingCost(Number(data.cost));
+      })
+      .catch(() => {
+        if (!cancelled) setShippingError("No se pudo cotizar el envío.");
+      })
+      .finally(() => {
+        if (!cancelled) setQuoting(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [fulfillmentMethod, items]);
 
   if (items.length === 0) {
     return (
@@ -170,9 +216,17 @@ export default function CheckoutPage() {
                 checked={fulfillmentMethod === "SHIPPING"}
                 onChange={() => setFulfillmentMethod("SHIPPING")}
               />
-              Envío a domicilio (${SHIPPING_FLAT_COST})
+              Envío a domicilio
+              {fulfillmentMethod === "SHIPPING" &&
+                (quoting ? " (cotizando...)" : shippingCost > 0 ? ` ($${shippingCost.toFixed(2)})` : "")}
             </label>
           </div>
+
+          {fulfillmentMethod === "SHIPPING" && shippingError && (
+            <p role="alert" className="mt-2 text-sm text-red-400">
+              {shippingError}
+            </p>
+          )}
 
           {fulfillmentMethod === "SHIPPING" && (
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -248,8 +302,9 @@ export default function CheckoutPage() {
                 />
               </div>
               <p className="text-xs text-foreground/60 sm:col-span-2">
-                El costo de envío es una tarifa fija provisoria; todavía no está integrado el
-                cotizador de Correo Argentino/Andreani.
+                El costo de envío se calcula según el peso de tu compra; todavía no está
+                integrada la cotización en vivo de Correo Argentino/Andreani, así que el
+                envío lo coordinamos por WhatsApp una vez confirmado el pedido.
               </p>
             </div>
           )}
@@ -301,7 +356,11 @@ export default function CheckoutPage() {
           <p className="flex justify-between text-sm">
             <span>Envío</span>
             <span>
-              {fulfillmentMethod === "SHIPPING" ? `$${SHIPPING_FLAT_COST.toFixed(2)}` : "Sin cargo"}
+              {fulfillmentMethod !== "SHIPPING"
+                ? "Sin cargo"
+                : quoting
+                  ? "Cotizando..."
+                  : `$${shippingCost.toFixed(2)}`}
             </span>
           </p>
           <p className="mt-2 flex justify-between font-display text-xl">
@@ -326,7 +385,9 @@ export default function CheckoutPage() {
 
         <button
           type="submit"
-          disabled={submitting}
+          disabled={
+            submitting || (fulfillmentMethod === "SHIPPING" && (quoting || Boolean(shippingError)))
+          }
           className="w-fit rounded border border-accent px-8 py-3 font-display text-lg hover:bg-accent hover:text-background disabled:opacity-50"
         >
           {submitting ? "Confirmando..." : "Confirmar pedido"}
