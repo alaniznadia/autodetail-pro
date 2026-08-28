@@ -131,7 +131,7 @@ export default async function ProductPage({
       </nav>
 
       <div className="mt-4 grid gap-10 md:grid-cols-2">
-        <div className="aspect-square overflow-hidden rounded bg-black">
+        <div className="aspect-square overflow-hidden rounded bg-white">
           {product.images[0] && (
             // eslint-disable-next-line @next/next/no-img-element
             <img

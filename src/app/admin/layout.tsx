@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { auth, signOut } from "@/lib/auth";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { PANEL_THEME_INIT_SCRIPT } from "@/lib/panel-theme";
 
 const NAV = [
   { href: "/admin", label: "Panel" },
@@ -21,8 +23,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
+      <script dangerouslySetInnerHTML={{ __html: PANEL_THEME_INIT_SCRIPT }} />
       <aside className="print:hidden border-b border-border p-4 md:w-56 md:border-b-0 md:border-r">
-        <p className="font-display text-lg font-bold">Epic Shine Admin</p>
+        <div className="flex items-center justify-between gap-2">
+          <p className="font-display text-lg font-bold">Epic Shine Admin</p>
+          <ThemeToggle />
+        </div>
         <nav aria-label="Navegación del panel" className="mt-6 flex flex-row flex-wrap gap-3 md:flex-col">
           {NAV.map((item) => (
             <Link

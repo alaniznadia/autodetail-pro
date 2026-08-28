@@ -24,6 +24,18 @@ body {
   font-family: var(--font-body), Arial, Helvetica, sans-serif;
 }
 
+/* Tema claro opcional para el panel de admin y el POS (ver ThemeToggle):
+   se activa poniendo data-theme="light" en <html>. La tienda pública no
+   se ve afectada porque redefine estas mismas variables por su cuenta en
+   (store)/layout.tsx con mayor especificidad (estilo inline). */
+:root[data-theme="light"] {
+  --background: #ffffff;
+  --foreground: #111111;
+  --accent: #111111;
+  --muted: #f0f0f0;
+  --border: #d4d4d4;
+}
+
 /* La tienda y el admin usan tema oscuro por defecto (y la tienda puede
    personalizarse con cualquier color de fondo/texto, ver /admin/apariencia),
    pero eso arruina lo que se imprime (remitos, tickets): fondo negro sólido
