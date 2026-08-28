@@ -131,13 +131,13 @@ export default async function ProductPage({
       </nav>
 
       <div className="mt-4 grid gap-10 md:grid-cols-2">
-        <div className="aspect-square overflow-hidden rounded bg-muted">
+        <div className="aspect-square overflow-hidden rounded bg-black">
           {product.images[0] && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={product.images[0].url}
               alt={product.images[0].altText}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-contain"
             />
           )}
         </div>
