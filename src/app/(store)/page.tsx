@@ -11,6 +11,11 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
+  const banners = await prisma.storeBanner.findMany({
+    where: { active: true },
+    orderBy: { position: "asc" },
+  });
+
   const categories = await prisma.category.findMany({
     where: { parentId: null },
     orderBy: { name: "asc" },
@@ -43,6 +48,31 @@ export default async function HomePage() {
           </Link>
         </div>
       </section>
+
+      {banners.length > 0 && (
+        <section
+          aria-label="Promociones"
+          className="flex gap-4 overflow-x-auto border-b border-border px-4 py-6"
+        >
+          {banners.map((banner) => {
+            const image = (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={banner.imageUrl}
+                alt={banner.altText}
+                className="h-40 w-auto shrink-0 rounded object-cover"
+              />
+            );
+            return banner.linkUrl ? (
+              <Link key={banner.id} href={banner.linkUrl}>
+                {image}
+              </Link>
+            ) : (
+              <div key={banner.id}>{image}</div>
+            );
+          })}
+        </section>
+      )}
 
       {categories.length > 0 && (
         <section className="mx-auto max-w-6xl px-4 py-14">

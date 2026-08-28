@@ -28,7 +28,7 @@ export default async function StoreLayout({ children }: { children: React.ReactN
     <CartProvider>
       <link rel="stylesheet" href={fontsHref} />
       <div style={themeStyle} className="flex min-h-screen flex-1 flex-col bg-background text-foreground">
-        <SiteHeader />
+        <SiteHeader logoUrl={theme.logoUrl} />
         <main id="main-content" className="flex-1">
           {children}
         </main>

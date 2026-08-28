@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 import { SITE_URL } from "@/lib/site-url";
 
-const STATIC_ROUTES = ["", "/catalogo", "/terminos", "/privacidad", "/devoluciones"];
+const STATIC_ROUTES = ["", "/catalogo", "/sobre-nosotros", "/terminos", "/privacidad", "/devoluciones"];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const products = await prisma.product.findMany({

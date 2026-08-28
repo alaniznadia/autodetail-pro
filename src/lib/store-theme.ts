@@ -36,6 +36,11 @@ export const DEFAULT_STORE_THEME = {
   backgroundColor: "#0a0a0a",
   textColor: "#f5f5f5",
   accentColor: "#ffffff",
+  faviconUrl: null as string | null,
+  logoUrl: null as string | null,
+  aboutTitle: null as string | null,
+  aboutContent: null as string | null,
+  aboutImageUrl: null as string | null,
 };
 
 export function findHeadingFont(value: string) {
