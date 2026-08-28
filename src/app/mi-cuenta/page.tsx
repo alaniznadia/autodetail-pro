@@ -35,6 +35,8 @@ export default async function MyAccountPage() {
           {session.user.role === "ADMIN" && (
             <Link
               href="/admin"
+              target="_blank"
+              rel="noopener noreferrer"
               className="rounded border border-accent px-4 py-2 font-display text-sm hover:bg-accent hover:text-background"
             >
               Ir al panel de administración
@@ -42,6 +44,8 @@ export default async function MyAccountPage() {
           )}
           <Link
             href="/pos"
+            target="_blank"
+            rel="noopener noreferrer"
             className="rounded border border-border px-4 py-2 font-display text-sm hover:border-accent"
           >
             Ir al punto de venta

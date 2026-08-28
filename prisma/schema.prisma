@@ -155,7 +155,25 @@ model StoreTheme {
   backgroundColor String   @default("#0a0a0a")
   textColor       String   @default("#f5f5f5")
   accentColor     String   @default("#ffffff")
+  faviconUrl      String? // ícono de la pestaña del navegador
+  logoUrl         String? // logo mostrado en el header de la tienda
+  aboutTitle      String? // título de /sobre-nosotros
+  aboutContent    String? // texto de /sobre-nosotros
+  aboutImageUrl   String?
   updatedAt       DateTime @updatedAt
+}
+
+// Imágenes del carrusel de la home, editables desde /admin/apariencia.
+// "Interactivas" porque cada una puede llevar a una URL (categoría,
+// producto puntual, promoción externa) o no tener link y ser solo
+// decorativa.
+model StoreBanner {
+  id       String  @id @default(cuid())
+  imageUrl String
+  altText  String
+  linkUrl  String?
+  position Int     @default(0)
+  active   Boolean @default(true)
 }
 
 // ---------------------------------------------------------------------------
@@ -212,7 +230,9 @@ model Product {
 // Reseñas de compra verificada: solo puede reseñar un producto quien
 // tenga un pedido no cancelado/pendiente/reembolsado que lo incluya (ver
 // lib/reviews.ts). Una reseña por cliente y producto (se edita, no se
-// duplica).
+// duplica). Queda pendiente de moderación (approved=false) hasta que un
+// admin la aprueba desde /admin/resenas; en la tienda solo se muestran
+// las aprobadas.
 model Review {
   id         String   @id @default(cuid())
   productId  String
@@ -221,11 +241,13 @@ model Review {
   customer   User     @relation(fields: [customerId], references: [id], onDelete: Cascade)
   rating     Int // 1 a 5
   comment    String?
+  approved   Boolean  @default(false)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
   @@unique([productId, customerId])
   @@index([productId])
+  @@index([approved])
 }
 
 model ProductImage {
