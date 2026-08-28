@@ -83,13 +83,13 @@ export default async function CatalogPage({
             return (
               <li key={product.id}>
                 <Link href={`/producto/${product.slug}`} className="group block">
-                  <div className="aspect-square overflow-hidden rounded bg-muted">
+                  <div className="aspect-square overflow-hidden rounded bg-black">
                     {image && (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={image.url}
                         alt={image.altText}
-                        className="h-full w-full object-cover transition group-hover:scale-105"
+                        className="h-full w-full object-contain transition group-hover:scale-105"
                       />
                     )}
                   </div>
