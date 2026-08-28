@@ -11,6 +11,7 @@ type SearchResult = {
   name: string;
   price: string;
   stock: number;
+  imageUrl: string | null;
 };
 
 type CartLine = SearchResult & { quantity: number };
@@ -211,12 +212,22 @@ export function PosTerminal({ locationId }: { locationId: string }) {
                 <button
                   type="button"
                   onClick={() => addToCart(r)}
-                  className="flex w-full items-center justify-between px-3 py-2 text-left hover:bg-muted"
+                  className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left hover:bg-muted"
                 >
-                  <span>
-                    {r.name} <span className="text-xs text-foreground/50">({r.sku})</span>
+                  <span className="flex min-w-0 items-center gap-3">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded bg-muted">
+                      {r.imageUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={r.imageUrl} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <span className="text-xs text-foreground/30">Sin foto</span>
+                      )}
+                    </span>
+                    <span className="truncate">
+                      {r.name} <span className="text-xs text-foreground/50">({r.sku})</span>
+                    </span>
                   </span>
-                  <span className="text-sm">
+                  <span className="shrink-0 text-sm">
                     ${r.price} · stock: {r.stock}
                   </span>
                 </button>

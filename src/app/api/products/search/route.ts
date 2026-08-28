@@ -22,7 +22,9 @@ export async function GET(req: NextRequest) {
       ],
     },
     include: {
-      product: { select: { name: true } },
+      product: {
+        select: { name: true, images: { orderBy: { position: "asc" }, take: 1 } },
+      },
       stockItems: locationId ? { where: { locationId } } : true,
     },
     take: 20,
@@ -35,6 +37,7 @@ export async function GET(req: NextRequest) {
     name: `${v.product.name} - ${v.name}`,
     price: v.price.toString(),
     stock: v.stockItems.reduce((sum, s) => sum + s.quantity, 0),
+    imageUrl: v.product.images[0]?.url ?? null,
   }));
 
   return NextResponse.json({ results });
