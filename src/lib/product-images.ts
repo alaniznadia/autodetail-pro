@@ -1,4 +1,4 @@
-import { put, del } from "@vercel/blob";
+import { put, del, BlobError } from "@vercel/blob";
 import crypto from "node:crypto";
 
 export const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB
@@ -28,12 +28,28 @@ export async function saveProductImage(file: File): Promise<{ url: string }> {
   }
 
   const filename = `products/${crypto.randomUUID()}.${extension}`;
-  const blob = await put(filename, file, {
-    access: "public",
-    contentType: file.type,
-  });
 
-  return { url: blob.url };
+  try {
+    const blob = await put(filename, file, {
+      access: "public",
+      contentType: file.type,
+    });
+    return { url: blob.url };
+  } catch (err) {
+    // La causa más común en producción es que todavía no se conectó el
+    // storage: sin esto, @vercel/blob tira un error genérico ("Vercel
+    // Blob: No read-write token found...") que en el admin se veía como
+    // "No se pudo subir la imagen" sin explicar por qué. Lo traducimos a
+    // un mensaje accionable en vez de un 500 opaco.
+    if (err instanceof BlobError) {
+      throw new InvalidImageError(
+        "No se pudo subir la imagen porque el almacenamiento no está conectado. " +
+          "En Vercel: Storage → Create Database → Blob, conectalo al proyecto y " +
+          "hacé un redeploy (Deployments → el commit más reciente → Redeploy)."
+      );
+    }
+    throw err;
+  }
 }
 
 /**
