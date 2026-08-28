@@ -176,7 +176,7 @@ export default async function ProductPage({
         </div>
       </div>
 
-      <div className="mt-12 max-w-2xl">
+      <div className="mt-12 max-w-2xl border-t border-border pt-10">
         <h2 className="font-display text-lg">Reseñas</h2>
 
         {canReview && (
