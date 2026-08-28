@@ -38,16 +38,20 @@ export async function upsertReview(input: {
     );
   }
 
+  // Toda reseña nueva o editada vuelve a quedar pendiente de moderación
+  // (approved: false) — un admin la aprueba desde /admin/resenas antes de
+  // que se muestre en la tienda.
   return prisma.review.upsert({
     where: {
       productId_customerId: { productId: input.productId, customerId: input.customerId },
     },
-    update: { rating: input.rating, comment: input.comment },
+    update: { rating: input.rating, comment: input.comment, approved: false },
     create: {
       productId: input.productId,
       customerId: input.customerId,
       rating: input.rating,
       comment: input.comment,
+      approved: false,
     },
   });
 }

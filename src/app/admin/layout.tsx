@@ -13,6 +13,7 @@ const NAV = [
   { href: "/admin/compras", label: "Compras" },
   { href: "/admin/envios", label: "Envíos" },
   { href: "/admin/cupones", label: "Cupones" },
+  { href: "/admin/resenas", label: "Reseñas" },
   { href: "/admin/apariencia", label: "Apariencia" },
   { href: "/admin/reportes", label: "Reportes" },
   { href: "/admin/usuarios", label: "Usuarios" },
@@ -29,6 +30,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <p className="font-display text-lg font-bold">Epic Shine Admin</p>
           <ThemeToggle />
         </div>
+        <Link
+          href="/catalogo"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 block w-fit rounded border border-border px-3 py-1.5 font-display text-xs hover:border-accent"
+        >
+          Ver tienda online
+        </Link>
         <nav aria-label="Navegación del panel" className="mt-6 flex flex-row flex-wrap gap-3 md:flex-col">
           {NAV.map((item) => (
             <Link

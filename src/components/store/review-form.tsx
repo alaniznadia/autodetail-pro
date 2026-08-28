@@ -78,7 +78,7 @@ export function ReviewForm({
       )}
       {done && !error && (
         <p role="status" className="text-sm text-green-500">
-          ¡Gracias por tu reseña!
+          ¡Gracias por tu reseña! Queda pendiente de aprobación antes de mostrarse.
         </p>
       )}
       <button

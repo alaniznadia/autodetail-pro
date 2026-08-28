@@ -68,7 +68,7 @@ describe("reviews", () => {
     ).rejects.toThrow(ReviewNotAllowedError);
   });
 
-  it("permite reseñar una vez que el pedido está pagado", async () => {
+  it("permite reseñar una vez que el pedido está pagado, pendiente de aprobación", async () => {
     await prisma.order.update({ where: { id: orderId }, data: { status: "PAID" } });
 
     expect(await hasVerifiedPurchase(customerId, productId)).toBe(true);
@@ -80,9 +80,12 @@ describe("reviews", () => {
       comment: "Buen producto",
     });
     expect(review.rating).toBe(4);
+    expect(review.approved).toBe(false);
   });
 
-  it("actualiza la reseña existente en vez de duplicarla", async () => {
+  it("actualiza la reseña existente en vez de duplicarla, y la vuelve a poner pendiente", async () => {
+    await prisma.review.update({ where: { productId_customerId: { productId, customerId } }, data: { approved: true } });
+
     const updated = await upsertReview({
       productId,
       customerId,
@@ -94,6 +97,7 @@ describe("reviews", () => {
     expect(reviews).toHaveLength(1);
     expect(updated.rating).toBe(2);
     expect(updated.comment).toBe("Cambié de opinión");
+    expect(updated.approved).toBe(false);
   });
 
   it("no permite reseñar un pedido cancelado o reembolsado", async () => {

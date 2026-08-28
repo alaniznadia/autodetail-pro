@@ -77,10 +77,14 @@ export default async function ProductPage({
   const totalStock = variants.reduce((sum, v) => sum + v.stock, 0);
   const prices = variants.map((v) => Number(v.price));
 
-  const reviewCount = product.reviews.length;
+  // Solo las reseñas aprobadas por un admin se muestran públicamente; una
+  // reseña propia pendiente de moderación igual se puede ver/editar más
+  // abajo (myReview busca en todas, no solo en las aprobadas).
+  const approvedReviews = product.reviews.filter((r) => r.approved);
+  const reviewCount = approvedReviews.length;
   const averageRating =
     reviewCount > 0
-      ? product.reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
+      ? approvedReviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
       : null;
 
   const session = await auth();
@@ -176,17 +180,24 @@ export default async function ProductPage({
         <h2 className="font-display text-lg">Reseñas</h2>
 
         {canReview && (
-          <ReviewForm
-            productId={product.id}
-            initial={myReview ? { rating: myReview.rating, comment: myReview.comment } : undefined}
-          />
+          <>
+            <ReviewForm
+              productId={product.id}
+              initial={myReview ? { rating: myReview.rating, comment: myReview.comment } : undefined}
+            />
+            {myReview && !myReview.approved && (
+              <p className="mt-2 text-xs text-foreground/60">
+                Tu reseña está pendiente de aprobación y todavía no es visible para otros clientes.
+              </p>
+            )}
+          </>
         )}
 
-        {product.reviews.length === 0 ? (
+        {approvedReviews.length === 0 ? (
           <p className="mt-4 text-sm text-foreground/60">Todavía no hay reseñas.</p>
         ) : (
           <ul className="mt-4 flex flex-col gap-4">
-            {product.reviews.map((review) => (
+            {approvedReviews.map((review) => (
               <li key={review.id} className="rounded border border-border p-4 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="font-display">{review.customer.name ?? "Cliente"}</span>
