@@ -143,6 +143,27 @@ Mercado Pago). Es otro placeholder honesto: usa SMTP genérico
    nuevo evento (por ejemplo, avisar al admin de un pedido nuevo) es
    agregar una función ahí y llamarla donde corresponda.
 
+## Notificaciones por WhatsApp
+
+Los mismos dos eventos (pedido creado, cambio de estado) también se
+intentan mandar por WhatsApp al teléfono que el cliente dejó en el
+checkout (`src/lib/whatsapp.ts`), usando la API de WhatsApp de Twilio.
+Es independiente del email: si el cliente dejó los dos datos, le llega
+por ambos canales.
+
+1. Creá una cuenta en [Twilio](https://www.twilio.com/console) y activá
+   WhatsApp (Messaging → Try WhatsApp tiene un sandbox gratis para
+   probar; producción requiere un número de WhatsApp Business
+   verificado).
+2. Completá `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` y
+   `TWILIO_WHATSAPP_FROM` en `.env` con los valores de esa cuenta.
+3. Sin esas variables, el envío se salta con un aviso en consola, igual
+   que el email sin `SMTP_HOST`.
+4. El número del cliente no se valida en formato estricto (se guarda
+   como lo escribe en el checkout); si Twilio lo rechaza por faltarle
+   el código de país o no estar habilitado en el sandbox, queda
+   logueado como error sin afectar el pedido.
+
 ## Accesibilidad
 
 Además del linting estático de JSX (`eslint-plugin-jsx-a11y`, ya incluido
