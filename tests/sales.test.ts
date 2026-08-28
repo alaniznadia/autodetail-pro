@@ -134,4 +134,31 @@ describe("createPosSale", () => {
     });
     expect(stock.quantity).toBe(2);
   });
+
+  it("aplica un descuento manual en porcentaje sobre el subtotal", async () => {
+    const order = await createPosSale({
+      locationId,
+      soldById: userId,
+      paymentMethod: "CASH",
+      manualDiscount: { type: "PERCENT", value: 10 },
+      items: [{ variantId, quantity: 1 }],
+    });
+
+    expect(Number(order.subtotal)).toBe(1000);
+    expect(Number(order.discountTotal)).toBe(100);
+    expect(Number(order.total)).toBe(900);
+  });
+
+  it("un descuento manual en monto fijo mayor al subtotal no deja el total negativo", async () => {
+    const order = await createPosSale({
+      locationId,
+      soldById: userId,
+      paymentMethod: "CASH",
+      manualDiscount: { type: "AMOUNT", value: 5000 },
+      items: [{ variantId, quantity: 1 }],
+    });
+
+    expect(Number(order.discountTotal)).toBe(1000);
+    expect(Number(order.total)).toBe(0);
+  });
 });

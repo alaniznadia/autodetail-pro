@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { decrementStock, priceOrderItems, type SaleItemInput } from "@/lib/stock";
 import { claimCoupon } from "@/lib/coupons";
+import { computeManualDiscountAmount, type ManualDiscountInput } from "@/lib/discount";
 import { withIdempotency } from "@/lib/idempotency";
 
 export type { SaleItemInput };
@@ -12,6 +13,7 @@ export type CreatePosSaleInput = {
   items: SaleItemInput[];
   paymentMethod: "CASH" | "CARD" | "MERCADO_PAGO" | "TRANSFER";
   couponCode?: string;
+  manualDiscount?: ManualDiscountInput;
   idempotencyKey?: string;
 };
 
@@ -55,6 +57,11 @@ async function createPosSaleTransaction(input: CreatePosSaleInput) {
       couponId = claimed.couponId;
       discountTotal = claimed.discountTotal;
     }
+    if (input.manualDiscount) {
+      discountTotal = discountTotal.add(computeManualDiscountAmount(subtotal, input.manualDiscount));
+    }
+    // Un cupón y un descuento manual pueden combinarse; nunca superan el subtotal.
+    if (discountTotal.gt(subtotal)) discountTotal = subtotal;
     const total = subtotal.sub(discountTotal);
 
     const order = await tx.order.create({
