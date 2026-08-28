@@ -36,7 +36,7 @@ export default async function CatalogPage({
 
       <form
         role="search"
-        className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+        className="mt-6 flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-center sm:justify-between"
       >
         {categoria && <input type="hidden" name="categoria" value={categoria} />}
         <label htmlFor="q" className="sr-only">
@@ -82,7 +82,10 @@ export default async function CatalogPage({
             const image = product.images[0];
             return (
               <li key={product.id}>
-                <Link href={`/producto/${product.slug}`} className="group block">
+                <Link
+                  href={`/producto/${product.slug}`}
+                  className="group block rounded border border-border p-3 transition hover:border-accent"
+                >
                   <div className="aspect-square overflow-hidden rounded bg-white">
                     {image && (
                       // eslint-disable-next-line @next/next/no-img-element

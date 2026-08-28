@@ -75,7 +75,7 @@ export default async function HomePage() {
       )}
 
       {categories.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 py-14">
+        <section className="mx-auto max-w-6xl border-b border-border px-4 py-14">
           <h2 className="font-display text-2xl font-semibold">Categorías</h2>
           <ul className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-6">
             {categories.map((category) => (
@@ -105,7 +105,10 @@ export default async function HomePage() {
               const image = product.images[0];
               return (
                 <li key={product.id}>
-                  <Link href={`/producto/${product.slug}`} className="group block">
+                  <Link
+                    href={`/producto/${product.slug}`}
+                    className="group block rounded border border-border p-3 transition hover:border-accent"
+                  >
                     <div className="aspect-square overflow-hidden rounded bg-white">
                       {image && (
                         // eslint-disable-next-line @next/next/no-img-element
