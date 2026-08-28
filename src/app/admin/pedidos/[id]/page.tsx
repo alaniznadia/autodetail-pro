@@ -2,24 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { OrderStatusSelect } from "@/components/admin/order-status-select";
-import { ORDER_STATUS_LABEL } from "@/lib/order-status";
+import { ORDER_STATUS_LABEL, PAYMENT_METHOD_LABEL, PAYMENT_STATUS_LABEL } from "@/lib/order-status";
 
 export const dynamic = "force-dynamic";
-
-const PAYMENT_METHOD_LABEL: Record<string, string> = {
-  CASH: "Efectivo",
-  TRANSFER: "Transferencia",
-  CARD: "Tarjeta",
-  MERCADO_PAGO: "Mercado Pago",
-};
-
-const PAYMENT_STATUS_LABEL: Record<string, string> = {
-  PENDING: "Pendiente",
-  APPROVED: "Aprobado",
-  REJECTED: "Rechazado",
-  REFUNDED: "Reembolsado",
-  CANCELLED: "Cancelado",
-};
 
 export default async function AdminOrderDetailPage({
   params,
