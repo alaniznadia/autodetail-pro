@@ -7,9 +7,10 @@ const NAV_LINKS = [
   { href: "/catalogo?categoria=ceras", label: "Ceras" },
   { href: "/catalogo?categoria=shampoo", label: "Shampoo" },
   { href: "/catalogo?categoria=microfibras", label: "Microfibras" },
+  { href: "/sobre-nosotros", label: "Sobre nosotros" },
 ];
 
-export async function SiteHeader() {
+export async function SiteHeader({ logoUrl }: { logoUrl: string | null }) {
   const session = await auth();
 
   return (
@@ -21,8 +22,13 @@ export async function SiteHeader() {
         Saltar al contenido principal
       </a>
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
-        <Link href="/" className="font-display text-xl font-bold tracking-widest">
-          Epic Shine
+        <Link href="/" className="flex items-center font-display text-xl font-bold tracking-widest">
+          {logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logoUrl} alt="Epic Shine" className="h-9 w-auto object-contain" />
+          ) : (
+            "Epic Shine"
+          )}
         </Link>
         <nav aria-label="Navegación principal" className="hidden gap-6 md:flex">
           {NAV_LINKS.map((link) => (

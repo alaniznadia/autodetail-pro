@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Oswald, Inter } from "next/font/google";
 import { SITE_URL } from "@/lib/site-url";
+import { getStoreTheme } from "@/lib/store-theme";
 import "./globals.css";
 
 const condensed = Oswald({
@@ -17,26 +18,34 @@ const body = Inter({
 const description =
   "Productos de detailing automotor: shampoos, ceras, pulidos, microfibras y kits. Envíos a todo el país y retiro en el local.";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: {
-    default: "Epic Shine | Detailing Mode",
-    template: "%s | Epic Shine",
-  },
-  description,
-  openGraph: {
-    siteName: "Epic Shine",
-    type: "website",
-    locale: "es_AR",
-    title: "Epic Shine | Detailing Mode",
+// El ícono se puede personalizar desde /admin/apariencia (StoreTheme.faviconUrl);
+// por eso esto es generateMetadata (necesita leer la base) en vez del objeto
+// estático que alcanzaba antes de esa feature.
+export async function generateMetadata(): Promise<Metadata> {
+  const theme = await getStoreTheme();
+
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: {
+      default: "Epic Shine | Detailing Mode",
+      template: "%s | Epic Shine",
+    },
     description,
-  },
-  twitter: {
-    card: "summary",
-    title: "Epic Shine | Detailing Mode",
-    description,
-  },
-};
+    icons: theme.faviconUrl ? { icon: theme.faviconUrl } : undefined,
+    openGraph: {
+      siteName: "Epic Shine",
+      type: "website",
+      locale: "es_AR",
+      title: "Epic Shine | Detailing Mode",
+      description,
+    },
+    twitter: {
+      card: "summary",
+      title: "Epic Shine | Detailing Mode",
+      description,
+    },
+  };
+}
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
