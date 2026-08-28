@@ -41,25 +41,13 @@ export default async function PosSalesPage() {
               <th className="p-3 font-display font-normal">Total</th>
               <th className="p-3 font-display font-normal">Fecha</th>
               <th className="p-3 font-display font-normal">Estado</th>
+              <th className="p-3 font-display font-normal">Comprobante</th>
             </tr>
           </thead>
           <tbody>
             {orders.map((o) => (
               <tr key={o.id} className="border-b border-border last:border-0">
-                <td className="p-3">
-                  {o.channel === "POS" ? (
-                    <Link
-                      href={`/pos/venta/${o.id}/ticket`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="underline underline-offset-4"
-                    >
-                      {o.orderNumber}
-                    </Link>
-                  ) : (
-                    o.orderNumber
-                  )}
-                </td>
+                <td className="p-3">{o.orderNumber}</td>
                 <td className="p-3">{o.channel === "ONLINE" ? "Catálogo" : "Local"}</td>
                 <td className="p-3">{o.customer?.name ?? o.guestName ?? "—"}</td>
                 <td className="p-3">
@@ -72,11 +60,21 @@ export default async function PosSalesPage() {
                 <td className="p-3">${o.total.toString()}</td>
                 <td className="p-3">{o.createdAt.toLocaleString("es-AR")}</td>
                 <td className="p-3">{ORDER_STATUS_LABEL[o.status] ?? o.status}</td>
+                <td className="p-3">
+                  <Link
+                    href={`/pos/venta/${o.id}/ticket`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline underline-offset-4"
+                  >
+                    Generar
+                  </Link>
+                </td>
               </tr>
             ))}
             {orders.length === 0 && (
               <tr>
-                <td colSpan={8} className="p-4 text-center text-foreground/60">
+                <td colSpan={9} className="p-4 text-center text-foreground/60">
                   Todavía no hay ventas.
                 </td>
               </tr>
