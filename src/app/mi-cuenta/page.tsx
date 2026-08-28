@@ -30,6 +30,25 @@ export default async function MyAccountPage() {
         <SignOutButton />
       </div>
 
+      {(session.user.role === "ADMIN" || session.user.role === "EMPLOYEE") && (
+        <div className="mt-6 flex flex-wrap gap-3">
+          {session.user.role === "ADMIN" && (
+            <Link
+              href="/admin"
+              className="rounded border border-accent px-4 py-2 font-display text-sm hover:bg-accent hover:text-background"
+            >
+              Ir al panel de administración
+            </Link>
+          )}
+          <Link
+            href="/pos"
+            className="rounded border border-border px-4 py-2 font-display text-sm hover:border-accent"
+          >
+            Ir al punto de venta
+          </Link>
+        </div>
+      )}
+
       <h2 className="mt-10 font-display text-lg">Mis pedidos</h2>
 
       {orders.length === 0 ? (
