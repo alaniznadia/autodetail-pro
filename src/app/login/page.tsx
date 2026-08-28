@@ -3,12 +3,16 @@
 import { useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/";
+  // Si vino un callbackUrl explícito es porque el usuario intentaba entrar a
+  // una página puntual (proxy.ts lo mandó acá) — hay que respetarlo siempre.
+  // Si entró directo a /login (sin callbackUrl), recién ahí decidimos el
+  // destino según su rol, para no mandar a un admin/empleado al catálogo.
+  const explicitCallbackUrl = searchParams.get("callbackUrl");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -33,7 +37,14 @@ function LoginForm() {
       return;
     }
 
-    router.push(callbackUrl);
+    if (explicitCallbackUrl) {
+      router.push(explicitCallbackUrl);
+    } else {
+      const session = await getSession();
+      const role = session?.user?.role;
+      const destination = role === "ADMIN" ? "/admin" : role === "EMPLOYEE" ? "/pos" : "/";
+      router.push(destination);
+    }
     router.refresh();
   }
 
