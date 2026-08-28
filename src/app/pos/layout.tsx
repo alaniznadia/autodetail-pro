@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { auth, signOut } from "@/lib/auth";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { PANEL_THEME_INIT_SCRIPT } from "@/lib/panel-theme";
 
 export default async function PosLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
 
   return (
     <div className="min-h-screen">
+      <script dangerouslySetInnerHTML={{ __html: PANEL_THEME_INIT_SCRIPT }} />
       <header className="print:hidden flex items-center justify-between border-b border-border p-4">
         <div className="flex items-center gap-6">
           <p className="font-display text-lg font-bold">Epic Shine POS</p>
@@ -22,6 +25,7 @@ export default async function PosLayout({ children }: { children: React.ReactNod
           </nav>
         </div>
         <div className="flex items-center gap-4 text-sm">
+          <ThemeToggle />
           <span className="text-foreground/60">{session?.user?.email}</span>
           <form
             action={async () => {

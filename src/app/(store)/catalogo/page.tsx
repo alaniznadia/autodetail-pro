@@ -83,7 +83,7 @@ export default async function CatalogPage({
             return (
               <li key={product.id}>
                 <Link href={`/producto/${product.slug}`} className="group block">
-                  <div className="aspect-square overflow-hidden rounded bg-black">
+                  <div className="aspect-square overflow-hidden rounded bg-white">
                     {image && (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img

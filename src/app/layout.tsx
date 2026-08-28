@@ -43,6 +43,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="es"
       className={`${condensed.variable} ${body.variable} h-full antialiased`}
+      // El script anti-flash de admin/POS agrega data-theme antes de la
+      // hidratación (ver PANEL_THEME_INIT_SCRIPT); sin esto, React lo marca
+      // como mismatch aunque el valor final sea el correcto a propósito.
+      suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         {children}
