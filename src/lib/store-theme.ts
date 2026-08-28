@@ -41,6 +41,9 @@ export const DEFAULT_STORE_THEME = {
   aboutTitle: null as string | null,
   aboutContent: null as string | null,
   aboutImageUrl: null as string | null,
+  catalogButtonColor: null as string | null,
+  catalogFont: null as string | null,
+  catalogFontSizePx: null as number | null,
 };
 
 export function findHeadingFont(value: string) {
@@ -54,4 +57,31 @@ export function findBodyFont(value: string) {
 export async function getStoreTheme() {
   const theme = await prisma.storeTheme.findUnique({ where: { id: STORE_THEME_ID } });
   return theme ?? { id: STORE_THEME_ID, ...DEFAULT_STORE_THEME, updatedAt: new Date() };
+}
+
+type StoreThemeLike = Awaited<ReturnType<typeof getStoreTheme>>;
+
+/**
+ * Estilo de las tarjetas de producto (catálogo y "Destacados" de la home).
+ * buttonColor siempre resuelve a algo (cae en accentColor); textStyle queda
+ * undefined mientras el admin no haya tocado nada acá, para no pisar el
+ * diseño de base (font-display, tamaños de Tailwind) hasta que lo
+ * personalice a propósito.
+ */
+export function resolveCatalogCardStyle(theme: StoreThemeLike): {
+  buttonColor: string;
+  textStyle: { fontFamily?: string; fontSize?: string } | undefined;
+} {
+  const customized = theme.catalogFont !== null || theme.catalogFontSizePx !== null;
+  return {
+    buttonColor: theme.catalogButtonColor ?? theme.accentColor,
+    textStyle: customized
+      ? {
+          fontFamily: theme.catalogFont
+            ? `"${findBodyFont(theme.catalogFont).family}", sans-serif`
+            : undefined,
+          fontSize: theme.catalogFontSizePx ? `${theme.catalogFontSizePx}px` : undefined,
+        }
+      : undefined,
+  };
 }

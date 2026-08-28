@@ -4,6 +4,7 @@ import { StoreThemeForm } from "@/components/admin/store-theme-form";
 import { SiteImageUpload } from "@/components/admin/site-image-upload";
 import { StoreBannersManager } from "@/components/admin/store-banners-manager";
 import { AboutForm } from "@/components/admin/about-form";
+import { CatalogStyleForm } from "@/components/admin/catalog-style-form";
 
 export const dynamic = "force-dynamic";
 
@@ -56,6 +57,23 @@ export default async function AdminAppearancePage() {
             kind="logo"
             label="Logo del encabezado"
             currentUrl={theme.logoUrl}
+          />
+        </div>
+      </section>
+
+      <section>
+        <h2 className="font-display text-lg">Tarjetas del catálogo</h2>
+        <p className="mt-1 max-w-xl text-sm text-foreground/70">
+          Color, tipografía y tamaño del nombre, precio y botón &quot;Comprar&quot; que
+          se ven en el catálogo y en los destacados de la home.
+        </p>
+        <div className="mt-4">
+          <CatalogStyleForm
+            initial={{
+              catalogButtonColor: theme.catalogButtonColor,
+              catalogFont: theme.catalogFont,
+              catalogFontSizePx: theme.catalogFontSizePx,
+            }}
           />
         </div>
       </section>
