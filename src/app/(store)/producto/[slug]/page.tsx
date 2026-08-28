@@ -5,10 +5,9 @@ import { auth } from "@/lib/auth";
 import { hasVerifiedPurchase } from "@/lib/reviews";
 import { AddToCart } from "@/components/store/add-to-cart";
 import { ReviewForm } from "@/components/store/review-form";
+import { SITE_URL } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 // Los datos de ejemplo (seed) usan imágenes inline (data: URI) en vez de
 // archivos subidos; a diferencia de una ruta relativa como

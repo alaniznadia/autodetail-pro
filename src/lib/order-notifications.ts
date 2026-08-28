@@ -1,8 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 import { ORDER_STATUS_LABEL } from "@/lib/order-status";
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+import { SITE_URL } from "@/lib/site-url";
 
 async function loadOrderForEmail(orderId: string) {
   return prisma.order.findUnique({
