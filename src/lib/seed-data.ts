@@ -16,14 +16,18 @@ export async function seedInitialData(
     },
   });
 
+  const adminPasswordHash = await bcrypt.hash(adminPassword, 10);
   await prisma.user.upsert({
     where: { email: adminEmail },
-    update: {},
+    // Si el usuario ya existía (por ejemplo, un intento anterior con datos
+    // inconsistentes), volver a correr el seed lo repara: reactiva la
+    // cuenta, la vuelve a poner en ADMIN y renueva la contraseña.
+    update: { passwordHash: adminPasswordHash, role: "ADMIN", active: true },
     create: {
       email: adminEmail,
       name: "Admin Epic Shine",
       role: "ADMIN",
-      passwordHash: await bcrypt.hash(adminPassword, 10),
+      passwordHash: adminPasswordHash,
     },
   });
 
