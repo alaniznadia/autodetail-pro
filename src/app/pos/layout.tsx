@@ -9,10 +9,10 @@ export default async function PosLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen">
       <script dangerouslySetInnerHTML={{ __html: PANEL_THEME_INIT_SCRIPT }} />
-      <header className="print:hidden flex items-center justify-between border-b border-border p-4">
-        <div className="flex items-center gap-6">
+      <header className="print:hidden flex flex-wrap items-center justify-between gap-3 border-b border-border p-4">
+        <div className="flex flex-wrap items-center gap-4 sm:gap-6">
           <p className="font-display text-lg font-bold">Epic Shine POS</p>
-          <nav aria-label="Navegación del POS" className="flex gap-4">
+          <nav aria-label="Navegación del POS" className="flex flex-wrap gap-4">
             <Link href="/pos" className="font-display text-sm text-foreground/80 hover:text-foreground">
               Vender
             </Link>
@@ -30,9 +30,9 @@ export default async function PosLayout({ children }: { children: React.ReactNod
             </Link>
           </nav>
         </div>
-        <div className="flex items-center gap-4 text-sm">
+        <div className="flex items-center gap-3 text-sm sm:gap-4">
           <ThemeToggle />
-          <span className="text-foreground/60">{session?.user?.email}</span>
+          <span className="hidden text-foreground/60 sm:inline">{session?.user?.email}</span>
           <form
             action={async () => {
               "use server";
