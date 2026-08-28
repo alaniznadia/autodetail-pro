@@ -13,5 +13,11 @@ export default defineConfig({
   engine: "classic",
   datasource: {
     url: env("DATABASE_URL"),
+    // Sin esto, prisma.config.ts pisa el datasource de schema.prisma y las
+    // migraciones terminan usando DATABASE_URL (el pooler en modo
+    // transacción de Supabase, puerto 6543) en vez de la conexión directa —
+    // ese modo no soporta los locks que necesita el motor de migraciones y
+    // el comando se queda colgado indefinidamente en vez de fallar.
+    directUrl: env("DIRECT_URL"),
   },
 });
