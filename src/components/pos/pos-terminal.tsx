@@ -44,8 +44,23 @@ export function PosTerminal({ locationId }: { locationId: string }) {
   const [couponError, setCouponError] = useState<string | null>(null);
   const [applyingCoupon, setApplyingCoupon] = useState(false);
 
+  const [discountType, setDiscountType] = useState<"PERCENT" | "AMOUNT">("PERCENT");
+  const [discountValue, setDiscountValue] = useState("");
+
   const subtotal = cart.reduce((sum, line) => sum + Number(line.price) * line.quantity, 0);
-  const total = subtotal - (appliedCoupon?.discount ?? 0);
+
+  // El descuento manual lo calcula el vendedor en el momento (sin cupón
+  // previo); el servidor lo vuelve a calcular a partir del subtotal real,
+  // esto es solo para mostrarlo en pantalla antes de confirmar.
+  const manualDiscountValue = Number(discountValue) || 0;
+  const manualDiscountAmount =
+    manualDiscountValue > 0
+      ? discountType === "PERCENT"
+        ? subtotal * (Math.min(manualDiscountValue, 100) / 100)
+        : manualDiscountValue
+      : 0;
+  const totalDiscount = Math.min((appliedCoupon?.discount ?? 0) + manualDiscountAmount, subtotal);
+  const total = subtotal - totalDiscount;
 
   async function applyCoupon() {
     setApplyingCoupon(true);
@@ -131,6 +146,10 @@ export function PosTerminal({ locationId }: { locationId: string }) {
           locationId,
           paymentMethod,
           couponCode: appliedCoupon?.code,
+          manualDiscount:
+            manualDiscountValue > 0
+              ? { type: discountType, value: manualDiscountValue }
+              : undefined,
           idempotencyKey,
           items: cart.map((l) => ({ variantId: l.id, quantity: l.quantity })),
         }),
@@ -162,6 +181,7 @@ export function PosTerminal({ locationId }: { locationId: string }) {
     setCart([]);
     setCouponCode("");
     setAppliedCoupon(null);
+    setDiscountValue("");
     setIdempotencyKey(crypto.randomUUID());
     setStatus("Venta registrada correctamente.");
     setLastSaleId(order.id);
@@ -259,10 +279,58 @@ export function PosTerminal({ locationId }: { locationId: string }) {
           )}
         </div>
 
+        <fieldset className="mt-4">
+          <legend className="font-display text-sm">Descuento manual</legend>
+          <div className="mt-2 flex gap-2">
+            <div className="flex shrink-0 overflow-hidden rounded border border-border">
+              <button
+                type="button"
+                onClick={() => setDiscountType("PERCENT")}
+                className={`px-3 py-1.5 text-sm ${
+                  discountType === "PERCENT" ? "bg-accent text-background" : ""
+                }`}
+              >
+                %
+              </button>
+              <button
+                type="button"
+                onClick={() => setDiscountType("AMOUNT")}
+                className={`border-l border-border px-3 py-1.5 text-sm ${
+                  discountType === "AMOUNT" ? "bg-accent text-background" : ""
+                }`}
+              >
+                $
+              </button>
+            </div>
+            <input
+              type="number"
+              min={0}
+              max={discountType === "PERCENT" ? 100 : undefined}
+              step="0.01"
+              value={discountValue}
+              onChange={(e) => setDiscountValue(e.target.value)}
+              aria-label="Valor del descuento"
+              placeholder={discountType === "PERCENT" ? "Ej: 10" : "Ej: 500"}
+              className="w-full rounded border border-border bg-background px-3 py-1.5 text-sm"
+            />
+          </div>
+          {manualDiscountAmount > 0 && (
+            <p className="mt-1 text-xs text-green-500">
+              Descuento manual: -${manualDiscountAmount.toFixed(2)}
+            </p>
+          )}
+        </fieldset>
+
         <p className="mt-4 flex justify-between text-sm text-foreground/70">
           <span>Subtotal</span>
           <span>${subtotal.toFixed(2)}</span>
         </p>
+        {totalDiscount > 0 && (
+          <p className="flex justify-between text-sm text-foreground/70">
+            <span>Descuento</span>
+            <span>-${totalDiscount.toFixed(2)}</span>
+          </p>
+        )}
         <p className="flex justify-between font-display text-xl">
           <span>Total</span>
           <span>${total.toFixed(2)}</span>

@@ -9,6 +9,15 @@ const saleSchema = z.object({
   locationId: z.string().min(1),
   paymentMethod: z.enum(["CASH", "CARD", "MERCADO_PAGO", "TRANSFER"]),
   couponCode: z.string().min(1).optional(),
+  manualDiscount: z
+    .object({
+      type: z.enum(["PERCENT", "AMOUNT"]),
+      value: z.number().positive(),
+    })
+    .refine((d) => d.type !== "PERCENT" || d.value <= 100, {
+      message: "El descuento porcentual no puede superar 100%.",
+    })
+    .optional(),
   idempotencyKey: z.string().min(1).max(100).optional(),
   items: z
     .array(
