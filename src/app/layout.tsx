@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Oswald, Inter } from "next/font/google";
+import { SITE_URL } from "@/lib/site-url";
 import "./globals.css";
 
 const condensed = Oswald({
@@ -17,7 +18,7 @@ const description =
   "Productos de detailing automotor: shampoos, ceras, pulidos, microfibras y kits. Envíos a todo el país y retiro en el local.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Epic Shine | Detailing Mode",
     template: "%s | Epic Shine",

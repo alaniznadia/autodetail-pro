@@ -1,13 +1,10 @@
 import { MercadoPagoConfig, Preference } from "mercadopago";
 import type { Prisma } from "@prisma/client";
+import { SITE_URL } from "@/lib/site-url";
 
 type OrderForPreference = Prisma.OrderGetPayload<{
   include: { items: { include: { variant: { include: { product: true } } } } };
 }>;
-
-function getSiteUrl() {
-  return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-}
 
 /**
  * Arma el cliente de Mercado Pago con el access token configurado. Lanza un
@@ -29,7 +26,6 @@ function getMercadoPagoConfig() {
  * hay que redirigir al comprador.
  */
 export async function createPreferenceForOrder(order: OrderForPreference) {
-  const siteUrl = getSiteUrl();
   const preferenceClient = new Preference(getMercadoPagoConfig());
 
   return preferenceClient.create({
@@ -43,12 +39,12 @@ export async function createPreferenceForOrder(order: OrderForPreference) {
       })),
       external_reference: order.id,
       back_urls: {
-        success: `${siteUrl}/pedido/${order.id}`,
-        pending: `${siteUrl}/pedido/${order.id}`,
-        failure: `${siteUrl}/pedido/${order.id}`,
+        success: `${SITE_URL}/pedido/${order.id}`,
+        pending: `${SITE_URL}/pedido/${order.id}`,
+        failure: `${SITE_URL}/pedido/${order.id}`,
       },
       auto_return: "approved",
-      notification_url: `${siteUrl}/api/webhooks/mercadopago`,
+      notification_url: `${SITE_URL}/api/webhooks/mercadopago`,
     },
   });
 }
