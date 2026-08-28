@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import { HeroCarousel } from "@/components/store/hero-carousel";
 
 // El stock y el catálogo cambian en tiempo real (ventas online + POS),
 // así que esta página no se debe pre-renderizar como estática.
@@ -31,46 +32,27 @@ export default async function HomePage() {
 
   return (
     <div>
-      <section className="border-b border-border bg-muted">
-        <div className="mx-auto max-w-6xl px-4 py-20 text-center">
-          <h1 className="font-display text-4xl font-bold sm:text-6xl">
-            Detailing Mode
-          </h1>
-          <p className="mx-auto mt-4 max-w-xl text-foreground/70">
-            Productos profesionales para el cuidado y la estética de tu auto.
-            Envíos a todo el país o retiro en el local.
-          </p>
-          <Link
-            href="/catalogo"
-            className="mt-8 inline-block rounded border border-accent px-8 py-3 font-display text-sm hover:bg-accent hover:text-background"
-          >
-            Ver catálogo
-          </Link>
-        </div>
-      </section>
-
-      {banners.length > 0 && (
-        <section
-          aria-label="Promociones"
-          className="flex gap-4 overflow-x-auto border-b border-border px-4 py-6"
-        >
-          {banners.map((banner) => {
-            const image = (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={banner.imageUrl}
-                alt={banner.altText}
-                className="h-40 w-auto shrink-0 rounded object-cover"
-              />
-            );
-            return banner.linkUrl ? (
-              <Link key={banner.id} href={banner.linkUrl}>
-                {image}
-              </Link>
-            ) : (
-              <div key={banner.id}>{image}</div>
-            );
-          })}
+      {banners.length > 0 ? (
+        <section className="border-b border-border" aria-label="Promociones">
+          <HeroCarousel banners={banners} />
+        </section>
+      ) : (
+        <section className="border-b border-border bg-muted">
+          <div className="mx-auto max-w-6xl px-4 py-20 text-center">
+            <h1 className="font-display text-4xl font-bold sm:text-6xl">
+              Detailing Mode
+            </h1>
+            <p className="mx-auto mt-4 max-w-xl text-foreground/70">
+              Productos profesionales para el cuidado y la estética de tu auto.
+              Envíos a todo el país o retiro en el local.
+            </p>
+            <Link
+              href="/catalogo"
+              className="mt-8 inline-block rounded border border-accent px-8 py-3 font-display text-sm hover:bg-accent hover:text-background"
+            >
+              Ver catálogo
+            </Link>
+          </div>
         </section>
       )}
 
