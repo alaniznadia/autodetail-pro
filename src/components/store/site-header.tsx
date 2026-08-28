@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CartLink } from "@/components/store/cart-link";
 import { MobileNav } from "@/components/store/mobile-nav";
 import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 const NAV_LINKS = [
   { href: "/catalogo", label: "Catálogo" },
@@ -12,7 +13,14 @@ const NAV_LINKS = [
 ];
 
 export async function SiteHeader({ logoUrl }: { logoUrl: string | null }) {
-  const session = await auth();
+  const [session, categories] = await Promise.all([
+    auth(),
+    prisma.category.findMany({
+      where: { parentId: null },
+      select: { slug: true, name: true },
+      orderBy: { name: "asc" },
+    }),
+  ]);
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
@@ -43,7 +51,7 @@ export async function SiteHeader({ logoUrl }: { logoUrl: string | null }) {
           ))}
         </nav>
         <div className="flex items-center gap-3 sm:gap-4">
-          <MobileNav links={NAV_LINKS} />
+          <MobileNav categories={categories} />
           <CartLink />
           <Link
             href={session?.user ? "/mi-cuenta" : "/login"}
