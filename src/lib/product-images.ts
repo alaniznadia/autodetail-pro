@@ -36,17 +36,14 @@ export async function saveProductImage(file: File): Promise<{ url: string }> {
     });
     return { url: blob.url };
   } catch (err) {
-    // La causa más común en producción es que todavía no se conectó el
-    // storage: sin esto, @vercel/blob tira un error genérico ("Vercel
-    // Blob: No read-write token found...") que en el admin se veía como
-    // "No se pudo subir la imagen" sin explicar por qué. Lo traducimos a
-    // un mensaje accionable en vez de un 500 opaco.
+    // @vercel/blob puede fallar por varias razones distintas (falta el
+    // token, el token es inválido, el store está suspendido, etc.) y cada
+    // una tira un mensaje distinto y ya accionable. Antes acá se pisaba
+    // todo con un único mensaje genérico ("no está conectado"), lo que
+    // llevaba a repetir pasos que ya estaban bien cuando el problema real
+    // era otro. Mejor mostrar el mensaje real de Vercel Blob.
     if (err instanceof BlobError) {
-      throw new InvalidImageError(
-        "No se pudo subir la imagen porque el almacenamiento no está conectado. " +
-          "En Vercel: Storage → Create Database → Blob, conectalo al proyecto y " +
-          "hacé un redeploy (Deployments → el commit más reciente → Redeploy)."
-      );
+      throw new InvalidImageError(err.message);
     }
     throw err;
   }
