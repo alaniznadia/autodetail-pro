@@ -160,7 +160,14 @@ model StoreTheme {
   aboutTitle      String? // título de /sobre-nosotros
   aboutContent    String? // texto de /sobre-nosotros
   aboutImageUrl   String?
-  updatedAt       DateTime @updatedAt
+  // Estilo específico de las tarjetas de producto del catálogo/home (nombre,
+  // precio y el botón "Comprar"). Nulo = usar accentColor/bodyFont/
+  // baseFontSizePx de arriba, para no romper el look actual hasta que el
+  // admin lo personalice a propósito.
+  catalogButtonColor String?
+  catalogFont        String?
+  catalogFontSizePx  Int?
+  updatedAt          DateTime @updatedAt
 }
 
 // Imágenes del carrusel de la home, editables desde /admin/apariencia.

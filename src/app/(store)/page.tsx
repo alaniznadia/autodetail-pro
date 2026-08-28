@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { HeroCarousel } from "@/components/store/hero-carousel";
+import { getStoreTheme, resolveCatalogCardStyle } from "@/lib/store-theme";
+import { QuickAddButton } from "@/components/store/quick-add-button";
 
 // El stock y el catálogo cambian en tiempo real (ventas online + POS),
 // así que esta página no se debe pre-renderizar como estática.
@@ -25,10 +27,15 @@ export default async function HomePage() {
 
   const featuredProducts = await prisma.product.findMany({
     where: { active: true },
-    include: { variants: { where: { active: true }, take: 1 }, images: { take: 1 } },
+    include: {
+      variants: { where: { active: true }, take: 1, include: { stockItems: true } },
+      images: { take: 1 },
+    },
     orderBy: { createdAt: "desc" },
     take: 8,
   });
+
+  const cardStyle = resolveCatalogCardStyle(await getStoreTheme());
 
   return (
     <div>
@@ -85,12 +92,13 @@ export default async function HomePage() {
             {featuredProducts.map((product) => {
               const variant = product.variants[0];
               const image = product.images[0];
+              const stock = variant?.stockItems.reduce((sum, s) => sum + s.quantity, 0) ?? 0;
               return (
-                <li key={product.id}>
-                  <Link
-                    href={`/producto/${product.slug}`}
-                    className="group block rounded border border-border p-3 transition hover:border-accent"
-                  >
+                <li
+                  key={product.id}
+                  className="rounded border border-border p-3 transition hover:border-accent"
+                >
+                  <Link href={`/producto/${product.slug}`} className="group block">
                     <div className="aspect-square overflow-hidden rounded bg-white">
                       {image && (
                         // eslint-disable-next-line @next/next/no-img-element
@@ -101,13 +109,27 @@ export default async function HomePage() {
                         />
                       )}
                     </div>
-                    <p className="mt-2 font-display text-sm">{product.name}</p>
+                    <p className="mt-2 font-display text-sm" style={cardStyle.textStyle}>
+                      {product.name}
+                    </p>
                     {variant && (
-                      <p className="text-sm text-foreground/70">
+                      <p className="text-sm text-foreground/70" style={cardStyle.textStyle}>
                         ${variant.price.toString()}
                       </p>
                     )}
                   </Link>
+                  {variant && (
+                    <QuickAddButton
+                      variantId={variant.id}
+                      productSlug={product.slug}
+                      productName={product.name}
+                      variantName={variant.name}
+                      price={variant.price.toString()}
+                      imageUrl={image?.url}
+                      disabled={stock <= 0}
+                      color={cardStyle.buttonColor}
+                    />
+                  )}
                 </li>
               );
             })}

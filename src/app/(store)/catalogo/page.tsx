@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import { getStoreTheme, resolveCatalogCardStyle } from "@/lib/store-theme";
+import { QuickAddButton } from "@/components/store/quick-add-button";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +19,7 @@ export default async function CatalogPage({
 }) {
   const { categoria, q } = await searchParams;
 
-  const [categories, products] = await Promise.all([
+  const [categories, products, theme] = await Promise.all([
     prisma.category.findMany({ orderBy: { name: "asc" } }),
     prisma.product.findMany({
       where: {
@@ -25,10 +27,16 @@ export default async function CatalogPage({
         category: categoria ? { slug: categoria } : undefined,
         name: q ? { contains: q, mode: "insensitive" } : undefined,
       },
-      include: { variants: { where: { active: true }, take: 1 }, images: { take: 1 } },
+      include: {
+        variants: { where: { active: true }, take: 1, include: { stockItems: true } },
+        images: { take: 1 },
+      },
       orderBy: { name: "asc" },
     }),
+    getStoreTheme(),
   ]);
+
+  const cardStyle = resolveCatalogCardStyle(theme);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
@@ -80,12 +88,10 @@ export default async function CatalogPage({
           {products.map((product) => {
             const variant = product.variants[0];
             const image = product.images[0];
+            const stock = variant?.stockItems.reduce((sum, s) => sum + s.quantity, 0) ?? 0;
             return (
-              <li key={product.id}>
-                <Link
-                  href={`/producto/${product.slug}`}
-                  className="group block rounded border border-border p-3 transition hover:border-accent"
-                >
+              <li key={product.id} className="rounded border border-border p-3 transition hover:border-accent">
+                <Link href={`/producto/${product.slug}`} className="group block">
                   <div className="aspect-square overflow-hidden rounded bg-white">
                     {image && (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -96,9 +102,27 @@ export default async function CatalogPage({
                       />
                     )}
                   </div>
-                  <p className="mt-2 font-display text-sm">{product.name}</p>
-                  {variant && <p className="text-sm text-foreground/70">${variant.price.toString()}</p>}
+                  <p className="mt-2 font-display text-sm" style={cardStyle.textStyle}>
+                    {product.name}
+                  </p>
+                  {variant && (
+                    <p className="text-sm text-foreground/70" style={cardStyle.textStyle}>
+                      ${variant.price.toString()}
+                    </p>
+                  )}
                 </Link>
+                {variant && (
+                  <QuickAddButton
+                    variantId={variant.id}
+                    productSlug={product.slug}
+                    productName={product.name}
+                    variantName={variant.name}
+                    price={variant.price.toString()}
+                    imageUrl={image?.url}
+                    disabled={stock <= 0}
+                    color={cardStyle.buttonColor}
+                  />
+                )}
               </li>
             );
           })}
