@@ -8,3 +8,18 @@ export const ORDER_STATUS_LABEL: Record<string, string> = {
   CANCELLED: "Cancelado",
   REFUNDED: "Reembolsado",
 };
+
+export const PAYMENT_METHOD_LABEL: Record<string, string> = {
+  CASH: "Efectivo",
+  TRANSFER: "Transferencia",
+  CARD: "Tarjeta",
+  MERCADO_PAGO: "Mercado Pago",
+};
+
+export const PAYMENT_STATUS_LABEL: Record<string, string> = {
+  PENDING: "Pendiente",
+  APPROVED: "Aprobado",
+  REJECTED: "Rechazado",
+  REFUNDED: "Reembolsado",
+  CANCELLED: "Cancelado",
+};

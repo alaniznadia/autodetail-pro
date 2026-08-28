@@ -22,6 +22,12 @@ export default async function PosLayout({ children }: { children: React.ReactNod
             >
               Caja
             </Link>
+            <Link
+              href="/pos/ventas"
+              className="font-display text-sm text-foreground/80 hover:text-foreground"
+            >
+              Ventas
+            </Link>
           </nav>
         </div>
         <div className="flex items-center gap-4 text-sm">
