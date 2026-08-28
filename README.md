@@ -116,6 +116,15 @@ Si estas variables no están configuradas, el checkout sigue funcionando
 con efectivo/transferencia; solo la opción de Mercado Pago devuelve un
 error explícito en vez de romper el resto de la compra.
 
+## Imágenes de producto
+
+Las fotos que se suben desde `/admin/productos/[id]/editar` se guardan en
+**Vercel Blob**. Para habilitarlo: en el proyecto de Vercel, pestaña
+**Storage** → **Create Database** → **Blob** → conectarlo al proyecto —
+la variable `BLOB_READ_WRITE_TOKEN` se carga sola, no hace falta copiarla
+a mano. Sin esa variable configurada, la subida de imágenes falla (el
+resto de la tienda funciona igual).
+
 ## Notificaciones por email
 
 El cliente recibe un email de confirmación al crear un pedido online, y

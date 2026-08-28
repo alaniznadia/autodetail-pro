@@ -1,9 +1,5 @@
-import { mkdir, writeFile, unlink } from "node:fs/promises";
-import path from "node:path";
+import { put, del } from "@vercel/blob";
 import crypto from "node:crypto";
-
-const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "products");
-const PUBLIC_PATH_PREFIX = "/uploads/products";
 
 export const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_TYPES: Record<string, string> = {
@@ -15,15 +11,12 @@ const ALLOWED_TYPES: Record<string, string> = {
 export class InvalidImageError extends Error {}
 
 /**
- * Guarda una imagen de producto en disco local (public/uploads/products) y
- * devuelve la URL pública para guardar en ProductImage.url.
- *
- * ⚠️ Esto funciona perfecto en local o en un servidor propio con disco
- * persistente, pero NO sirve en Vercel: el filesystem de las funciones
- * serverless es de solo lectura (salvo /tmp, que no persiste entre
- * requests). Para producción en Vercel hay que reemplazar esta función
- * por una subida a Supabase Storage o Cloudinary — el resto del código
- * (la API route y el formulario del admin) no cambia, solo esta función.
+ * Sube una imagen de producto a Vercel Blob y devuelve la URL pública
+ * para guardar en ProductImage.url. Antes esto escribía a
+ * public/uploads/products en disco local — funcionaba en desarrollo pero
+ * no en Vercel (el filesystem de las funciones serverless es de solo
+ * lectura, salvo /tmp que no persiste entre requests), confirmado en
+ * producción real.
  */
 export async function saveProductImage(file: File): Promise<{ url: string }> {
   if (file.size > MAX_IMAGE_BYTES) {
@@ -34,27 +27,25 @@ export async function saveProductImage(file: File): Promise<{ url: string }> {
     throw new InvalidImageError("Formato no soportado. Usá JPG, PNG o WEBP.");
   }
 
-  await mkdir(UPLOAD_DIR, { recursive: true });
+  const filename = `products/${crypto.randomUUID()}.${extension}`;
+  const blob = await put(filename, file, {
+    access: "public",
+    contentType: file.type,
+  });
 
-  const filename = `${crypto.randomUUID()}.${extension}`;
-  const buffer = Buffer.from(await file.arrayBuffer());
-  await writeFile(path.join(UPLOAD_DIR, filename), buffer);
-
-  return { url: `${PUBLIC_PATH_PREFIX}/${filename}` };
+  return { url: blob.url };
 }
 
 /**
- * Borra el archivo del disco. No falla si el archivo ya no existe (por
- * ejemplo si se subió con un proveedor cloud distinto en el pasado).
+ * Borra el archivo de Vercel Blob. No falla si la URL no es de Blob (por
+ * ejemplo, una imagen vieja subida al disco local antes de este cambio).
  */
 export async function deleteProductImageFile(url: string): Promise<void> {
-  if (!url.startsWith(PUBLIC_PATH_PREFIX)) return; // URL externa (ya migrado a cloud), no hay archivo local que borrar
-  const filename = url.slice(PUBLIC_PATH_PREFIX.length + 1);
-  if (!filename || filename.includes("/") || filename.includes("..")) return;
+  if (!url.includes(".public.blob.vercel-storage.com")) return;
 
   try {
-    await unlink(path.join(UPLOAD_DIR, filename));
+    await del(url);
   } catch (err) {
-    if ((err as NodeJS.ErrnoException).code !== "ENOENT") throw err;
+    console.error("Error borrando imagen de Vercel Blob", err);
   }
 }
