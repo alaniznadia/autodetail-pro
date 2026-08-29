@@ -1,0 +1,75 @@
+/* Nocturne — capa de tema para la app del local y la tienda en móvil.
+   Se importa DESPUÉS de globals.css. No toca las variables existentes
+   (--background/--foreground/--accent): agrega su propia escala, así el
+   panel de admin y la tienda con tema configurable siguen igual. */
+
+@theme inline {
+  --color-noc-bg: #161826;
+  --color-noc-surface: #232532;
+  --color-noc-text: #e9e9ed;
+  --color-noc-muted: #9397ab;
+  --color-noc-divider: #3f424d;
+  --color-noc-accent: #9184d9;
+  --color-noc-accent-soft: #d2cefd;
+  --color-noc-accent-deep: #423a6a;
+  --color-noc-neutral-900: #292b31;
+  --radius-noc: 8px;
+}
+
+/* Scope del tema: poné class="noc" en el <div> raíz del POS móvil o del
+   subárbol de tienda que quieras con este look. */
+.noc {
+  background: var(--color-noc-bg);
+  color: var(--color-noc-text);
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.noc h1, .noc h2, .noc h3, .noc h4, .noc h5 {
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.12;
+}
+
+/* Regla que se desvanece en las puntas — firma del sistema. 16px de fade
+   por lado en móvil (48px en pantallas grandes). */
+.noc-rule {
+  height: 1px;
+  border: 0;
+  background: linear-gradient(to right, transparent, color-mix(in srgb, #e9e9ed 16%, transparent) 16px,
+    color-mix(in srgb, #e9e9ed 16%, transparent) calc(100% - 16px), transparent);
+}
+
+/* Botones: el primario es contorno de acento, nunca relleno. */
+.noc-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; padding: 0 14px; border-radius: var(--radius-noc);
+  font-weight: 500; font-size: 14px; line-height: 1.2;
+  border: 1px solid transparent; background: transparent; color: var(--color-noc-text);
+  cursor: pointer;
+}
+.noc-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.noc-btn-primary { color: var(--color-noc-accent); border-color: var(--color-noc-accent); }
+.noc-btn-primary:hover { background: color-mix(in srgb, #9184d9 12%, transparent); }
+.noc-btn-primary:active { background: color-mix(in srgb, #9184d9 22%, transparent); }
+.noc-btn-secondary { border-color: color-mix(in srgb, #e9e9ed 16%, transparent); }
+.noc-btn-secondary:hover { background: color-mix(in srgb, #e9e9ed 7%, transparent); }
+
+.noc-input {
+  width: 100%; min-height: 44px; padding: 8px 12px; font: inherit; font-size: 15px;
+  color: var(--color-noc-text); caret-color: var(--color-noc-accent);
+  background: var(--color-noc-surface);
+  border: 1px solid color-mix(in srgb, #e9e9ed 16%, transparent);
+  border-radius: var(--radius-noc);
+}
+.noc-input:focus-visible { border-color: var(--color-noc-accent); outline: none; }
+
+.noc-tag {
+  display: inline-flex; align-items: center; font-size: 11px; padding: 3px 10px;
+  border-radius: 6px; background: var(--color-noc-neutral-900); color: #e4e7f5;
+}
+.noc-tag-accent { background: var(--color-noc-accent-deep); color: #f5f4ff; }
+.noc-tag-outline { background: transparent; border: 1px solid var(--color-noc-accent); color: var(--color-noc-accent); }
+
+.noc :focus-visible { outline: 2px solid var(--color-noc-accent); outline-offset: 2px; }

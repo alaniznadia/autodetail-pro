@@ -2,6 +2,7 @@ import { SiteHeader } from "@/components/store/site-header";
 import { SiteFooter } from "@/components/store/site-footer";
 import { CartProvider } from "@/components/store/cart-context";
 import { getStoreTheme, findHeadingFont, findBodyFont } from "@/lib/store-theme";
+import { MobileStoreBar } from "@/components/store/mobile-store-ui";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +34,7 @@ export default async function StoreLayout({ children }: { children: React.ReactN
           {children}
         </main>
         <SiteFooter />
+        <MobileStoreBar />
       </div>
     </CartProvider>
   );

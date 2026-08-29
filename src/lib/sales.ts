@@ -4,6 +4,7 @@ import { decrementStock, priceOrderItems, type SaleItemInput } from "@/lib/stock
 import { claimCoupon } from "@/lib/coupons";
 import { computeManualDiscountAmount, type ManualDiscountInput } from "@/lib/discount";
 import { withIdempotency } from "@/lib/idempotency";
+import { accruePointsForOrder } from "@/lib/loyalty";
 
 export type { SaleItemInput };
 
@@ -101,6 +102,11 @@ async function createPosSaleTransaction(input: CreatePosSaleInput) {
         },
       });
     }
+
+    // La venta del POS nace pagada (no pasa por un cambio de estado que
+    // dispare la acreditación): hoy no acredita nada porque el POS no
+    // identifica al cliente, pero queda listo para cuando lo haga.
+    await accruePointsForOrder(tx, order.id);
 
     return order;
   });

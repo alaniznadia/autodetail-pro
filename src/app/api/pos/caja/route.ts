@@ -26,7 +26,31 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ session: null });
   }
 
-  const totals = await sumPosPaymentsByMethod(locationId, cashSession.openedAt, new Date());
+  const [totals, location, stockItems] = await Promise.all([
+    sumPosPaymentsByMethod(locationId, cashSession.openedAt, new Date()),
+    prisma.location.findUnique({ where: { id: locationId }, select: { name: true } }),
+    prisma.stockItem.findMany({
+      where: { locationId },
+      include: { variant: { include: { product: { select: { name: true } } } } },
+    }),
+  ]);
 
-  return NextResponse.json({ session: cashSession, totals });
+  // Igual que /admin/stock y lib/reports.ts: Prisma no compara dos columnas
+  // entre sí en el where, así que se trae todo y se filtra acá.
+  const lowStock = stockItems
+    .filter((item) => item.quantity <= item.lowStockAlert)
+    .slice(0, 5)
+    .map((item) => ({
+      id: item.id,
+      name: `${item.variant.product.name} — ${item.variant.name}`,
+      quantity: item.quantity,
+    }));
+
+  return NextResponse.json({
+    session: cashSession,
+    totals,
+    locationName: location?.name ?? "",
+    operatorName: session.user.name ?? session.user.email,
+    lowStock,
+  });
 }
