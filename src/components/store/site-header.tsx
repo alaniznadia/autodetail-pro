@@ -30,15 +30,18 @@ export async function SiteHeader({ logoUrl }: { logoUrl: string | null }) {
       >
         Saltar al contenido principal
       </a>
-      <div className="relative mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
-        <Link href="/" className="flex items-center font-display text-xl font-bold tracking-widest">
-          {logoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={logoUrl} alt="Epic Shine" className="h-9 w-auto object-contain" />
-          ) : (
-            "Epic Shine"
-          )}
-        </Link>
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
+        <div className="flex items-center gap-3">
+          <MobileNav categories={categories} />
+          <Link href="/" className="flex items-center font-display text-xl font-bold tracking-widest">
+            {logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={logoUrl} alt="Epic Shine" className="h-9 w-auto object-contain" />
+            ) : (
+              "Epic Shine"
+            )}
+          </Link>
+        </div>
         <nav aria-label="Navegación principal" className="hidden gap-6 md:flex">
           {NAV_LINKS.map((link) => (
             <Link
@@ -51,7 +54,6 @@ export async function SiteHeader({ logoUrl }: { logoUrl: string | null }) {
           ))}
         </nav>
         <div className="flex items-center gap-3 sm:gap-4">
-          <MobileNav categories={categories} />
           <CartLink />
           <Link
             href={session?.user ? "/mi-cuenta" : "/login"}
