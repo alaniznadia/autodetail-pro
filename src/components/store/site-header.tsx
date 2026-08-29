@@ -4,14 +4,6 @@ import { MobileNav } from "@/components/store/mobile-nav";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-const NAV_LINKS = [
-  { href: "/catalogo", label: "Catálogo" },
-  { href: "/catalogo?categoria=ceras", label: "Ceras" },
-  { href: "/catalogo?categoria=shampoo", label: "Shampoo" },
-  { href: "/catalogo?categoria=microfibras", label: "Microfibras" },
-  { href: "/sobre-nosotros", label: "Sobre nosotros" },
-];
-
 export async function SiteHeader({ logoUrl }: { logoUrl: string | null }) {
   const [session, categories] = await Promise.all([
     auth(),
@@ -42,17 +34,6 @@ export async function SiteHeader({ logoUrl }: { logoUrl: string | null }) {
             )}
           </Link>
         </div>
-        <nav aria-label="Navegación principal" className="hidden gap-6 md:flex">
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="font-display text-sm text-foreground/80 transition hover:text-foreground"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
         <div className="flex items-center gap-3 sm:gap-4">
           <CartLink />
           <Link

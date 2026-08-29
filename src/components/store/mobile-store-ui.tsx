@@ -1,12 +1,11 @@
 "use client";
 
 /**
- * Piezas móviles de la tienda pública (web responsive del cliente).
+ * Piezas de la tienda pública (mismo diseño en cualquier tamaño de pantalla).
  *
- * - <MobileStoreBar>: barra inferior fija con total y CTA. Se muestra solo en
- *   pantallas chicas (sm:hidden) y solo si hay algo en el carrito.
- * - <MobileFilterChips>: fila de categorías scrolleable horizontal, reemplaza
- *   el <select> de filtros en móvil.
+ * - <MobileStoreBar>: barra inferior fija con total y CTA, solo si hay algo
+ *   en el carrito.
+ * - <MobileFilterChips>: fila de categorías scrolleable horizontal.
  * - <MobileCheckoutSteps>: indicador de pasos del checkout.
  *
  * Todas leen el carrito del CartContext ya existente
@@ -14,19 +13,23 @@
  */
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useCart } from "@/components/store/cart-context";
 
 const money = (n: number) => "$" + Math.round(n).toLocaleString("es-AR");
 
 export function MobileStoreBar({ href = "/carrito", label = "Ver carrito" }: { href?: string; label?: string }) {
+  const pathname = usePathname();
   const { items } = useCart();
   const count = items.reduce((sum, i) => sum + i.quantity, 0);
   const subtotal = items.reduce((sum, i) => sum + Number(i.price) * i.quantity, 0);
 
-  if (count === 0) return null;
+  // En el checkout ya hay un botón fijo abajo para confirmar el pedido; esta
+  // barra duplicaría esa misma posición.
+  if (count === 0 || pathname?.startsWith("/checkout")) return null;
 
   return (
-    <div className="sticky bottom-0 z-40 flex items-center gap-3 border-t border-border bg-background px-4 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-3 sm:hidden">
+    <div className="sticky bottom-0 z-40 flex items-center gap-3 border-t border-border bg-background px-4 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-3">
       <p className="flex-1 text-xs text-foreground/60">
         {count} {count === 1 ? "producto" : "productos"} · {money(subtotal)}
       </p>
@@ -50,7 +53,7 @@ export function MobileFilterChips({
   return (
     <nav
       aria-label="Categorías"
-      className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       <Link
         href="/catalogo"
@@ -78,7 +81,7 @@ export function MobileFilterChips({
 export function MobileCheckoutSteps({ step }: { step: 1 | 2 | 3 }) {
   const steps = ["Datos", "Entrega", "Pago"];
   return (
-    <ol className="mb-4 flex gap-2 sm:hidden" aria-label="Pasos del checkout">
+    <ol className="mb-4 flex max-w-xs gap-2" aria-label="Pasos del checkout">
       {steps.map((label, i) => {
         const n = (i + 1) as 1 | 2 | 3;
         const done = n <= step;

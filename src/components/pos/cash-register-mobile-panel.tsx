@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Caja del día en móvil — presentacional.
+ * Caja del día — presentacional, mismo diseño en celular y en escritorio.
  * Los totales llegan ya calculados por `sumPosPaymentsByMethod` (src/lib/cash-register.ts),
  * así que el número que se ve antes de cerrar es el mismo que se guarda al cerrar.
  */
@@ -49,7 +49,7 @@ export function CashRegisterMobilePanel({
   ];
 
   return (
-    <div className="noc flex min-h-dvh flex-col gap-4 px-4 py-4">
+    <div className="noc mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 px-4 py-4">
       <div>
         <h1 className="text-lg font-medium">Caja del día</h1>
         <p className="text-[11px] text-noc-muted">

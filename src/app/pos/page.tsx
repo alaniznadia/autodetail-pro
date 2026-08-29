@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { PosTerminal } from "@/components/pos/pos-terminal";
 import { PosMobileTerminal } from "@/components/pos/pos-mobile-terminal";
 
 export default async function PosPage() {
@@ -16,16 +15,9 @@ export default async function PosPage() {
   const initial = locations.find((l) => l.isMain) ?? locations[0];
 
   return (
-    <>
-      <div className="md:hidden">
-        <PosMobileTerminal
-          locations={locations.map((l) => ({ id: l.id, name: l.name }))}
-          initialLocationId={initial.id}
-        />
-      </div>
-      <div className="hidden md:block">
-        <PosTerminal locationId={initial.id} />
-      </div>
-    </>
+    <PosMobileTerminal
+      locations={locations.map((l) => ({ id: l.id, name: l.name }))}
+      initialLocationId={initial.id}
+    />
   );
 }

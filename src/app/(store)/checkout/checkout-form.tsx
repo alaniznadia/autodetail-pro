@@ -543,13 +543,13 @@ export function CheckoutForm({
           </p>
         )}
 
-        <div className="sticky bottom-0 border-t border-border bg-background px-4 py-3 -mx-4 sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0">
+        <div className="sticky bottom-0 -mx-4 border-t border-border bg-background px-4 py-3">
           <button
             type="submit"
             disabled={
               submitting || (fulfillmentMethod === "SHIPPING" && (quoting || Boolean(shippingError)))
             }
-            className="w-full rounded border border-accent px-8 py-3 font-display text-lg hover:bg-accent hover:text-background disabled:opacity-50 sm:w-fit"
+            className="w-full rounded border border-accent px-8 py-3 font-display text-lg hover:bg-accent hover:text-background disabled:opacity-50"
           >
             {submitting ? "Confirmando..." : "Confirmar pedido"}
           </button>
