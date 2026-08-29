@@ -43,10 +43,7 @@ export default async function CatalogPage({
     <div className="mx-auto max-w-6xl px-4 py-10">
       <h1 className="font-display text-3xl font-bold">Catálogo</h1>
 
-      <form
-        role="search"
-        className="mt-6 flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-center sm:justify-between"
-      >
+      <form role="search" className="mt-6 flex flex-col gap-4 border-b border-border pb-6">
         {categoria && <input type="hidden" name="categoria" value={categoria} />}
         <label htmlFor="q" className="sr-only">
           Buscar productos
@@ -59,27 +56,6 @@ export default async function CatalogPage({
           placeholder="Buscar productos..."
           className="w-full max-w-sm rounded border border-border bg-background px-3 py-2"
         />
-        <div className="hidden flex-wrap gap-2 sm:flex">
-          <Link
-            href="/catalogo"
-            className={`rounded border px-3 py-1.5 text-sm ${
-              !categoria ? "border-accent bg-accent text-background" : "border-border"
-            }`}
-          >
-            Todas
-          </Link>
-          {categories.map((c) => (
-            <Link
-              key={c.id}
-              href={`/catalogo?categoria=${c.slug}`}
-              className={`rounded border px-3 py-1.5 text-sm ${
-                categoria === c.slug ? "border-accent bg-accent text-background" : "border-border"
-              }`}
-            >
-              {c.name}
-            </Link>
-          ))}
-        </div>
       </form>
 
       <MobileFilterChips
@@ -90,7 +66,7 @@ export default async function CatalogPage({
       {products.length === 0 ? (
         <p className="mt-10 text-foreground/60">No encontramos productos con ese filtro.</p>
       ) : (
-        <ul className="mt-6 grid grid-cols-2 gap-x-3 gap-y-5 sm:mt-10 sm:grid-cols-3 sm:gap-6 md:grid-cols-4">
+        <ul className="mt-6 grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3 md:grid-cols-4">
           {products.map((product) => {
             const variant = product.variants[0];
             const image = product.images[0];

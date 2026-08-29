@@ -1,10 +1,9 @@
 "use client";
 
 /**
- * Glue entre los endpoints existentes de caja (/api/pos/caja*, ya usados
- * por CashRegisterPanel de escritorio) y el panel presentacional móvil
- * (CashRegisterMobilePanel). Mismo flujo abrir → operar → cerrar, sin
- * cambios de API.
+ * Glue entre los endpoints existentes de caja (/api/pos/caja*) y el panel
+ * presentacional (CashRegisterMobilePanel). Mismo flujo abrir → operar →
+ * cerrar, sin cambios de API. Mismo diseño en celular y en escritorio.
  */
 
 import { useEffect, useState } from "react";
@@ -91,7 +90,7 @@ export function CashRegisterMobile({ locationId }: { locationId: string }) {
 
   if (!state?.session) {
     return (
-      <div className="noc flex min-h-dvh flex-col gap-4 px-4 py-4">
+      <div className="noc mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 px-4 py-4">
         <h1 className="text-lg font-medium">Caja del día</h1>
         <p className="text-sm text-noc-muted">No hay ninguna caja abierta.</p>
         {error && <p className="text-sm text-noc-accent-soft">{error}</p>}
@@ -121,7 +120,7 @@ export function CashRegisterMobile({ locationId }: { locationId: string }) {
   return (
     <>
       {error && (
-        <p role="alert" className="noc bg-noc-bg px-4 pt-4 text-sm text-noc-accent-soft">
+        <p role="alert" className="noc mx-auto max-w-md bg-noc-bg px-4 pt-4 text-sm text-noc-accent-soft">
           {error}
         </p>
       )}

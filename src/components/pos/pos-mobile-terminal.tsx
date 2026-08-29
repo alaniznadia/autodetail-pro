@@ -1,17 +1,13 @@
 "use client";
 
 /**
- * POS móvil — la app del local en el teléfono.
- *
- * Misma lógica que `pos-terminal.tsx` (búsqueda por nombre/SKU/código de
- * barras, cupón, descuento manual, métodos de pago, idempotencia), pero con
- * layout de una sola columna, targets de 44px y el total fijo abajo.
- * Usa exactamente los mismos endpoints, así que no requiere cambios de API:
+ * Terminal del POS — layout de una sola columna, targets de 44px, el total
+ * fijo abajo y selector de sucursal (multi-local). Mismo diseño en celular
+ * y en escritorio (centrado con un ancho máximo en pantallas anchas).
+ * Usa los endpoints existentes, sin cambios de API:
  *   GET  /api/products/search?q=&locationId=
  *   POST /api/coupons/validate
  *   POST /api/pos/sale
- *
- * Nuevo respecto del terminal de escritorio: selector de sucursal (multi-local).
  */
 
 import { useState, useRef } from "react";
@@ -182,7 +178,7 @@ export function PosMobileTerminal({
   }
 
   return (
-    <div className="noc flex min-h-dvh flex-col">
+    <div className="noc mx-auto flex min-h-dvh w-full max-w-md flex-col">
       {/* Encabezado: marca + sucursal activa */}
       <header className="flex items-center gap-3 bg-[#1b1d2b] px-4 pb-3 pt-4">
         <span className="mr-auto text-xs font-medium uppercase tracking-[0.16em] text-noc-accent">

@@ -5,9 +5,9 @@ import Link from "next/link";
 
 type Category = { slug: string; name: string };
 
-// Botón "Catálogo" a la izquierda del header, solo en mobile (en desktop
-// ya está el nav completo al lado). Al tocarlo despliega directamente sus
-// categorías, sin pasar primero por un menú hamburguesa genérico.
+// Botón "Catálogo" a la izquierda del header. Al tocarlo despliega
+// directamente sus categorías, sin pasar primero por un menú hamburguesa
+// genérico ni por un nav de texto aparte.
 export function MobileNav({ categories }: { categories: Category[] }) {
   const [open, setOpen] = useState(false);
 
@@ -16,7 +16,7 @@ export function MobileNav({ categories }: { categories: Category[] }) {
   }
 
   return (
-    <div className="relative md:hidden">
+    <div className="relative">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
