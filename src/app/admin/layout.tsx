@@ -13,6 +13,7 @@ const NAV = [
   { href: "/admin/compras", label: "Compras" },
   { href: "/admin/envios", label: "Envíos" },
   { href: "/admin/cupones", label: "Cupones" },
+  { href: "/admin/fidelidad", label: "Fidelidad" },
   { href: "/admin/resenas", label: "Reseñas" },
   { href: "/admin/apariencia", label: "Apariencia" },
   { href: "/admin/reportes", label: "Reportes" },

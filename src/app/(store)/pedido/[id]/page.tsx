@@ -1,6 +1,10 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 import { ORDER_STATUS_LABEL } from "@/lib/order-status";
+import { getStoreSettings } from "@/lib/store-settings";
+import { getBalance } from "@/lib/loyalty";
+import { LoyaltyBalanceCard } from "@/components/store/loyalty-ui";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +26,14 @@ export default async function OrderConfirmationPage({
   });
 
   if (!order) notFound();
+
+  // Solo se muestra si quien mira el pedido es el mismo cliente logueado
+  // (un pedido de invitado, o el de otro cliente, no expone el saldo).
+  const session = await auth();
+  const settings = await getStoreSettings();
+  const showLoyalty =
+    settings.loyaltyEnabled && order.customerId && order.customerId === session?.user?.id;
+  const balance = showLoyalty ? await getBalance(order.customerId!) : 0;
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
@@ -67,6 +79,16 @@ export default async function OrderConfirmationPage({
           ? "Retirás tu pedido en el local. Te contactaremos por WhatsApp para coordinar."
           : `Enviamos a ${order.address?.street} ${order.address?.number}, ${order.address?.city}. Te contactaremos para coordinar el pago y el envío.`}
       </p>
+
+      {showLoyalty && (
+        <div className="mt-6">
+          <LoyaltyBalanceCard
+            balance={balance}
+            nextRewardAt={settings.loyaltyMinRedeem}
+            pointValue={Number(settings.loyaltyPointValue)}
+          />
+        </div>
+      )}
     </div>
   );
 }

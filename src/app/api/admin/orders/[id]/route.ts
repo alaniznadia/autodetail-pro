@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { RESTOCK_STATUSES, restockOrderItems } from "@/lib/stock-returns";
 import { notifyOrderStatusChanged } from "@/lib/order-notifications";
+import { accruePointsForOrder, reversePointsForOrder } from "@/lib/loyalty";
 
 const schema = z.object({
   status: z.enum([
@@ -45,9 +46,12 @@ export async function PATCH(
 
     // Solo devolvemos stock la primera vez que el pedido entra a un estado
     // cancelado/reembolsado; si ya estaba en uno de esos estados, no
-    // duplicamos el ingreso.
+    // duplicamos el ingreso. Mismo cuidado con los puntos de fidelidad.
     if (RESTOCK_STATUSES.has(parsed.data.status) && !RESTOCK_STATUSES.has(existing.status)) {
       await restockOrderItems(tx, id, existing.locationId, session?.user?.id);
+      await reversePointsForOrder(tx, id);
+    } else if (parsed.data.status === "PAID" && existing.status !== "PAID") {
+      await accruePointsForOrder(tx, id);
     }
 
     return updated;

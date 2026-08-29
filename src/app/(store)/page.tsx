@@ -88,7 +88,7 @@ export default async function HomePage() {
             Todavía no hay productos cargados. Cargalos desde el panel de administración.
           </p>
         ) : (
-          <ul className="mt-6 grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4">
+          <ul className="mt-6 grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3 sm:gap-6 md:grid-cols-4">
             {featuredProducts.map((product) => {
               const variant = product.variants[0];
               const image = product.images[0];

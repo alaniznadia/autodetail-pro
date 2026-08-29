@@ -4,6 +4,9 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ORDER_STATUS_LABEL } from "@/lib/order-status";
 import { SignOutButton } from "@/components/store/sign-out-button";
+import { getStoreSettings } from "@/lib/store-settings";
+import { getBalance } from "@/lib/loyalty";
+import { LoyaltyBalanceCard } from "@/components/store/loyalty-ui";
 
 export const dynamic = "force-dynamic";
 
@@ -12,11 +15,15 @@ export default async function MyAccountPage() {
   // proxy.ts ya protege /mi-cuenta, esto es solo defensa en profundidad.
   if (!session?.user) redirect("/login");
 
-  const orders = await prisma.order.findMany({
-    where: { customerId: session.user.id },
-    orderBy: { createdAt: "desc" },
-    include: { items: true },
-  });
+  const [orders, settings, balance] = await Promise.all([
+    prisma.order.findMany({
+      where: { customerId: session.user.id },
+      orderBy: { createdAt: "desc" },
+      include: { items: true },
+    }),
+    getStoreSettings(),
+    getBalance(session.user.id),
+  ]);
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
@@ -50,6 +57,16 @@ export default async function MyAccountPage() {
           >
             Ir al punto de venta
           </Link>
+        </div>
+      )}
+
+      {settings.loyaltyEnabled && (
+        <div className="mt-6 max-w-sm">
+          <LoyaltyBalanceCard
+            balance={balance}
+            nextRewardAt={settings.loyaltyMinRedeem}
+            pointValue={Number(settings.loyaltyPointValue)}
+          />
         </div>
       )}
 

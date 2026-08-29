@@ -9,6 +9,7 @@ import { prisma } from "@/lib/prisma";
 import { mapMercadoPagoStatus } from "@/lib/mercadopago";
 import { RESTOCK_STATUSES, restockOrderItems } from "@/lib/stock-returns";
 import { notifyOrderStatusChanged } from "@/lib/order-notifications";
+import { accruePointsForOrder, reversePointsForOrder } from "@/lib/loyalty";
 
 /**
  * Recibe las notificaciones de pago de Mercado Pago. Valida la firma
@@ -95,6 +96,9 @@ export async function POST(req: NextRequest) {
 
         if (RESTOCK_STATUSES.has(orderStatus) && !RESTOCK_STATUSES.has(order.status)) {
           await restockOrderItems(tx, orderId, order.locationId);
+          await reversePointsForOrder(tx, orderId);
+        } else if (orderStatus === "PAID") {
+          await accruePointsForOrder(tx, orderId);
         }
         return true;
       }

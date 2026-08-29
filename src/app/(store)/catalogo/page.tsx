@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { getStoreTheme, resolveCatalogCardStyle } from "@/lib/store-theme";
 import { QuickAddButton } from "@/components/store/quick-add-button";
+import { MobileFilterChips } from "@/components/store/mobile-store-ui";
 
 export const dynamic = "force-dynamic";
 
@@ -58,7 +59,7 @@ export default async function CatalogPage({
           placeholder="Buscar productos..."
           className="w-full max-w-sm rounded border border-border bg-background px-3 py-2"
         />
-        <div className="flex flex-wrap gap-2">
+        <div className="hidden flex-wrap gap-2 sm:flex">
           <Link
             href="/catalogo"
             className={`rounded border px-3 py-1.5 text-sm ${
@@ -81,10 +82,15 @@ export default async function CatalogPage({
         </div>
       </form>
 
+      <MobileFilterChips
+        categories={categories.map((c) => ({ slug: c.slug, name: c.name }))}
+        active={categoria}
+      />
+
       {products.length === 0 ? (
         <p className="mt-10 text-foreground/60">No encontramos productos con ese filtro.</p>
       ) : (
-        <ul className="mt-10 grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4">
+        <ul className="mt-6 grid grid-cols-2 gap-x-3 gap-y-5 sm:mt-10 sm:grid-cols-3 sm:gap-6 md:grid-cols-4">
           {products.map((product) => {
             const variant = product.variants[0];
             const image = product.images[0];

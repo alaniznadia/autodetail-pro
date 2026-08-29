@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { createOnlineOrder } from "@/lib/orders";
 import { InsufficientStockError } from "@/lib/errors";
 import { InvalidCouponError } from "@/lib/coupons";
+import { LoyaltyError } from "@/lib/loyalty";
 import { notifyOrderCreated } from "@/lib/order-notifications";
 
 const orderSchema = z.object({
@@ -14,6 +15,7 @@ const orderSchema = z.object({
   guestEmail: z.string().email(),
   guestPhone: z.string().min(6),
   couponCode: z.string().min(1).optional(),
+  pointsToRedeem: z.number().int().positive().optional(),
   idempotencyKey: z.string().min(1).max(100).optional(),
   shippingAddress: z
     .object({
@@ -71,6 +73,9 @@ export async function POST(req: NextRequest) {
       guestEmail: data.guestEmail,
       guestPhone: data.guestPhone,
       couponCode: data.couponCode,
+      // Canje de puntos solo para clientes logueados: si mandan
+      // pointsToRedeem sin sesión, se ignora en vez de fallar el pedido.
+      pointsToRedeem: session?.user?.id ? data.pointsToRedeem : undefined,
       idempotencyKey: data.idempotencyKey,
       shippingAddress: data.shippingAddress,
     });
@@ -84,6 +89,9 @@ export async function POST(req: NextRequest) {
       );
     }
     if (err instanceof InvalidCouponError) {
+      return NextResponse.json({ error: err.message }, { status: 400 });
+    }
+    if (err instanceof LoyaltyError) {
       return NextResponse.json({ error: err.message }, { status: 400 });
     }
     console.error("Error creando pedido online", err);

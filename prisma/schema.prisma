@@ -95,6 +95,7 @@ model User {
   cashSessions   CashRegisterSession[]
   purchaseOrders PurchaseOrder[]
   reviews        Review[]
+  loyaltyAccount LoyaltyAccount?
 
   @@index([role])
 }
@@ -433,6 +434,7 @@ model Order {
   shippingProvider  String? // "correo_argentino" | "andreani" | null (retiro en local)
   trackingCode      String?
   notes             String?
+  pointsRedeemed    Int               @default(0) // puntos de fidelidad canjeados en este pedido
   // Clave que manda el cliente (checkout online) o el POS al confirmar.
   // Si llega dos veces la misma clave (doble clic, reintento de red),
   // se devuelve el pedido ya creado en vez de duplicar la venta.
@@ -512,4 +514,60 @@ model CashRegisterSession {
   closedAt      DateTime?
 
   @@index([locationId])
+}
+
+// ---------------------------------------------------------------------------
+// Configuración transversal de la tienda (envío gratis, fidelidad) y puntos
+// ---------------------------------------------------------------------------
+
+enum LoyaltyMovementKind {
+  ACCRUAL // puntos sumados por un pedido pagado
+  REDEMPTION // puntos canjeados como descuento
+  ADJUSTMENT // ajuste manual desde el admin
+}
+
+// Configuración transversal de la tienda que no es apariencia. Fila única
+// (id fijo "default"), mismo patrón que StoreTheme y Location "main-location".
+model StoreSettings {
+  id String @id @default("default")
+
+  // Envío gratis: si el subtotal (ya con descuentos) alcanza este monto, el
+  // envío se cobra $0. Null = sin envío gratis.
+  freeShippingFrom Decimal? @db.Decimal(10, 2)
+
+  // Fidelidad
+  loyaltyEnabled     Boolean @default(false)
+  loyaltyArsPerPoint Int     @default(1000) // $1.000 pagados = 1 punto
+  loyaltyPointValue  Decimal @default(35) @db.Decimal(10, 2) // valor de 1 punto al canjear
+  loyaltyMinRedeem   Int     @default(100) // mínimo de puntos para poder canjear
+
+  updatedAt DateTime @updatedAt
+}
+
+// Cuenta de puntos por cliente registrado. Los pedidos de invitado suman
+// solo si el email coincide con una cuenta existente (ver lib/loyalty.ts).
+model LoyaltyAccount {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  balance   Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  movements LoyaltyMovement[]
+}
+
+model LoyaltyMovement {
+  id        String              @id @default(cuid())
+  accountId String
+  account   LoyaltyAccount      @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  kind      LoyaltyMovementKind
+  points    Int // positivo = suma, negativo = canje
+  orderId   String? // pedido que originó el movimiento
+  reason    String?
+  createdAt DateTime            @default(now())
+
+  // Un pedido no puede acreditar dos veces ni canjear dos veces: hace que
+  // el webhook de Mercado Pago y el cambio manual de estado sean idempotentes.
+  @@unique([orderId, kind])
+  @@index([accountId])
 }

@@ -45,7 +45,7 @@ export default async function PosLayout({ children }: { children: React.ReactNod
           </form>
         </div>
       </header>
-      <main className="p-4 print:p-0">{children}</main>
+      <main className="p-0 md:p-4 print:p-0">{children}</main>
     </div>
   );
 }
