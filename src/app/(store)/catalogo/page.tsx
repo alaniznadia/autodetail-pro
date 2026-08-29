@@ -1,8 +1,7 @@
-import Link from "next/link";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
-import { getStoreTheme, resolveCatalogCardStyle } from "@/lib/store-theme";
-import { QuickAddButton } from "@/components/store/quick-add-button";
+import { CatalogView } from "@/components/store/catalog-view";
+import type { CatalogProduct } from "@/components/store/product-card";
 import { MobileFilterChips } from "@/components/store/mobile-store-ui";
 
 export const dynamic = "force-dynamic";
@@ -16,11 +15,11 @@ export const metadata: Metadata = {
 export default async function CatalogPage({
   searchParams,
 }: {
-  searchParams: Promise<{ categoria?: string; q?: string }>;
+  searchParams: Promise<{ categoria?: string; q?: string; orden?: string; stock?: string }>;
 }) {
-  const { categoria, q } = await searchParams;
+  const { categoria, q, orden, stock } = await searchParams;
 
-  const [categories, products, theme] = await Promise.all([
+  const [categories, products] = await Promise.all([
     prisma.category.findMany({ orderBy: { name: "asc" } }),
     prisma.product.findMany({
       where: {
@@ -32,84 +31,49 @@ export default async function CatalogPage({
         variants: { where: { active: true }, take: 1, include: { stockItems: true } },
         images: { take: 1 },
       },
-      orderBy: { name: "asc" },
+      orderBy:
+        orden === "precio-asc" || orden === "precio-desc"
+          ? undefined
+          : { name: "asc" },
     }),
-    getStoreTheme(),
   ]);
 
-  const cardStyle = resolveCatalogCardStyle(theme);
+  let items: CatalogProduct[] = products.map((product) => {
+    const variant = product.variants[0];
+    const image = product.images[0];
+    const productStock = variant?.stockItems.reduce((sum, s) => sum + s.quantity, 0) ?? 0;
+    return {
+      id: product.id,
+      slug: product.slug,
+      sku: variant?.sku ?? "",
+      name: product.name,
+      variantId: variant?.id ?? "",
+      variantName: variant?.name ?? "",
+      variantLabel: variant && variant.name !== "Único" ? variant.name : null,
+      price: variant?.price.toString() ?? "0",
+      stock: productStock,
+      imageUrl: image?.url ?? null,
+    };
+  });
+
+  if (stock === "1") items = items.filter((p) => p.stock > 0);
+  if (orden === "precio-asc") items = [...items].sort((a, b) => Number(a.price) - Number(b.price));
+  if (orden === "precio-desc") items = [...items].sort((a, b) => Number(b.price) - Number(a.price));
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="font-display text-3xl font-bold">Catálogo</h1>
-
-      <form role="search" className="mt-6 flex flex-col gap-4 border-b border-border pb-6">
-        {categoria && <input type="hidden" name="categoria" value={categoria} />}
-        <label htmlFor="q" className="sr-only">
-          Buscar productos
-        </label>
-        <input
-          id="q"
-          name="q"
-          type="search"
-          defaultValue={q}
-          placeholder="Buscar productos..."
-          className="w-full max-w-sm rounded border border-border bg-background px-3 py-2"
+    <div className="mx-auto max-w-[1240px] px-4 pb-2 pt-8 sm:px-8">
+      <h1 className="mb-4 text-2xl font-medium tracking-[-0.02em]">Catálogo</h1>
+      <div className="mb-6 sm:hidden">
+        <MobileFilterChips
+          categories={categories.map((c) => ({ slug: c.slug, name: c.name }))}
+          active={categoria}
         />
-      </form>
-
-      <MobileFilterChips
+      </div>
+      <CatalogView
+        products={items}
         categories={categories.map((c) => ({ slug: c.slug, name: c.name }))}
-        active={categoria}
+        activeCategory={categoria}
       />
-
-      {products.length === 0 ? (
-        <p className="mt-10 text-foreground/60">No encontramos productos con ese filtro.</p>
-      ) : (
-        <ul className="mt-6 grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3 md:grid-cols-4">
-          {products.map((product) => {
-            const variant = product.variants[0];
-            const image = product.images[0];
-            const stock = variant?.stockItems.reduce((sum, s) => sum + s.quantity, 0) ?? 0;
-            return (
-              <li key={product.id} className="rounded border border-border p-3 transition hover:border-accent">
-                <Link href={`/producto/${product.slug}`} className="group block">
-                  <div className="aspect-square overflow-hidden rounded bg-white">
-                    {image && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={image.url}
-                        alt={image.altText}
-                        className="h-full w-full object-contain transition group-hover:scale-105"
-                      />
-                    )}
-                  </div>
-                  <p className="mt-2 font-display text-sm" style={cardStyle.textStyle}>
-                    {product.name}
-                  </p>
-                  {variant && (
-                    <p className="text-sm text-foreground/70" style={cardStyle.textStyle}>
-                      ${variant.price.toString()}
-                    </p>
-                  )}
-                </Link>
-                {variant && (
-                  <QuickAddButton
-                    variantId={variant.id}
-                    productSlug={product.slug}
-                    productName={product.name}
-                    variantName={variant.name}
-                    price={variant.price.toString()}
-                    imageUrl={image?.url}
-                    disabled={stock <= 0}
-                    color={cardStyle.buttonColor}
-                  />
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      )}
     </div>
   );
 }

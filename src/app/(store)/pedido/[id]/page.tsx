@@ -5,6 +5,7 @@ import { ORDER_STATUS_LABEL } from "@/lib/order-status";
 import { getStoreSettings } from "@/lib/store-settings";
 import { getBalance } from "@/lib/loyalty";
 import { LoyaltyBalanceCard } from "@/components/store/loyalty-ui";
+import { OrderTracking } from "@/components/store/order-tracking";
 
 export const dynamic = "force-dynamic";
 
@@ -22,10 +23,16 @@ export default async function OrderConfirmationPage({
       address: true,
       payments: true,
       coupon: true,
+      statusHistory: { orderBy: { createdAt: "asc" } },
     },
   });
 
   if (!order) notFound();
+
+  const history = order.statusHistory.reduce<Partial<Record<typeof order.status, Date>>>(
+    (acc, h) => ({ ...acc, [h.status]: h.createdAt }),
+    {}
+  );
 
   // Solo se muestra si quien mira el pedido es el mismo cliente logueado
   // (un pedido de invitado, o el de otro cliente, no expone el saldo).
@@ -37,10 +44,14 @@ export default async function OrderConfirmationPage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
-      <h1 className="font-display text-2xl font-bold">¡Gracias por tu pedido!</h1>
+      <h1 className="text-2xl font-medium tracking-[-0.02em]">¡Gracias por tu pedido!</h1>
       <p className="mt-2 text-foreground/70">
         Pedido #{order.orderNumber} — estado: {ORDER_STATUS_LABEL[order.status] ?? order.status}
       </p>
+
+      <div className="mt-8 rounded border border-border p-5">
+        <OrderTracking status={order.status} fulfillmentMethod={order.fulfillmentMethod} history={history} />
+      </div>
 
       <ul className="mt-6 divide-y divide-border rounded border border-border">
         {order.items.map((item) => (
@@ -68,7 +79,7 @@ export default async function OrderConfirmationPage({
             <span>-${order.discountTotal.toString()}</span>
           </p>
         )}
-        <p className="mt-2 flex justify-between font-display text-lg">
+        <p className="mt-2 flex justify-between text-lg">
           <span>Total</span>
           <span>${order.total.toString()}</span>
         </p>

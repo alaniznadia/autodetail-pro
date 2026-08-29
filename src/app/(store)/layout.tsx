@@ -1,34 +1,39 @@
 import { SiteHeader } from "@/components/store/site-header";
 import { SiteFooter } from "@/components/store/site-footer";
 import { CartProvider } from "@/components/store/cart-context";
-import { getStoreTheme, findHeadingFont, findBodyFont } from "@/lib/store-theme";
+import { getStoreTheme } from "@/lib/store-theme";
 import { MobileStoreBar } from "@/components/store/mobile-store-ui";
 
 export const dynamic = "force-dynamic";
 
-export default async function StoreLayout({ children }: { children: React.ReactNode }) {
-  const theme = await getStoreTheme();
-  const headingFont = findHeadingFont(theme.headingFont);
-  const bodyFont = findBodyFont(theme.bodyFont);
-  const fontsHref = `https://fonts.googleapis.com/css2?family=${headingFont.google}&family=${bodyFont.google}&display=swap`;
+// Paleta "Nocturne": la tienda pública ya no usa el color/tipografía
+// personalizable de /admin/apariencia (se reemplazó por un tema fijo, a
+// pedido). Estos valores son los mismos tokens que ya usa el POS bajo la
+// clase .noc (ver nocturne.css) — acá se aplican como el tema por defecto
+// de TODO el subárbol de la tienda en vez de quedar detrás de una clase
+// de scope, así los componentes existentes (que ya usan bg-background,
+// text-foreground, border-border, etc.) los heredan sin tocarlos.
+const NOCTURNE_STORE_THEME = {
+  "--background": "#161826",
+  "--foreground": "#e9e9ed",
+  "--accent": "#9184d9",
+  "--muted": "#292b31",
+  "--border": "#3f424d",
+  "--surface": "#232532",
+  "--font-condensed": '"Inter"',
+  "--font-body": '"Inter"',
+  fontSize: "16px",
+} as React.CSSProperties;
 
-  // Estas variables son las mismas que usa todo el resto de la tienda
-  // (Tailwind bg-background/text-foreground y la clase .font-display, ver
-  // globals.css); al redefinirlas acá, solo se pisan para este subárbol —
-  // el panel de admin y el POS no se ven afectados.
-  const themeStyle = {
-    "--background": theme.backgroundColor,
-    "--foreground": theme.textColor,
-    "--accent": theme.accentColor,
-    "--font-condensed": `"${headingFont.family}"`,
-    "--font-body": `"${bodyFont.family}"`,
-    fontSize: `${theme.baseFontSizePx}px`,
-  } as React.CSSProperties;
+export default async function StoreLayout({ children }: { children: React.ReactNode }) {
+  // El logo/favicon siguen siendo personalizables desde /admin/apariencia;
+  // solo el color/tipografía quedó fijo.
+  const theme = await getStoreTheme();
 
   return (
     <CartProvider>
-      <link rel="stylesheet" href={fontsHref} />
-      <div style={themeStyle} className="flex min-h-screen flex-1 flex-col bg-background text-foreground">
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" />
+      <div style={NOCTURNE_STORE_THEME} className="flex min-h-screen flex-1 flex-col bg-background text-foreground">
         <SiteHeader logoUrl={theme.logoUrl} />
         <main id="main-content" className="flex-1">
           {children}

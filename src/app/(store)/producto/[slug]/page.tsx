@@ -125,43 +125,62 @@ export default async function ProductPage({
   };
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10">
+    <div className="mx-auto max-w-[1240px] px-4 pb-14 pt-6 sm:px-8">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <nav aria-label="Categoría" className="text-sm text-foreground/60">
-        {product.category.name}
+      <nav className="mb-6 text-xs text-foreground/45" aria-label="Ruta">
+        <a href="/catalogo" className="hover:text-foreground">Catálogo</a> / {product.category.name} / {product.name}
       </nav>
 
-      <div className="mt-4 grid gap-10 md:grid-cols-2">
-        <div className="aspect-square overflow-hidden rounded bg-white">
-          {product.images[0] && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={product.images[0].url}
-              alt={product.images[0].altText}
-              className="h-full w-full object-contain"
-            />
-          )}
+      <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
+        <div className="flex w-full shrink-0 flex-col gap-3 lg:w-[520px]">
+          <div className="relative aspect-square overflow-hidden rounded border border-border bg-surface">
+            {product.images[0] && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={product.images[0].url}
+                alt={product.images[0].altText}
+                className="h-full w-full object-cover"
+              />
+            )}
+          </div>
+          {product.images.length > 1 ? (
+            <div className="grid grid-cols-4 gap-3">
+              {product.images.slice(1, 5).map((img) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={img.id}
+                  src={img.url}
+                  alt=""
+                  className="aspect-square overflow-hidden rounded border border-border object-cover"
+                />
+              ))}
+            </div>
+          ) : null}
         </div>
 
-        <div>
-          <h1 className="font-display text-3xl font-bold">{product.name}</h1>
-          {averageRating && (
-            <p className="mt-1 text-sm text-foreground/70">
-              <span aria-hidden="true">{"★".repeat(Math.round(averageRating))}</span>
-              <span className="sr-only">
-                {averageRating.toFixed(1)} de 5 estrellas
-              </span>{" "}
-              {averageRating.toFixed(1)} ({reviewCount}{" "}
-              {reviewCount === 1 ? "reseña" : "reseñas"})
-            </p>
-          )}
-          {product.brand && <p className="mt-1 text-foreground/60">{product.brand}</p>}
-          {product.description && (
-            <p className="mt-4 text-foreground/80">{product.description}</p>
-          )}
+        <div className="flex min-w-0 flex-1 flex-col gap-4">
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.16em] text-accent">{product.category.name}</p>
+            <h1 className="mt-2.5 text-[28px] font-medium leading-[1.1] tracking-[-0.025em] sm:text-[34px]">
+              {product.name}
+            </h1>
+            {averageRating && (
+              <p className="mt-2 text-sm text-foreground/70">
+                <span aria-hidden="true">{"★".repeat(Math.round(averageRating))}</span>
+                <span className="sr-only">{averageRating.toFixed(1)} de 5 estrellas</span>{" "}
+                {averageRating.toFixed(1)} ({reviewCount} {reviewCount === 1 ? "reseña" : "reseñas"})
+              </p>
+            )}
+            {product.brand && <p className="mt-1 text-sm text-foreground/60">{product.brand}</p>}
+            {product.description && (
+              <p className="mt-2.5 max-w-[520px] text-sm leading-[1.65] text-foreground/60 text-pretty">
+                {product.description}
+              </p>
+            )}
+          </div>
 
           {variants.length > 0 ? (
             <AddToCart
@@ -171,13 +190,13 @@ export default async function ProductPage({
               variants={variants}
             />
           ) : (
-            <p className="mt-6 text-foreground/60">Este producto no tiene stock cargado.</p>
+            <p className="text-foreground/60">Este producto no tiene stock cargado.</p>
           )}
         </div>
       </div>
 
       <div className="mt-12 max-w-2xl border-t border-border pt-10">
-        <h2 className="font-display text-lg">Reseñas</h2>
+        <h2 className="text-lg font-medium">Reseñas</h2>
 
         {canReview && (
           <>

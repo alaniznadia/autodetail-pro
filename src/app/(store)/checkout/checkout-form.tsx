@@ -151,10 +151,10 @@ export function CheckoutForm({
   if (items.length === 0) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <h1 className="font-display text-2xl font-bold">No tenés productos en el carrito</h1>
+        <h1 className="text-2xl font-medium">No tenés productos en el carrito</h1>
         <Link
           href="/catalogo"
-          className="mt-6 inline-block rounded border border-accent px-6 py-3 font-display text-sm hover:bg-accent hover:text-background"
+          className="mt-6 inline-block rounded border border-accent px-6 py-3 text-sm text-accent hover:bg-accent/10"
         >
           Ver catálogo
         </Link>
@@ -249,242 +249,175 @@ export function CheckoutForm({
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="font-display text-2xl font-bold">Finalizar compra</h1>
+    <div className="mx-auto max-w-[1100px] px-4 pb-28 pt-8 sm:px-8 sm:pb-14">
+      <h1 className="mb-4 text-2xl font-medium tracking-[-0.02em]">Finalizar compra</h1>
 
       <MobileCheckoutSteps step={checkoutStep} />
 
-      <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-8">
-        <fieldset className="grid gap-4 sm:grid-cols-3">
-          <legend className="font-display text-lg">Tus datos</legend>
-          <div>
-            <label htmlFor="guestName" className="block text-sm">
-              Nombre y apellido
-            </label>
-            <input
-              id="guestName"
-              required
-              value={guestName}
-              onChange={(e) => setGuestName(e.target.value)}
-              className="mt-1 w-full rounded border border-border bg-background px-3 py-2"
-            />
-          </div>
-          <div>
-            <label htmlFor="guestEmail" className="block text-sm">
-              Email
-            </label>
-            <input
-              id="guestEmail"
-              type="email"
-              required
-              value={guestEmail}
-              onChange={(e) => setGuestEmail(e.target.value)}
-              className="mt-1 w-full rounded border border-border bg-background px-3 py-2"
-            />
-          </div>
-          <div>
-            <label htmlFor="guestPhone" className="block text-sm">
-              Teléfono
-            </label>
-            <input
-              id="guestPhone"
-              type="tel"
-              required
-              value={guestPhone}
-              onChange={(e) => setGuestPhone(e.target.value)}
-              className="mt-1 w-full rounded border border-border bg-background px-3 py-2"
-            />
-          </div>
-        </fieldset>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-12">
+        <div className="min-w-0 flex-1 flex flex-col gap-8">
+          <Section title="1 · Tus datos">
+            <div className="grid gap-4 sm:grid-cols-3">
+              <Field label="Nombre y apellido" htmlFor="guestName">
+                <input
+                  id="guestName"
+                  required
+                  value={guestName}
+                  onChange={(e) => setGuestName(e.target.value)}
+                  className="h-11 w-full rounded border border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
+                />
+              </Field>
+              <Field label="Email" htmlFor="guestEmail">
+                <input
+                  id="guestEmail"
+                  type="email"
+                  required
+                  value={guestEmail}
+                  onChange={(e) => setGuestEmail(e.target.value)}
+                  className="h-11 w-full rounded border border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
+                />
+              </Field>
+              <Field label="Teléfono" htmlFor="guestPhone">
+                <input
+                  id="guestPhone"
+                  type="tel"
+                  required
+                  value={guestPhone}
+                  onChange={(e) => setGuestPhone(e.target.value)}
+                  className="h-11 w-full rounded border border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
+                />
+              </Field>
+            </div>
+          </Section>
 
-        <fieldset>
-          <legend className="font-display text-lg">Entrega</legend>
-          <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-            <label className="flex items-center gap-2 rounded border border-border p-3">
-              <input
-                type="radio"
+          <Section title="2 · Entrega">
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Choice
                 name="fulfillment"
                 checked={fulfillmentMethod === "STORE_PICKUP"}
                 onChange={() => setFulfillmentMethod("STORE_PICKUP")}
+                label="Retiro en el local"
+                hint="Sin cargo"
               />
-              Retiro en el local (sin cargo)
-            </label>
-            <label className="flex items-center gap-2 rounded border border-border p-3">
-              <input
-                type="radio"
+              <Choice
                 name="fulfillment"
                 checked={fulfillmentMethod === "SHIPPING"}
                 onChange={() => setFulfillmentMethod("SHIPPING")}
+                label="Envío a domicilio"
+                hint={
+                  fulfillmentMethod === "SHIPPING"
+                    ? quoting
+                      ? "Cotizando…"
+                      : shippingCost > 0
+                        ? `$${shippingCost.toFixed(2)}`
+                        : undefined
+                    : undefined
+                }
               />
-              Envío a domicilio
-              {fulfillmentMethod === "SHIPPING" &&
-                (quoting ? " (cotizando...)" : shippingCost > 0 ? ` ($${shippingCost.toFixed(2)})` : "")}
-            </label>
-          </div>
-
-          {fulfillmentMethod === "SHIPPING" && shippingError && (
-            <p role="alert" className="mt-2 text-sm text-red-400">
-              {shippingError}
-            </p>
-          )}
-
-          {fulfillmentMethod === "SHIPPING" && (
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <div className="sm:col-span-2">
-                <label htmlFor="street" className="block text-sm">
-                  Calle
-                </label>
-                <input
-                  id="street"
-                  required
-                  value={address.street}
-                  onChange={(e) => setAddress((a) => ({ ...a, street: e.target.value }))}
-                  className="mt-1 w-full rounded border border-border bg-background px-3 py-2"
-                />
-              </div>
-              <div>
-                <label htmlFor="number" className="block text-sm">
-                  Número
-                </label>
-                <input
-                  id="number"
-                  required
-                  value={address.number}
-                  onChange={(e) => setAddress((a) => ({ ...a, number: e.target.value }))}
-                  className="mt-1 w-full rounded border border-border bg-background px-3 py-2"
-                />
-              </div>
-              <div>
-                <label htmlFor="floorApt" className="block text-sm">
-                  Piso/depto (opcional)
-                </label>
-                <input
-                  id="floorApt"
-                  value={address.floorApt}
-                  onChange={(e) => setAddress((a) => ({ ...a, floorApt: e.target.value }))}
-                  className="mt-1 w-full rounded border border-border bg-background px-3 py-2"
-                />
-              </div>
-              <div>
-                <label htmlFor="city" className="block text-sm">
-                  Ciudad
-                </label>
-                <input
-                  id="city"
-                  required
-                  value={address.city}
-                  onChange={(e) => setAddress((a) => ({ ...a, city: e.target.value }))}
-                  className="mt-1 w-full rounded border border-border bg-background px-3 py-2"
-                />
-              </div>
-              <div>
-                <label htmlFor="province" className="block text-sm">
-                  Provincia
-                </label>
-                <input
-                  id="province"
-                  required
-                  value={address.province}
-                  onChange={(e) => setAddress((a) => ({ ...a, province: e.target.value }))}
-                  className="mt-1 w-full rounded border border-border bg-background px-3 py-2"
-                />
-              </div>
-              <div>
-                <label htmlFor="postalCode" className="block text-sm">
-                  Código postal
-                </label>
-                <input
-                  id="postalCode"
-                  required
-                  value={address.postalCode}
-                  onChange={(e) => setAddress((a) => ({ ...a, postalCode: e.target.value }))}
-                  className="mt-1 w-full rounded border border-border bg-background px-3 py-2"
-                />
-              </div>
-              <p className="text-xs text-foreground/60 sm:col-span-2">
-                El costo de envío se calcula según el peso de tu compra; todavía no está
-                integrada la cotización en vivo de Correo Argentino/Andreani, así que el
-                envío lo coordinamos por WhatsApp una vez confirmado el pedido.
-              </p>
             </div>
-          )}
-        </fieldset>
 
-        <fieldset>
-          <legend className="font-display text-lg">Pago</legend>
-          <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-            <label className="flex items-center gap-2 rounded border border-border p-3">
-              <input
-                type="radio"
+            {fulfillmentMethod === "SHIPPING" && shippingError && (
+              <p role="alert" className="mt-3 text-sm text-red-400">
+                {shippingError}
+              </p>
+            )}
+
+            {fulfillmentMethod === "SHIPPING" && (
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <div className="sm:col-span-2">
+                  <Field label="Calle" htmlFor="street">
+                    <input
+                      id="street"
+                      required
+                      value={address.street}
+                      onChange={(e) => setAddress((a) => ({ ...a, street: e.target.value }))}
+                      className="h-11 w-full rounded border border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
+                    />
+                  </Field>
+                </div>
+                <Field label="Número" htmlFor="number">
+                  <input
+                    id="number"
+                    required
+                    value={address.number}
+                    onChange={(e) => setAddress((a) => ({ ...a, number: e.target.value }))}
+                    className="h-11 w-full rounded border border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
+                  />
+                </Field>
+                <Field label="Piso/depto (opcional)" htmlFor="floorApt">
+                  <input
+                    id="floorApt"
+                    value={address.floorApt}
+                    onChange={(e) => setAddress((a) => ({ ...a, floorApt: e.target.value }))}
+                    className="h-11 w-full rounded border border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
+                  />
+                </Field>
+                <Field label="Ciudad" htmlFor="city">
+                  <input
+                    id="city"
+                    required
+                    value={address.city}
+                    onChange={(e) => setAddress((a) => ({ ...a, city: e.target.value }))}
+                    className="h-11 w-full rounded border border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
+                  />
+                </Field>
+                <Field label="Provincia" htmlFor="province">
+                  <input
+                    id="province"
+                    required
+                    value={address.province}
+                    onChange={(e) => setAddress((a) => ({ ...a, province: e.target.value }))}
+                    className="h-11 w-full rounded border border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
+                  />
+                </Field>
+                <Field label="Código postal" htmlFor="postalCode">
+                  <input
+                    id="postalCode"
+                    required
+                    value={address.postalCode}
+                    onChange={(e) => setAddress((a) => ({ ...a, postalCode: e.target.value }))}
+                    className="h-11 w-full rounded border border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
+                  />
+                </Field>
+                <p className="text-xs text-foreground/50 sm:col-span-2">
+                  El costo de envío se calcula según el peso de tu compra; todavía no está
+                  integrada la cotización en vivo de Correo Argentino/Andreani, así que el envío
+                  lo coordinamos por WhatsApp una vez confirmado el pedido.
+                </p>
+              </div>
+            )}
+          </Section>
+
+          <Section title="3 · Pago">
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Choice
                 name="payment"
                 checked={paymentMethod === "MERCADO_PAGO"}
                 onChange={() => setPaymentMethod("MERCADO_PAGO")}
+                label="Mercado Pago"
               />
-              Mercado Pago
-            </label>
-            <label className="flex items-center gap-2 rounded border border-border p-3">
-              <input
-                type="radio"
+              <Choice
                 name="payment"
                 checked={paymentMethod === "CASH"}
                 onChange={() => setPaymentMethod("CASH")}
+                label="Efectivo"
               />
-              Efectivo
-            </label>
-            <label className="flex items-center gap-2 rounded border border-border p-3">
-              <input
-                type="radio"
+              <Choice
                 name="payment"
                 checked={paymentMethod === "TRANSFER"}
                 onChange={() => setPaymentMethod("TRANSFER")}
+                label="Transferencia"
               />
-              Transferencia
-            </label>
-          </div>
-          {paymentMethod !== "MERCADO_PAGO" && (
-            <p className="mt-2 text-xs text-foreground/60">
-              Coordinamos el pago por WhatsApp o lo abonás al retirar/recibir.
-            </p>
-          )}
-        </fieldset>
+            </div>
+            {paymentMethod !== "MERCADO_PAGO" && (
+              <p className="mt-3 text-xs text-foreground/50">
+                Coordinamos el pago por WhatsApp o lo abonás al retirar/recibir.
+              </p>
+            )}
+          </Section>
 
-        <div>
-          <label htmlFor="coupon" className="block font-display text-sm">
-            Cupón de descuento
-          </label>
-          <div className="mt-1 flex max-w-sm gap-2">
-            <input
-              id="coupon"
-              value={couponCode}
-              onChange={(e) => {
-                setCouponCode(e.target.value);
-                setAppliedCoupon(null);
-                setCouponError(null);
-              }}
-              placeholder="CÓDIGO"
-              className="w-full rounded border border-border bg-background px-3 py-2 uppercase"
-            />
-            <button
-              type="button"
-              onClick={handleApplyCoupon}
-              disabled={!couponCode || applyingCoupon}
-              className="shrink-0 rounded border border-border px-4 py-2 text-sm hover:border-accent disabled:opacity-50"
-            >
-              {applyingCoupon ? "Validando..." : "Aplicar"}
-            </button>
-          </div>
-          {couponError && <p className="mt-1 text-sm text-red-400">{couponError}</p>}
-          {appliedCoupon && (
-            <p className="mt-1 text-sm text-green-500">
-              Cupón {appliedCoupon.code} aplicado: -${appliedCoupon.discount.toFixed(2)}
-            </p>
-          )}
-        </div>
-
-        {loyaltyEnabled && isLoggedIn && (
-          <fieldset>
-            <legend className="font-display text-sm">Puntos Epic Shine</legend>
-            <div className="mt-2">
+          {loyaltyEnabled && isLoggedIn && (
+            <Section title="Puntos Epic Shine">
               <LoyaltyRedeemField
                 balance={loyaltyBalance}
                 minRedeem={loyaltyMinRedeem}
@@ -492,69 +425,169 @@ export function CheckoutForm({
                 maxRedeemable={maxRedeemablePoints}
                 onChange={setPointsToRedeem}
               />
-            </div>
-          </fieldset>
-        )}
-
-        <div className="rounded border border-border p-4">
-          <p className="flex justify-between text-sm">
-            <span>Subtotal</span>
-            <span>${subtotal.toFixed(2)}</span>
-          </p>
-          <p className="flex justify-between text-sm">
-            <span>Envío</span>
-            <span>
-              {fulfillmentMethod !== "SHIPPING"
-                ? "Sin cargo"
-                : quoting
-                  ? "Cotizando..."
-                  : `$${shippingCost.toFixed(2)}`}
-            </span>
-          </p>
-          {appliedCoupon && (
-            <p className="flex justify-between text-sm">
-              <span>Descuento ({appliedCoupon.code})</span>
-              <span>-${appliedCoupon.discount.toFixed(2)}</span>
-            </p>
+            </Section>
           )}
-          {pointsDiscount > 0 && (
-            <p className="flex justify-between text-sm">
-              <span>Descuento por puntos</span>
-              <span>-${pointsDiscount.toFixed(2)}</span>
-            </p>
-          )}
-          <p className="mt-2 flex justify-between font-display text-xl">
-            <span>Total</span>
-            <span>${total.toFixed(2)}</span>
-          </p>
         </div>
 
-        {error && (
-          <p role="alert" className="text-sm text-red-400">
-            {error}
-            {failedOrderId && (
-              <>
-                {" "}
-                <Link href={`/pedido/${failedOrderId}`} className="underline underline-offset-4">
-                  Ver mi pedido
-                </Link>
-              </>
-            )}
-          </p>
-        )}
+        <aside className="flex w-full shrink-0 flex-col gap-4 self-start rounded border border-border p-5 lg:sticky lg:top-[88px] lg:w-[320px]">
+          <p className="text-[10px] uppercase tracking-[0.14em] text-foreground/45">Tu pedido</p>
 
-        <div className="sticky bottom-0 -mx-4 border-t border-border bg-background px-4 py-3">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="coupon" className="sr-only">
+              Cupón de descuento
+            </label>
+            <div className="flex gap-2">
+              <input
+                id="coupon"
+                value={couponCode}
+                onChange={(e) => {
+                  setCouponCode(e.target.value);
+                  setAppliedCoupon(null);
+                  setCouponError(null);
+                }}
+                placeholder="Cupón de descuento"
+                className="h-10 flex-1 rounded border border-border bg-background px-3 text-sm uppercase outline-none focus-visible:border-accent"
+              />
+              <button
+                type="button"
+                onClick={handleApplyCoupon}
+                disabled={!couponCode || applyingCoupon}
+                className="h-10 shrink-0 rounded border border-border px-4 text-sm hover:border-accent disabled:opacity-50"
+              >
+                {applyingCoupon ? "Validando…" : "Aplicar"}
+              </button>
+            </div>
+            {couponError && <p className="text-xs text-red-400">{couponError}</p>}
+            {appliedCoupon && (
+              <p className="text-xs text-accent">
+                Cupón {appliedCoupon.code} aplicado: -${appliedCoupon.discount.toFixed(2)}
+              </p>
+            )}
+          </div>
+
+          <hr className="h-px border-0 bg-[linear-gradient(to_right,transparent,var(--color-border)_12px,var(--color-border)_calc(100%-12px),transparent)]" />
+
+          <div className="flex flex-col gap-2 text-sm">
+            <SummaryRow label="Subtotal" value={`$${subtotal.toFixed(2)}`} />
+            <SummaryRow
+              label="Envío"
+              value={
+                fulfillmentMethod !== "SHIPPING"
+                  ? "Sin cargo"
+                  : quoting
+                    ? "Cotizando…"
+                    : `$${shippingCost.toFixed(2)}`
+              }
+            />
+            {appliedCoupon && (
+              <SummaryRow label={`Descuento (${appliedCoupon.code})`} value={`-$${appliedCoupon.discount.toFixed(2)}`} accent />
+            )}
+            {pointsDiscount > 0 && (
+              <SummaryRow label="Descuento por puntos" value={`-$${pointsDiscount.toFixed(2)}`} accent />
+            )}
+          </div>
+
+          <hr className="h-px border-0 bg-[linear-gradient(to_right,transparent,var(--color-border)_12px,var(--color-border)_calc(100%-12px),transparent)]" />
+
+          <div className="flex items-baseline justify-between">
+            <span className="text-sm">Total</span>
+            <span className="text-xl tracking-[-0.02em]">${total.toFixed(2)}</span>
+          </div>
+
+          {error && (
+            <p role="alert" className="text-sm text-red-400">
+              {error}
+              {failedOrderId && (
+                <>
+                  {" "}
+                  <Link href={`/pedido/${failedOrderId}`} className="underline underline-offset-4">
+                    Ver mi pedido
+                  </Link>
+                </>
+              )}
+            </p>
+          )}
+
           <button
             type="submit"
             disabled={
               submitting || (fulfillmentMethod === "SHIPPING" && (quoting || Boolean(shippingError)))
             }
-            className="w-full rounded border border-accent px-8 py-3 font-display text-lg hover:bg-accent hover:text-background disabled:opacity-50"
+            className="hidden h-[46px] rounded border border-accent text-sm text-accent hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-45 sm:block"
           >
-            {submitting ? "Confirmando..." : "Confirmar pedido"}
+            {submitting ? "Confirmando…" : "Confirmar pedido"}
+          </button>
+        </aside>
+
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background px-4 py-3 sm:hidden">
+          <button
+            type="submit"
+            disabled={
+              submitting || (fulfillmentMethod === "SHIPPING" && (quoting || Boolean(shippingError)))
+            }
+            className="flex h-[46px] w-full items-center justify-center rounded border border-accent text-sm text-accent hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-45"
+          >
+            {submitting ? "Confirmando…" : `Confirmar · $${total.toFixed(2)}`}
           </button>
         </div>
       </form>
+    </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <fieldset className="flex flex-col gap-3">
+      <legend className="mb-1 text-base font-medium">{title}</legend>
+      {children}
+    </fieldset>
+  );
+}
+
+function Field({ label, htmlFor, children }: { label: string; htmlFor: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label htmlFor={htmlFor} className="mb-1 block text-xs text-foreground/60">
+        {label}
+      </label>
+      {children}
+    </div>
+  );
+}
+
+function Choice({
+  name,
+  checked,
+  onChange,
+  label,
+  hint,
+}: {
+  name: string;
+  checked: boolean;
+  onChange: () => void;
+  label: string;
+  hint?: string;
+}) {
+  return (
+    <label
+      className={`flex flex-1 cursor-pointer items-center justify-between gap-2 rounded border px-4 py-3 text-sm ${
+        checked ? "border-accent text-accent" : "border-border text-foreground/80 hover:bg-foreground/5"
+      }`}
+    >
+      <span className="flex items-center gap-2">
+        <input type="radio" name={name} checked={checked} onChange={onChange} className="accent-accent" />
+        {label}
+      </span>
+      {hint ? <span className="text-xs opacity-80">{hint}</span> : null}
+    </label>
+  );
+}
+
+function SummaryRow({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
+  return (
+    <div className="flex items-baseline justify-between">
+      <span className="text-foreground/60">{label}</span>
+      <span className={accent ? "text-accent" : ""}>{value}</span>
     </div>
   );
 }
