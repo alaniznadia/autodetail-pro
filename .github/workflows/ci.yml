@@ -7,6 +7,11 @@ on:
 
 env:
   DATABASE_URL: postgresql://epicshine:epicshine@localhost:5432/epicshine
+  # prisma.config.ts pide DIRECT_URL además de DATABASE_URL (ver el
+  # comentario ahí: es para que las migraciones no usen el pooler de
+  # producción). En CI hay un solo Postgres sin pooler, así que apunta a
+  # la misma conexión.
+  DIRECT_URL: postgresql://epicshine:epicshine@localhost:5432/epicshine
   AUTH_SECRET: ci-only-secret-not-for-production
   NEXT_PUBLIC_SITE_URL: http://localhost:3000
 
