@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { saveProductImage, InvalidImageError } from "@/lib/product-images";
+import { requireAdmin } from "@/lib/api-auth";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { response } = await requireAdmin();
+  if (response) return response;
+
   const { id: productId } = await params;
 
   const product = await prisma.product.findUnique({ where: { id: productId } });

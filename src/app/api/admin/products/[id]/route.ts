@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { requireAdmin } from "@/lib/api-auth";
 
 const variantSchema = z.object({
   id: z.string().optional(), // ausente = variante nueva
@@ -26,6 +26,9 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { response } = await requireAdmin();
+  if (response) return response;
+
   const { id } = await params;
   const product = await prisma.product.findUnique({
     where: { id },
@@ -39,8 +42,10 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { session, response } = await requireAdmin();
+  if (response) return response;
+
   const { id } = await params;
-  const session = await auth();
   const body = await req.json();
   const parsed = updateSchema.safeParse(body);
   if (!parsed.success) {

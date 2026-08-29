@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/api-auth";
 
 const schema = z
   .object({
@@ -16,11 +17,17 @@ const schema = z
   });
 
 export async function GET() {
+  const { response } = await requireAdmin();
+  if (response) return response;
+
   const coupons = await prisma.coupon.findMany({ orderBy: { createdAt: "desc" } });
   return NextResponse.json({ coupons });
 }
 
 export async function POST(req: NextRequest) {
+  const { response } = await requireAdmin();
+  if (response) return response;
+
   const body = await req.json();
   const parsed = schema.safeParse(body);
   if (!parsed.success) {

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { requireAdmin } from "@/lib/api-auth";
 import { createPurchaseOrder } from "@/lib/purchases";
 
 const schema = z.object({
@@ -19,6 +19,9 @@ const schema = z.object({
 });
 
 export async function GET() {
+  const { response } = await requireAdmin();
+  if (response) return response;
+
   const purchaseOrders = await prisma.purchaseOrder.findMany({
     include: {
       supplier: { select: { name: true } },
@@ -31,10 +34,8 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
+  const { session, response } = await requireAdmin();
+  if (response) return response;
 
   const body = await req.json();
   const parsed = schema.safeParse(body);

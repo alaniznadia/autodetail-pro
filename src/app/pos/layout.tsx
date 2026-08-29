@@ -1,10 +1,13 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { auth, signOut } from "@/lib/auth";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { PANEL_THEME_INIT_SCRIPT } from "@/lib/panel-theme";
 
 export default async function PosLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
+  if (!session?.user) redirect("/login");
+  if (session.user.role !== "ADMIN" && session.user.role !== "EMPLOYEE") redirect("/");
 
   return (
     <div className="min-h-screen">

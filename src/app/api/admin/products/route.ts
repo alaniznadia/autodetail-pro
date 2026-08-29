@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slugify";
+import { requireAdmin } from "@/lib/api-auth";
 
 const variantSchema = z.object({
   sku: z.string().min(1),
@@ -22,6 +23,9 @@ const productSchema = z.object({
 });
 
 export async function GET(req: NextRequest) {
+  const { response } = await requireAdmin();
+  if (response) return response;
+
   const q = req.nextUrl.searchParams.get("q")?.trim();
 
   const products = await prisma.product.findMany({
@@ -39,6 +43,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const { response } = await requireAdmin();
+  if (response) return response;
+
   const body = await req.json();
   const parsed = productSchema.safeParse(body);
   if (!parsed.success) {

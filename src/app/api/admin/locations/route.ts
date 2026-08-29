@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/api-auth";
 
 const createLocationSchema = z.object({
   name: z.string().min(1),
@@ -8,6 +9,9 @@ const createLocationSchema = z.object({
 });
 
 export async function GET() {
+  const { response } = await requireAdmin();
+  if (response) return response;
+
   const locations = await prisma.location.findMany({
     orderBy: [{ isMain: "desc" }, { name: "asc" }],
   });
@@ -15,6 +19,9 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const { response } = await requireAdmin();
+  if (response) return response;
+
   const body = await req.json();
   const parsed = createLocationSchema.safeParse(body);
   if (!parsed.success) {

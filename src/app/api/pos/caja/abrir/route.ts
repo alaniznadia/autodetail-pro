@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { requireStaff } from "@/lib/api-auth";
 
 const schema = z.object({
   locationId: z.string().min(1),
@@ -9,10 +9,8 @@ const schema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "EMPLOYEE")) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
+  const { session, response } = await requireStaff();
+  if (response) return response;
 
   const body = await req.json();
   const parsed = schema.safeParse(body);

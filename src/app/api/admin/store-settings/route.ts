@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
 import { getStoreSettings, updateStoreSettings } from "@/lib/store-settings";
+import { requireAdmin } from "@/lib/api-auth";
 
 const schema = z.object({
   freeShippingFrom: z.coerce.number().positive().nullable().optional(),
@@ -12,6 +13,9 @@ const schema = z.object({
 });
 
 export async function GET() {
+  const { response } = await requireAdmin();
+  if (response) return response;
+
   const settings = await getStoreSettings();
   return NextResponse.json({
     settings: {
@@ -25,6 +29,9 @@ export async function GET() {
 }
 
 export async function PATCH(req: NextRequest) {
+  const { response } = await requireAdmin();
+  if (response) return response;
+
   const body = await req.json();
   const parsed = schema.safeParse(body);
   if (!parsed.success) {

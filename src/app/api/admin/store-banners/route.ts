@@ -1,13 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { saveSiteImage, InvalidImageError } from "@/lib/site-images";
+import { requireAdmin } from "@/lib/api-auth";
 
 export async function GET() {
+  const { response } = await requireAdmin();
+  if (response) return response;
+
   const banners = await prisma.storeBanner.findMany({ orderBy: { position: "asc" } });
   return NextResponse.json({ banners });
 }
 
 export async function POST(req: NextRequest) {
+  const { response } = await requireAdmin();
+  if (response) return response;
+
   const formData = await req.formData();
   const file = formData.get("file");
   const altText = formData.get("altText");

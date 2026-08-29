@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/api-auth";
 
 const schema = z.object({ approved: z.boolean() });
 
@@ -8,6 +9,9 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { response } = await requireAdmin();
+  if (response) return response;
+
   const { id } = await params;
   const body = await req.json();
   const parsed = schema.safeParse(body);
@@ -29,6 +33,9 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { response } = await requireAdmin();
+  if (response) return response;
+
   const { id } = await params;
   await prisma.review.delete({ where: { id } }).catch(() => null);
   return NextResponse.json({ ok: true });

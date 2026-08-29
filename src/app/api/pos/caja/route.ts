@@ -1,16 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { requireStaff } from "@/lib/api-auth";
 import { sumPosPaymentsByMethod } from "@/lib/cash-register";
 
 // Estado de la caja actual de una sucursal: si hay una sesión abierta,
 // devuelve también los totales por método de pago acumulados hasta ahora
 // (para mostrar una vista previa antes de cerrar).
 export async function GET(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "EMPLOYEE")) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
+  const { session, response } = await requireStaff();
+  if (response) return response;
 
   const locationId = req.nextUrl.searchParams.get("locationId");
   if (!locationId) {

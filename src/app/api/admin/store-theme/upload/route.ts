@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { STORE_THEME_ID } from "@/lib/store-theme";
 import { saveSiteImage, deleteSiteImageFile, InvalidImageError } from "@/lib/site-images";
+import { requireAdmin } from "@/lib/api-auth";
 
 // Los tres campos de imagen "sueltos" de StoreTheme (no el banner, que
 // tiene su propio CRUD porque son varios). kind identifica cuál se sube.
@@ -18,6 +19,9 @@ function isValidKind(value: unknown): value is Kind {
 }
 
 export async function POST(req: NextRequest) {
+  const { response } = await requireAdmin();
+  if (response) return response;
+
   const formData = await req.formData();
   const kind = formData.get("kind");
   const file = formData.get("file");
@@ -48,6 +52,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const { response } = await requireAdmin();
+  if (response) return response;
+
   const kind = req.nextUrl.searchParams.get("kind");
   if (!isValidKind(kind)) {
     return NextResponse.json({ error: "Tipo de imagen inválido." }, { status: 400 });

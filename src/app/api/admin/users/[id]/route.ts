@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { requireAdmin } from "@/lib/api-auth";
 
 const updateUserSchema = z.object({
   role: z.enum(["ADMIN", "EMPLOYEE"]).optional(),
@@ -14,9 +14,10 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
-  const session = await auth();
+  const { session, response } = await requireAdmin();
+  if (response) return response;
 
+  const { id } = await params;
   const body = await req.json();
   const parsed = updateUserSchema.safeParse(body);
   if (!parsed.success) {

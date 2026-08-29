@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { auth, signOut } from "@/lib/auth";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { PANEL_THEME_INIT_SCRIPT } from "@/lib/panel-theme";
@@ -22,6 +23,8 @@ const NAV = [
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
+  if (!session?.user) redirect("/login");
+  if (session.user.role !== "ADMIN") redirect("/");
 
   return (
     <div className="flex min-h-screen flex-col md:flex-row">

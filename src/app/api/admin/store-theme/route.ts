@@ -7,6 +7,7 @@ import {
   BODY_FONTS,
   getStoreTheme,
 } from "@/lib/store-theme";
+import { requireAdmin } from "@/lib/api-auth";
 
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 
@@ -20,11 +21,17 @@ const schema = z.object({
 });
 
 export async function GET() {
+  const { response } = await requireAdmin();
+  if (response) return response;
+
   const theme = await getStoreTheme();
   return NextResponse.json({ theme });
 }
 
 export async function PATCH(req: NextRequest) {
+  const { response } = await requireAdmin();
+  if (response) return response;
+
   const body = await req.json();
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
