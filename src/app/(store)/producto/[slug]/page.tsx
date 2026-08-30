@@ -136,13 +136,13 @@ export default async function ProductPage({
 
       <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
         <div className="flex w-full shrink-0 flex-col gap-3 lg:w-[520px]">
-          <div className="store-frame relative aspect-square overflow-hidden border-border bg-surface">
+          <div className="store-frame group relative aspect-square overflow-hidden border-border bg-surface">
             {product.images[0] && (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={product.images[0].url}
                 alt={product.images[0].altText}
-                className="h-full w-full object-cover"
+                className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-110"
               />
             )}
           </div>
