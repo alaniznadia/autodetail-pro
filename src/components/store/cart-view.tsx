@@ -72,7 +72,7 @@ export function CartView({
               <div className="store-frame h-16 w-16 shrink-0 overflow-hidden border-border bg-surface">
                 {item.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={item.imageUrl} alt="" className="h-full w-full object-cover" />
+                  <img src={item.imageUrl} alt="" className="h-full w-full object-contain p-1.5" />
                 ) : null}
               </div>
               <div className="min-w-0 flex-1">

@@ -37,7 +37,7 @@ export function ProductCard({ product }: { product: CatalogProduct }) {
             alt={product.name}
             fill
             sizes="(max-width:640px) 50vw, 280px"
-            className="object-cover transition-transform duration-300 ease-out group-hover:scale-110"
+            className="object-contain p-4 transition-transform duration-300 ease-out group-hover:scale-110"
           />
         ) : null}
         {low ? (

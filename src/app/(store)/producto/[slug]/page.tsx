@@ -142,7 +142,7 @@ export default async function ProductPage({
               <img
                 src={product.images[0].url}
                 alt={product.images[0].altText}
-                className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-110"
+                className="h-full w-full object-contain p-6 transition-transform duration-300 ease-out group-hover:scale-110"
               />
             )}
           </div>
@@ -154,7 +154,7 @@ export default async function ProductPage({
                   key={img.id}
                   src={img.url}
                   alt=""
-                  className="store-frame aspect-square overflow-hidden border-border object-cover"
+                  className="store-frame aspect-square overflow-hidden border-border bg-surface object-contain p-1.5"
                 />
               ))}
             </div>
