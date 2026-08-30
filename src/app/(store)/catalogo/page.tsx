@@ -62,7 +62,7 @@ export default async function CatalogPage({
 
   return (
     <div className="mx-auto max-w-[1240px] px-4 pb-2 pt-8 sm:px-8">
-      <h1 className="mb-4 text-2xl font-medium tracking-[-0.02em]">Catálogo</h1>
+      <h1 className="mb-4 text-3xl font-bold tracking-[-0.02em] sm:text-4xl">Catálogo</h1>
       <div className="mb-6 sm:hidden">
         <MobileFilterChips
           categories={categories.map((c) => ({ slug: c.slug, name: c.name }))}

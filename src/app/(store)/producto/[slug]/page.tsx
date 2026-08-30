@@ -6,6 +6,7 @@ import { hasVerifiedPurchase } from "@/lib/reviews";
 import { AddToCart } from "@/components/store/add-to-cart";
 import { ProductGallery } from "@/components/store/product-gallery";
 import { ReviewForm } from "@/components/store/review-form";
+import { ProductCard, type CatalogProduct } from "@/components/store/product-card";
 import { SITE_URL } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
@@ -96,6 +97,33 @@ export default async function ProductPage({
     ? product.reviews.find((r) => r.customerId === session.user.id)
     : undefined;
 
+  const relatedProducts = await prisma.product.findMany({
+    where: { active: true, categoryId: product.categoryId, id: { not: product.id } },
+    include: {
+      variants: { where: { active: true }, take: 1, include: { stockItems: true } },
+      images: { take: 1 },
+    },
+    take: 8,
+  });
+
+  const suggestions: CatalogProduct[] = relatedProducts.map((p) => {
+    const variant = p.variants[0];
+    const image = p.images[0];
+    const stock = variant?.stockItems.reduce((sum, s) => sum + s.quantity, 0) ?? 0;
+    return {
+      id: p.id,
+      slug: p.slug,
+      sku: variant?.sku ?? "",
+      name: p.name,
+      variantId: variant?.id ?? "",
+      variantName: variant?.name ?? "",
+      variantLabel: variant && variant.name !== "Único" ? variant.name : null,
+      price: variant?.price.toString() ?? "0",
+      stock,
+      imageUrl: image?.url ?? null,
+    };
+  });
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -173,6 +201,17 @@ export default async function ProductPage({
           )}
         </div>
       </div>
+
+      {suggestions.length > 0 && (
+        <div className="mt-12 border-t border-border pt-10">
+          <h2 className="font-display text-2xl font-semibold">También te puede interesar</h2>
+          <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3 md:grid-cols-4">
+            {suggestions.map((item) => (
+              <ProductCard key={item.id} product={item} />
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="mt-12 max-w-2xl border-t border-border pt-10">
         <h2 className="text-lg font-medium">Reseñas</h2>
