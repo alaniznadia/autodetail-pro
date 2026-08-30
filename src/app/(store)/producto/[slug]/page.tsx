@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { hasVerifiedPurchase } from "@/lib/reviews";
 import { AddToCart } from "@/components/store/add-to-cart";
+import { ProductGallery } from "@/components/store/product-gallery";
 import { ReviewForm } from "@/components/store/review-form";
 import { SITE_URL } from "@/lib/site-url";
 
@@ -135,31 +136,9 @@ export default async function ProductPage({
       </nav>
 
       <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
-        <div className="flex w-full shrink-0 flex-col gap-3 lg:w-[520px]">
-          <div className="store-frame group relative aspect-square overflow-hidden border-border bg-surface">
-            {product.images[0] && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={product.images[0].url}
-                alt={product.images[0].altText}
-                className="h-full w-full object-contain p-6 transition-transform duration-300 ease-out group-hover:scale-110"
-              />
-            )}
-          </div>
-          {product.images.length > 1 ? (
-            <div className="grid grid-cols-4 gap-3">
-              {product.images.slice(1, 5).map((img) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  key={img.id}
-                  src={img.url}
-                  alt=""
-                  className="store-frame aspect-square overflow-hidden border-border bg-surface object-contain p-1.5"
-                />
-              ))}
-            </div>
-          ) : null}
-        </div>
+        <ProductGallery
+          images={product.images.map((img) => ({ id: img.id, url: img.url, altText: img.altText }))}
+        />
 
         <div className="flex min-w-0 flex-1 flex-col gap-4">
           <div>

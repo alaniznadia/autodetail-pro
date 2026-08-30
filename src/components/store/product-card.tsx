@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/components/store/cart-context";
+import { useAdaptiveFrameBg } from "@/components/store/use-adaptive-frame-bg";
 
 export type CatalogProduct = {
   id: string;
@@ -23,6 +24,7 @@ const money = (n: number) => "$" + Math.round(n).toLocaleString("es-AR");
 export function ProductCard({ product }: { product: CatalogProduct }) {
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
+  const { bg, imgRef } = useAdaptiveFrameBg();
   const low = product.stock > 0 && product.stock <= 5;
 
   return (
@@ -30,9 +32,11 @@ export function ProductCard({ product }: { product: CatalogProduct }) {
       <Link
         href={`/producto/${product.slug}`}
         className="store-frame group relative block aspect-square overflow-hidden border-border bg-surface"
+        style={bg ? { backgroundColor: bg } : undefined}
       >
         {product.imageUrl ? (
           <Image
+            ref={imgRef}
             src={product.imageUrl}
             alt={product.name}
             fill

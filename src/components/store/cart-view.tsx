@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/components/store/cart-context";
+import { useAdaptiveFrameBg } from "@/components/store/use-adaptive-frame-bg";
 
 const money = (n: number) => "$" + Math.round(n).toLocaleString("es-AR");
 
@@ -69,12 +70,7 @@ export function CartView({
         <ul className="store-frame flex flex-col divide-y divide-border border-border">
           {items.map((item) => (
             <li key={item.variantId} className="flex items-center gap-4 p-4">
-              <div className="store-frame h-16 w-16 shrink-0 overflow-hidden border-border bg-surface">
-                {item.imageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={item.imageUrl} alt="" className="h-full w-full object-contain p-1.5" />
-                ) : null}
-              </div>
+              <CartItemThumb imageUrl={item.imageUrl} />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[13.5px]">
                   {item.productName}
@@ -178,6 +174,27 @@ export function CartView({
           <p className="text-xs text-foreground/50">Sumás {pointsEarned} puntos con esta compra.</p>
         ) : null}
       </aside>
+    </div>
+  );
+}
+
+function CartItemThumb({ imageUrl }: { imageUrl?: string }) {
+  const { bg, imgRef } = useAdaptiveFrameBg();
+  return (
+    <div
+      className="store-frame h-16 w-16 shrink-0 overflow-hidden border-border bg-surface"
+      style={bg ? { backgroundColor: bg } : undefined}
+    >
+      {imageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          ref={imgRef}
+          src={imageUrl}
+          alt=""
+          crossOrigin="anonymous"
+          className="h-full w-full object-contain p-1.5"
+        />
+      ) : null}
     </div>
   );
 }
