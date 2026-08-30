@@ -56,7 +56,7 @@ export function HeaderSearch() {
         placeholder="Buscar productos…"
         aria-label="Buscar productos"
         onBlur={() => setOpen(false)}
-        className="w-32 rounded border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none focus:border-accent sm:w-48"
+        className="w-32 rounded border border-border bg-transparent px-2.5 py-1.5 text-[18px] outline-none focus:border-accent sm:w-48"
       />
     </form>
   );

@@ -43,7 +43,7 @@ export function ReviewForm({
   return (
     <form onSubmit={handleSubmit} className="mt-4 flex max-w-md flex-col gap-3 rounded border border-border p-4">
       <fieldset>
-        <legend className="font-display text-sm">Tu calificación</legend>
+        <legend className="font-display text-[18px]">Tu calificación</legend>
         <div className="mt-2 flex gap-1">
           {[1, 2, 3, 4, 5].map((value) => (
             <button
@@ -52,7 +52,7 @@ export function ReviewForm({
               onClick={() => setRating(value)}
               aria-label={`${value} de 5 estrellas`}
               aria-pressed={rating === value}
-              className={`text-2xl ${value <= rating ? "text-accent" : "text-foreground/45"}`}
+              className={`text-[28px] ${value <= rating ? "text-accent" : "text-foreground/45"}`}
             >
               ★
             </button>
@@ -60,7 +60,7 @@ export function ReviewForm({
         </div>
       </fieldset>
       <div>
-        <label htmlFor="review-comment" className="block text-sm">
+        <label htmlFor="review-comment" className="block text-[18px]">
           Comentario (opcional)
         </label>
         <textarea
@@ -68,23 +68,23 @@ export function ReviewForm({
           rows={3}
           value={comment}
           onChange={(e) => setComment(e.target.value)}
-          className="mt-1 w-full rounded border border-border bg-background px-3 py-2 text-sm"
+          className="mt-1 w-full rounded border border-border bg-background px-3 py-2 text-[18px]"
         />
       </div>
       {error && (
-        <p role="alert" className="text-sm text-red-400">
+        <p role="alert" className="text-[18px] text-red-400">
           {error}
         </p>
       )}
       {done && !error && (
-        <p role="status" className="text-sm text-green-500">
+        <p role="status" className="text-[18px] text-green-500">
           ¡Gracias por tu reseña! Queda pendiente de aprobación antes de mostrarse.
         </p>
       )}
       <button
         type="submit"
         disabled={submitting}
-        className="w-fit rounded border border-accent px-4 py-2 font-display text-sm hover:bg-accent hover:text-background disabled:opacity-50"
+        className="w-fit rounded border border-accent px-4 py-2 font-display text-[18px] hover:bg-accent hover:text-background disabled:opacity-50"
       >
         {submitting ? "Guardando..." : initial ? "Actualizar reseña" : "Publicar reseña"}
       </button>

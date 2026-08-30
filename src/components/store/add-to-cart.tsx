@@ -51,11 +51,11 @@ export function AddToCart({
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-[30px] tracking-[-0.02em]">{selected ? money(Number(selected.price)) : ""}</p>
+      <p className="text-[34px] tracking-[-0.02em]">{selected ? money(Number(selected.price)) : ""}</p>
 
       {variants.length > 1 ? (
         <div>
-          <p className="mb-2 text-[11.5px] uppercase tracking-[0.14em] text-foreground/62">Presentación</p>
+          <p className="mb-2 text-[15.5px] uppercase tracking-[0.14em] text-foreground/62">Presentación</p>
           <div className="flex flex-wrap gap-2">
             {variants.map((v) => (
               <button
@@ -66,7 +66,7 @@ export function AddToCart({
                   setAdded(false);
                 }}
                 disabled={v.stock <= 0}
-                className={`store-frame px-3.5 py-1.5 text-[14.5px] disabled:cursor-not-allowed disabled:opacity-40 ${
+                className={`store-frame px-3.5 py-1.5 text-[18.5px] disabled:cursor-not-allowed disabled:opacity-40 ${
                   v.id === variantId
                     ? "border-accent text-accent"
                     : "border-border text-foreground/85 hover:bg-foreground/5"
@@ -85,18 +85,18 @@ export function AddToCart({
             type="button"
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
             aria-label="Quitar uno"
-            className="h-11 w-11 text-lg"
+            className="h-11 w-11 text-[22px]"
           >
             −
           </button>
-          <span className="w-9 text-center text-[15px]" aria-live="polite">
+          <span className="w-9 text-center text-[19px]" aria-live="polite">
             {quantity}
           </span>
           <button
             type="button"
             onClick={() => setQuantity((q) => Math.min(selected?.stock ?? q, q + 1))}
             aria-label="Agregar uno"
-            className="h-11 w-11 text-lg"
+            className="h-11 w-11 text-[22px]"
           >
             +
           </button>
@@ -106,12 +106,12 @@ export function AddToCart({
           type="button"
           onClick={handleAdd}
           disabled={outOfStock}
-          className="store-frame h-[46px] border-accent px-7 text-sm text-accent hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-45"
+          className="store-frame h-[46px] border-accent px-7 text-[18px] text-accent hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-45"
         >
           Agregar al carrito
         </button>
 
-        <span className={`text-xs ${selected && selected.stock > 0 && selected.stock <= 5 ? "text-accent" : "text-foreground/70"}`}>
+        <span className={`text-[16px] ${selected && selected.stock > 0 && selected.stock <= 5 ? "text-accent" : "text-foreground/70"}`}>
           {outOfStock
             ? "Sin stock disponible"
             : selected.stock <= 5
@@ -121,7 +121,7 @@ export function AddToCart({
       </div>
 
       {added && (
-        <p role="status" className="text-sm">
+        <p role="status" className="text-[18px]">
           Agregado al carrito.{" "}
           <button
             type="button"

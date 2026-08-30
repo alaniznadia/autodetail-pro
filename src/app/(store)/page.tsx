@@ -79,8 +79,8 @@ export default async function HomePage() {
       ) : (
         <section className="border-b border-border bg-[radial-gradient(1100px_480px_at_18%_-10%,color-mix(in_srgb,var(--accent)_22%,transparent),transparent_60%)]">
           <div className="mx-auto max-w-6xl px-4 py-24">
-            <p className="text-xs uppercase tracking-[0.18em] text-accent">Detailing profesional</p>
-            <h1 className="mt-4 max-w-xl text-[40px] font-bold leading-[1.05] tracking-[-0.02em] sm:text-[56px]">
+            <p className="text-[16px] uppercase tracking-[0.18em] text-accent">Detailing profesional</p>
+            <h1 className="mt-4 max-w-xl text-[44px] font-bold leading-[1.05] tracking-[-0.02em] sm:text-[60px]">
               Cuidado y estética para tu auto, de local.
             </h1>
             <p className="mt-5 max-w-md text-foreground/80">
@@ -89,7 +89,7 @@ export default async function HomePage() {
             </p>
             <Link
               href="/catalogo"
-              className="store-frame mt-9 inline-flex items-center gap-2 border-accent px-7 py-3.5 text-sm font-semibold text-accent hover:bg-accent/10"
+              className="store-frame mt-9 inline-flex items-center gap-2 border-accent px-7 py-3.5 text-[18px] font-semibold text-accent hover:bg-accent/10"
             >
               Ver catálogo
             </Link>
@@ -101,13 +101,13 @@ export default async function HomePage() {
 
       {categories.length > 0 && (
         <section className="mx-auto max-w-6xl border-b border-border px-4 py-14">
-          <h2 className="text-xs uppercase tracking-[0.14em] text-foreground/62">Categorías</h2>
+          <h2 className="text-[16px] uppercase tracking-[0.14em] text-foreground/62">Categorías</h2>
           <ul className="mt-5 grid grid-cols-2 gap-3.5 sm:grid-cols-3 md:grid-cols-6">
             {categories.map((category) => (
               <li key={category.id}>
                 <Link
                   href={`/catalogo?categoria=${category.slug}`}
-                  className="store-frame block border-border p-4 text-center text-sm transition hover:border-accent"
+                  className="store-frame block border-border p-4 text-center text-[18px] transition hover:border-accent"
                 >
                   {category.name}
                 </Link>
@@ -118,7 +118,7 @@ export default async function HomePage() {
       )}
 
       <section className="mx-auto max-w-6xl px-4 py-14">
-        <h2 className="font-display text-2xl font-semibold">Destacados</h2>
+        <h2 className="font-display text-[28px] font-semibold">Destacados</h2>
         {featured.length === 0 ? (
           <p className="mt-6 text-foreground/78">
             Todavía no hay productos cargados. Cargalos desde el panel de administración.

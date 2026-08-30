@@ -14,7 +14,7 @@ export default async function AboutPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-14">
-      <h1 className="font-display text-3xl font-bold">{title}</h1>
+      <h1 className="font-display text-[34px] font-bold">{title}</h1>
 
       {theme.aboutImageUrl && (
         // eslint-disable-next-line @next/next/no-img-element

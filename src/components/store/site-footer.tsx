@@ -10,8 +10,8 @@ const LEGAL_LINKS = [
 export function SiteFooter() {
   return (
     <footer className="mt-auto border-t border-border">
-      <div className="mx-auto max-w-6xl px-4 py-10 text-sm text-foreground/85">
-        <p className="font-display text-lg text-foreground">Epic Shine</p>
+      <div className="mx-auto max-w-6xl px-4 py-10 text-[18px] text-foreground/85">
+        <p className="font-display text-[22px] text-foreground">Epic Shine</p>
         <p className="mt-1">Detailing Mode — cuidado y estética automotor.</p>
         <p className="mt-4">
           Seguinos en Instagram:{" "}
@@ -25,12 +25,12 @@ export function SiteFooter() {
           </a>
         </p>
         <div className="mt-6">
-          <p className="font-display text-xs text-foreground/62">Novedades y promos por email</p>
+          <p className="font-display text-[16px] text-foreground/62">Novedades y promos por email</p>
           <div className="mt-2">
             <NewsletterForm />
           </div>
         </div>
-        <nav aria-label="Legales" className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-xs">
+        <nav aria-label="Legales" className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-[16px]">
           {LEGAL_LINKS.map((link) => (
             <Link
               key={link.href}
@@ -41,7 +41,7 @@ export function SiteFooter() {
             </Link>
           ))}
         </nav>
-        <p className="mt-6 text-xs text-foreground/70">
+        <p className="mt-6 text-[16px] text-foreground/70">
           © {new Date().getFullYear()} Epic Shine. Todos los derechos reservados.
         </p>
       </div>
