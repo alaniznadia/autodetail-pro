@@ -1,5 +1,9 @@
 import nodemailer from "nodemailer";
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 let transporter: ReturnType<typeof nodemailer.createTransport> | null | undefined;
 
 // Placeholder honesto: sin SMTP_HOST configurado no hay proveedor de email
@@ -42,14 +46,26 @@ export async function sendEmail({
     return;
   }
 
-  try {
-    await t.sendMail({
-      from: process.env.EMAIL_FROM ?? "Epic Shine <no-reply@epicshine.com.ar>",
-      to,
-      subject,
-      html,
-    });
-  } catch (err) {
-    console.error(`[email] Error enviando "${subject}" a ${to}`, err);
+  // Igual que sendWhatsAppMessage: una falla transitoria de red/SMTP no
+  // debería perder la notificación, así que reintentamos un par de veces
+  // antes de darla por perdida (y loguearla, sin romper el flujo que la
+  // disparó).
+  const retries = 2;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      await t.sendMail({
+        from: process.env.EMAIL_FROM ?? "Epic Shine <no-reply@epicshine.com.ar>",
+        to,
+        subject,
+        html,
+      });
+      return;
+    } catch (err) {
+      if (attempt === retries) {
+        console.error(`[email] Error enviando "${subject}" a ${to}`, err);
+      } else {
+        await sleep(1000 * 2 ** attempt);
+      }
+    }
   }
 }
