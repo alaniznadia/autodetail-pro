@@ -562,3 +562,9 @@ model LoyaltyMovement {
   @@unique([orderId, kind])
   @@index([accountId])
 }
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}

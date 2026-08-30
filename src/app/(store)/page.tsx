@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { HeroCarousel } from "@/components/store/hero-carousel";
 import { ProductCard, type CatalogProduct } from "@/components/store/product-card";
+import { RecentlyViewed } from "@/components/store/recently-viewed";
 
 // El stock y el catálogo cambian en tiempo real (ventas online + POS),
 // así que esta página no se debe pre-renderizar como estática.
@@ -86,6 +87,8 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      <RecentlyViewed />
 
       {categories.length > 0 && (
         <section className="mx-auto max-w-6xl border-b border-border px-4 py-14">

@@ -7,6 +7,7 @@ import { AddToCart } from "@/components/store/add-to-cart";
 import { ProductGallery } from "@/components/store/product-gallery";
 import { ReviewForm } from "@/components/store/review-form";
 import { ProductCard, type CatalogProduct } from "@/components/store/product-card";
+import { TrackRecentlyViewed } from "@/components/store/track-recently-viewed";
 import { SITE_URL } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
@@ -167,6 +168,7 @@ export default async function ProductPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <TrackRecentlyViewed slug={product.slug} />
       <nav className="mb-6 text-xs text-foreground/62" aria-label="Ruta">
         <a href="/catalogo" className="hover:text-foreground">Catálogo</a> / {product.category.name} / {product.name}
       </nav>

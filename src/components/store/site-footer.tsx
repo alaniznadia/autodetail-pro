@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { NewsletterForm } from "@/components/store/newsletter-form";
 
 const LEGAL_LINKS = [
   { href: "/terminos", label: "Términos y condiciones" },
@@ -23,6 +24,12 @@ export function SiteFooter() {
             @epic_shine.vm
           </a>
         </p>
+        <div className="mt-6">
+          <p className="font-display text-xs text-foreground/62">Novedades y promos por email</p>
+          <div className="mt-2">
+            <NewsletterForm />
+          </div>
+        </div>
         <nav aria-label="Legales" className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-xs">
           {LEGAL_LINKS.map((link) => (
             <Link
