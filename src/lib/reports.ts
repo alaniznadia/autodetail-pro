@@ -94,3 +94,35 @@ export async function getStockValuation() {
     lowStockCount,
   };
 }
+
+/**
+ * Clasifica cada combinación variante+sucursal en disponible / mínimo /
+ * agotado, y cuenta aparte las variantes activas que nunca tuvieron un
+ * StockItem cargado en ninguna sucursal ("sin control de stock": no rompen
+ * nada, simplemente nadie les inicializó el stock todavía).
+ */
+export async function getStockStatusBreakdown() {
+  const [stockItems, activeVariantIds, trackedVariantIds] = await Promise.all([
+    prisma.stockItem.findMany({ select: { quantity: true, lowStockAlert: true } }),
+    prisma.productVariant.findMany({
+      where: { active: true, product: { active: true } },
+      select: { id: true },
+    }),
+    prisma.stockItem.findMany({ distinct: ["variantId"], select: { variantId: true } }),
+  ]);
+
+  let disponible = 0;
+  let minimo = 0;
+  let agotado = 0;
+
+  for (const item of stockItems) {
+    if (item.quantity <= 0) agotado++;
+    else if (item.quantity <= item.lowStockAlert) minimo++;
+    else disponible++;
+  }
+
+  const trackedSet = new Set(trackedVariantIds.map((v) => v.variantId));
+  const sinControl = activeVariantIds.filter((v) => !trackedSet.has(v.id)).length;
+
+  return { disponible, minimo, agotado, sinControl };
+}
