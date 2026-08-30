@@ -59,18 +59,19 @@ export default async function HomePage() {
           <HeroCarousel banners={banners} />
         </section>
       ) : (
-        <section className="border-b border-border bg-muted">
-          <div className="mx-auto max-w-6xl px-4 py-20 text-center">
-            <h1 className="font-display text-4xl font-bold sm:text-6xl">
-              Detailing Mode
+        <section className="border-b border-border bg-[radial-gradient(1100px_480px_at_18%_-10%,color-mix(in_srgb,var(--accent)_22%,transparent),transparent_60%)]">
+          <div className="mx-auto max-w-6xl px-4 py-24">
+            <p className="text-xs uppercase tracking-[0.18em] text-accent">Detailing profesional</p>
+            <h1 className="mt-4 max-w-xl text-[40px] font-bold leading-[1.05] tracking-[-0.02em] sm:text-[56px]">
+              Cuidado y estética para tu auto, de local.
             </h1>
-            <p className="mx-auto mt-4 max-w-xl text-foreground/70">
+            <p className="mt-5 max-w-md text-foreground/65">
               Productos profesionales para el cuidado y la estética de tu auto.
               Envíos a todo el país o retiro en el local.
             </p>
             <Link
               href="/catalogo"
-              className="mt-8 inline-block rounded border border-accent px-8 py-3 font-display text-sm hover:bg-accent hover:text-background"
+              className="store-frame mt-9 inline-flex items-center gap-2 border-accent px-7 py-3.5 text-sm font-semibold text-accent hover:bg-accent/10"
             >
               Ver catálogo
             </Link>
@@ -80,13 +81,13 @@ export default async function HomePage() {
 
       {categories.length > 0 && (
         <section className="mx-auto max-w-6xl border-b border-border px-4 py-14">
-          <h2 className="font-display text-2xl font-semibold">Categorías</h2>
-          <ul className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-6">
+          <h2 className="text-xs uppercase tracking-[0.14em] text-foreground/45">Categorías</h2>
+          <ul className="mt-5 grid grid-cols-2 gap-3.5 sm:grid-cols-3 md:grid-cols-6">
             {categories.map((category) => (
               <li key={category.id}>
                 <Link
                   href={`/catalogo?categoria=${category.slug}`}
-                  className="block rounded border border-border p-4 text-center font-display text-sm transition hover:border-accent"
+                  className="store-frame block border-border p-4 text-center text-sm transition hover:border-accent"
                 >
                   {category.name}
                 </Link>
