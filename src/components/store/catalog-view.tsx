@@ -21,10 +21,12 @@ export function CatalogView({
   products,
   categories,
   activeCategory,
+  loggedIn = false,
 }: {
   products: CatalogProduct[];
   categories: { slug: string; name: string }[];
   activeCategory?: string;
+  loggedIn?: boolean;
 }) {
   const params = useSearchParams();
   const router = useRouter();
@@ -59,7 +61,7 @@ export function CatalogView({
         ) : (
           <div className="grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
             {products.map((p) => (
-              <ProductCard key={p.id} product={p} />
+              <ProductCard key={p.id} product={p} loggedIn={loggedIn} />
             ))}
           </div>
         )}
