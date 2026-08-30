@@ -6,6 +6,7 @@ import { hasVerifiedPurchase } from "@/lib/reviews";
 import { AddToCart } from "@/components/store/add-to-cart";
 import { ProductGallery } from "@/components/store/product-gallery";
 import { ReviewForm } from "@/components/store/review-form";
+import { BackButton } from "@/components/back-button";
 import { SITE_URL } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
@@ -131,6 +132,7 @@ export default async function ProductPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <BackButton className="mb-3 text-sm text-foreground/70" />
       <nav className="mb-6 text-xs text-foreground/62" aria-label="Ruta">
         <a href="/catalogo" className="hover:text-foreground">Catálogo</a> / {product.category.name} / {product.name}
       </nav>

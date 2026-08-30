@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { CatalogView } from "@/components/store/catalog-view";
 import type { CatalogProduct } from "@/components/store/product-card";
 import { MobileFilterChips } from "@/components/store/mobile-store-ui";
+import { BackButton } from "@/components/back-button";
 
 export const dynamic = "force-dynamic";
 
@@ -62,6 +63,7 @@ export default async function CatalogPage({
 
   return (
     <div className="mx-auto max-w-[1240px] px-4 pb-2 pt-8 sm:px-8">
+      <BackButton className="mb-3 text-sm text-foreground/70" />
       <h1 className="mb-4 text-2xl font-medium tracking-[-0.02em]">Catálogo</h1>
       <div className="mb-6 sm:hidden">
         <MobileFilterChips
