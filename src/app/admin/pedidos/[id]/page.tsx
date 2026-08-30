@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { OrderStatusSelect } from "@/components/admin/order-status-select";
+import { OrderAddressForm } from "@/components/admin/order-address-form";
 import { ORDER_STATUS_LABEL, PAYMENT_METHOD_LABEL, PAYMENT_STATUS_LABEL } from "@/lib/order-status";
 
 export const dynamic = "force-dynamic";
@@ -65,12 +66,8 @@ export default async function AdminOrderDetailPage({
               ? `Retiro en el local (${order.location.name})`
               : "Envío a domicilio"}
           </p>
-          {order.address && (
-            <p className="text-sm text-foreground/70">
-              {order.address.street} {order.address.number}
-              {order.address.floorApt ? `, ${order.address.floorApt}` : ""}, {order.address.city},{" "}
-              {order.address.province} ({order.address.postalCode})
-            </p>
+          {order.fulfillmentMethod === "SHIPPING" && (
+            <OrderAddressForm orderId={order.id} address={order.address} />
           )}
           {order.trackingCode && (
             <p className="text-sm text-foreground/70">Seguimiento: {order.trackingCode}</p>
@@ -95,10 +92,12 @@ export default async function AdminOrderDetailPage({
           <span>Subtotal</span>
           <span>${order.subtotal.toString()}</span>
         </p>
-        <p className="flex justify-between">
-          <span>Envío</span>
-          <span>${order.shippingCost.toString()}</span>
-        </p>
+        {order.fulfillmentMethod === "SHIPPING" && (
+          <p className="flex justify-between text-foreground/60">
+            <span>Envío (referencia, se cobra aparte por WhatsApp)</span>
+            <span>${order.shippingCost.toString()}</span>
+          </p>
+        )}
         {order.coupon && (
           <p className="flex justify-between">
             <span>Descuento ({order.coupon.code})</span>

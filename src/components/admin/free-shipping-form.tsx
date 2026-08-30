@@ -47,6 +47,10 @@ export function FreeShippingForm({ initial }: { initial: string | null }) {
         />
         Ofrecer envío gratis a partir de un monto
       </label>
+      <p className="text-xs text-foreground/60">
+        El envío se coordina y se cobra por WhatsApp después del pago; esto solo afecta el
+        monto de referencia que ven vos y el cliente, no lo que cobra Mercado Pago.
+      </p>
 
       {enabled && (
         <div>

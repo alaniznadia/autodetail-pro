@@ -17,16 +17,6 @@ const orderSchema = z.object({
   couponCode: z.string().min(1).optional(),
   pointsToRedeem: z.number().int().positive().optional(),
   idempotencyKey: z.string().min(1).max(100).optional(),
-  shippingAddress: z
-    .object({
-      street: z.string().min(1),
-      number: z.string().min(1),
-      floorApt: z.string().optional(),
-      city: z.string().min(1),
-      province: z.string().min(1),
-      postalCode: z.string().min(1),
-    })
-    .optional(),
   items: z
     .array(
       z.object({
@@ -44,13 +34,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
   const data = parsed.data;
-
-  if (data.fulfillmentMethod === "SHIPPING" && !data.shippingAddress) {
-    return NextResponse.json(
-      { error: "Falta la dirección de envío." },
-      { status: 400 }
-    );
-  }
 
   const mainLocation = await prisma.location.findFirst({ where: { isMain: true } });
   if (!mainLocation) {
@@ -77,7 +60,6 @@ export async function POST(req: NextRequest) {
       // pointsToRedeem sin sesión, se ignora en vez de fallar el pedido.
       pointsToRedeem: session?.user?.id ? data.pointsToRedeem : undefined,
       idempotencyKey: data.idempotencyKey,
-      shippingAddress: data.shippingAddress,
     });
     await notifyOrderCreated(order.id);
     return NextResponse.json({ order }, { status: 201 });

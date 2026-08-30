@@ -53,7 +53,6 @@ export async function accruePointsForOrder(tx: TxClient, orderId: string) {
       customerId: true,
       guestEmail: true,
       total: true,
-      shippingCost: true,
       pointsRedeemed: true,
     },
   });
@@ -69,8 +68,10 @@ export async function accruePointsForOrder(tx: TxClient, orderId: string) {
   }
   if (!userId) return null; // invitado sin cuenta: no acumula
 
+  // `order.total` ya no incluye el envío (se coordina y cobra aparte por
+  // WhatsApp, ver lib/orders.ts), así que no hay que volver a restarlo acá.
   const redeemedValue = new Prisma.Decimal(order.pointsRedeemed).mul(settings.loyaltyPointValue);
-  const base = order.total.sub(order.shippingCost).sub(redeemedValue);
+  const base = order.total.sub(redeemedValue);
   const points = pointsForAmount(base.lt(0) ? new Prisma.Decimal(0) : base, settings.loyaltyArsPerPoint);
   if (points <= 0) return null;
 

@@ -19,7 +19,6 @@ export default async function OrderConfirmationPage({
     where: { id },
     include: {
       items: { include: { variant: { include: { product: true } } } },
-      address: true,
       payments: true,
       coupon: true,
     },
@@ -58,10 +57,12 @@ export default async function OrderConfirmationPage({
           <span>Subtotal</span>
           <span>${order.subtotal.toString()}</span>
         </p>
-        <p className="flex justify-between">
-          <span>Envío</span>
-          <span>${order.shippingCost.toString()}</span>
-        </p>
+        {order.fulfillmentMethod === "SHIPPING" && (
+          <p className="flex justify-between">
+            <span>Envío (estimado, se coordina y cobra por WhatsApp)</span>
+            <span>${order.shippingCost.toString()}</span>
+          </p>
+        )}
         {order.coupon && (
           <p className="flex justify-between">
             <span>Descuento ({order.coupon.code})</span>
@@ -77,7 +78,7 @@ export default async function OrderConfirmationPage({
       <p className="mt-6 text-sm text-foreground/70">
         {order.fulfillmentMethod === "STORE_PICKUP"
           ? "Retirás tu pedido en el local. Te contactaremos por WhatsApp para coordinar."
-          : `Enviamos a ${order.address?.street} ${order.address?.number}, ${order.address?.city}. Te contactaremos para coordinar el pago y el envío.`}
+          : "Te contactaremos por WhatsApp para coordinar la dirección y el costo de envío."}
       </p>
 
       {showLoyalty && (

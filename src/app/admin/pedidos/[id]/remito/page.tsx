@@ -102,10 +102,12 @@ export default async function OrderPackingSlipPage({
           <span>Subtotal</span>
           <span>${order.subtotal.toString()}</span>
         </p>
-        <p className="flex justify-between">
-          <span>Envío</span>
-          <span>${order.shippingCost.toString()}</span>
-        </p>
+        {order.fulfillmentMethod === "SHIPPING" && (
+          <p className="flex justify-between">
+            <span>Envío (referencia, se cobra aparte)</span>
+            <span>${order.shippingCost.toString()}</span>
+          </p>
+        )}
         {order.coupon && (
           <p className="flex justify-between">
             <span>Descuento ({order.coupon.code})</span>

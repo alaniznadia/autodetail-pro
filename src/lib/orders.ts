@@ -19,14 +19,6 @@ export type CreateOnlineOrderInput = {
   couponCode?: string;
   pointsToRedeem?: number;
   idempotencyKey?: string;
-  shippingAddress?: {
-    street: string;
-    number: string;
-    floorApt?: string;
-    city: string;
-    province: string;
-    postalCode: string;
-  };
 };
 
 /**
@@ -35,13 +27,17 @@ export type CreateOnlineOrderInput = {
  * estado PENDING: pasa a PAID cuando se confirme el pago (efectivo/
  * transferencia al retirar, o vía webhook de Mercado Pago una vez
  * integrado).
+ *
+ * La dirección y el costo de envío ya no se piden en el checkout: se
+ * coordinan por WhatsApp después de pagar (el envío se cobra aparte, por
+ * transferencia/efectivo). `shippingCost` acá es solo una referencia por
+ * peso para esa charla — nunca se suma a `total`, así que Mercado Pago
+ * cobra únicamente el producto. La dirección la carga un admin después
+ * (ver /api/admin/orders/[id]/address) una vez que el cliente la pasa.
  */
 export async function createOnlineOrder(input: CreateOnlineOrderInput) {
   if (input.items.length === 0) {
     throw new Error("El pedido no tiene productos.");
-  }
-  if (input.fulfillmentMethod === "SHIPPING" && !input.shippingAddress) {
-    throw new Error("Falta la dirección de envío.");
   }
 
   const shippingCost =
@@ -81,26 +77,15 @@ async function createOnlineOrderTransaction(
     // El umbral de envío gratis se mide contra lo que el cliente paga en
     // productos (subtotal - descuento), no contra el subtotal bruto: si se
     // midiera contra el bruto, un cupón grande podría regalar el envío de
-    // una compra chica. Ver lib/store-settings.ts.
+    // una compra chica. Ver lib/store-settings.ts. `finalShippingCost` es
+    // solo la referencia que se muestra en el panel de admin para la charla
+    // de WhatsApp: el envío no forma parte de `total` (lo cobra Mercado
+    // Pago), se cobra aparte cuando se coordina la entrega.
     const netSubtotal = subtotal.sub(discountTotal);
     const settings = await getStoreSettings();
     const finalShippingCost = applyFreeShipping(shippingCost, netSubtotal, settings.freeShippingFrom);
 
-    const total = netSubtotal.add(finalShippingCost);
-
-    let addressId: string | undefined;
-    if (input.fulfillmentMethod === "SHIPPING" && input.shippingAddress) {
-      // Pedido de invitado: la dirección se guarda sin dueño fijo salvo
-      // que haya un cliente logueado, para poder despachar el envío.
-      const address = await tx.address.create({
-        data: {
-          ...input.shippingAddress,
-          phone: input.guestPhone,
-          userId: input.customerId,
-        } as Prisma.AddressUncheckedCreateInput,
-      });
-      addressId = address.id;
-    }
+    const total = netSubtotal;
 
     const order = await tx.order.create({
       data: {
@@ -112,7 +97,6 @@ async function createOnlineOrderTransaction(
         guestName: input.guestName,
         guestEmail: input.guestEmail,
         guestPhone: input.guestPhone,
-        addressId,
         couponId,
         idempotencyKey: input.idempotencyKey,
         subtotal,

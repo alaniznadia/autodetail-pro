@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/components/store/cart-context";
@@ -27,23 +27,12 @@ export function CheckoutForm({
   const [fulfillmentMethod, setFulfillmentMethod] = useState<"STORE_PICKUP" | "SHIPPING">(
     "STORE_PICKUP"
   );
-  const [shippingCost, setShippingCost] = useState(0);
-  const [shippingError, setShippingError] = useState<string | null>(null);
-  const [quoting, setQuoting] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"CASH" | "TRANSFER" | "MERCADO_PAGO">(
     "MERCADO_PAGO"
   );
   const [guestName, setGuestName] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
-  const [address, setAddress] = useState({
-    street: "",
-    number: "",
-    floorApt: "",
-    city: "",
-    province: "",
-    postalCode: "",
-  });
   const [error, setError] = useState<string | null>(null);
   const [failedOrderId, setFailedOrderId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -68,17 +57,16 @@ export function CheckoutForm({
     loyaltyPointValue > 0 ? Math.floor(netSubtotalAfterCoupon / loyaltyPointValue) : 0;
   const pointsDiscount = pointsToRedeem * loyaltyPointValue;
 
-  const total =
-    subtotal +
-    (fulfillmentMethod === "SHIPPING" ? shippingCost : 0) -
-    (appliedCoupon?.discount ?? 0) -
-    pointsDiscount;
+  // El envío no se cobra acá: se coordina por WhatsApp después de pagar
+  // (dirección y costo aparte), así que el total es solo lo que cobra
+  // Mercado Pago por los productos.
+  const total = subtotal - (appliedCoupon?.discount ?? 0) - pointsDiscount;
 
+  // La entrega ya no tiene datos que completar (la dirección se coordina
+  // por WhatsApp), así que ese paso queda "hecho" apenas se elige un
+  // método; el indicador salta directo de "Datos" a "Pago".
   const datosComplete = Boolean(guestName.trim() && guestEmail.trim() && guestPhone.trim());
-  const entregaComplete =
-    fulfillmentMethod === "STORE_PICKUP" ||
-    Boolean(address.street && address.number && address.city && address.province && address.postalCode);
-  const checkoutStep: 1 | 2 | 3 = !datosComplete ? 1 : !entregaComplete ? 2 : 3;
+  const checkoutStep: 1 | 3 = !datosComplete ? 1 : 3;
 
   async function handleApplyCoupon(e: React.FormEvent) {
     e.preventDefault();
@@ -102,51 +90,6 @@ export function CheckoutForm({
 
     setAppliedCoupon({ code: couponCode.toUpperCase(), discount: Number(data.discountTotal) });
   }
-
-  useEffect(() => {
-    // Fuera de "envío" el costo cotizado no se muestra ni se usa (ver el
-    // cálculo de `total` más arriba), así que no hace falta resetearlo acá.
-    if (fulfillmentMethod !== "SHIPPING" || items.length === 0) {
-      return;
-    }
-
-    let cancelled = false;
-    // Arranca el indicador de "cotizando" antes del fetch que dispara este
-    // mismo efecto al cambiar de método de entrega o de carrito.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setQuoting(true);
-    setShippingError(null);
-
-    fetch("/api/shipping/quote", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        items: items.map((i) => ({ variantId: i.variantId, quantity: i.quantity })),
-      }),
-    })
-      .then(async (res) => {
-        const data = await res.json();
-        if (cancelled) return;
-        if (!res.ok) {
-          setShippingError(
-            typeof data.error === "string" ? data.error : "No se pudo cotizar el envío."
-          );
-          setShippingCost(0);
-          return;
-        }
-        setShippingCost(Number(data.cost));
-      })
-      .catch(() => {
-        if (!cancelled) setShippingError("No se pudo cotizar el envío.");
-      })
-      .finally(() => {
-        if (!cancelled) setQuoting(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [fulfillmentMethod, items]);
 
   if (items.length === 0) {
     return (
@@ -183,7 +126,6 @@ export function CheckoutForm({
           guestName,
           guestEmail,
           guestPhone,
-          shippingAddress: fulfillmentMethod === "SHIPPING" ? address : undefined,
           couponCode: appliedCoupon?.code,
           pointsToRedeem: isLoggedIn && pointsToRedeem > 0 ? pointsToRedeem : undefined,
           idempotencyKey,
@@ -318,96 +260,14 @@ export function CheckoutForm({
                 onChange={() => setFulfillmentMethod("SHIPPING")}
               />
               Envío a domicilio
-              {fulfillmentMethod === "SHIPPING" &&
-                (quoting ? " (cotizando...)" : shippingCost > 0 ? ` ($${shippingCost.toFixed(2)})` : "")}
             </label>
           </div>
 
-          {fulfillmentMethod === "SHIPPING" && shippingError && (
-            <p role="alert" className="mt-2 text-sm text-red-400">
-              {shippingError}
-            </p>
-          )}
-
           {fulfillmentMethod === "SHIPPING" && (
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <div className="sm:col-span-2">
-                <label htmlFor="street" className="block text-sm">
-                  Calle
-                </label>
-                <input
-                  id="street"
-                  required
-                  value={address.street}
-                  onChange={(e) => setAddress((a) => ({ ...a, street: e.target.value }))}
-                  className="mt-1 w-full rounded border border-border bg-background px-3 py-2"
-                />
-              </div>
-              <div>
-                <label htmlFor="number" className="block text-sm">
-                  Número
-                </label>
-                <input
-                  id="number"
-                  required
-                  value={address.number}
-                  onChange={(e) => setAddress((a) => ({ ...a, number: e.target.value }))}
-                  className="mt-1 w-full rounded border border-border bg-background px-3 py-2"
-                />
-              </div>
-              <div>
-                <label htmlFor="floorApt" className="block text-sm">
-                  Piso/depto (opcional)
-                </label>
-                <input
-                  id="floorApt"
-                  value={address.floorApt}
-                  onChange={(e) => setAddress((a) => ({ ...a, floorApt: e.target.value }))}
-                  className="mt-1 w-full rounded border border-border bg-background px-3 py-2"
-                />
-              </div>
-              <div>
-                <label htmlFor="city" className="block text-sm">
-                  Ciudad
-                </label>
-                <input
-                  id="city"
-                  required
-                  value={address.city}
-                  onChange={(e) => setAddress((a) => ({ ...a, city: e.target.value }))}
-                  className="mt-1 w-full rounded border border-border bg-background px-3 py-2"
-                />
-              </div>
-              <div>
-                <label htmlFor="province" className="block text-sm">
-                  Provincia
-                </label>
-                <input
-                  id="province"
-                  required
-                  value={address.province}
-                  onChange={(e) => setAddress((a) => ({ ...a, province: e.target.value }))}
-                  className="mt-1 w-full rounded border border-border bg-background px-3 py-2"
-                />
-              </div>
-              <div>
-                <label htmlFor="postalCode" className="block text-sm">
-                  Código postal
-                </label>
-                <input
-                  id="postalCode"
-                  required
-                  value={address.postalCode}
-                  onChange={(e) => setAddress((a) => ({ ...a, postalCode: e.target.value }))}
-                  className="mt-1 w-full rounded border border-border bg-background px-3 py-2"
-                />
-              </div>
-              <p className="text-xs text-foreground/60 sm:col-span-2">
-                El costo de envío se calcula según el peso de tu compra; todavía no está
-                integrada la cotización en vivo de Correo Argentino/Andreani, así que el
-                envío lo coordinamos por WhatsApp una vez confirmado el pedido.
-              </p>
-            </div>
+            <p className="mt-3 text-xs text-foreground/60">
+              Coordinamos la dirección y el costo de envío por WhatsApp una vez que
+              confirmes el pago (el envío se cobra aparte, por transferencia o efectivo).
+            </p>
           )}
         </fieldset>
 
@@ -504,13 +364,7 @@ export function CheckoutForm({
           </p>
           <p className="flex justify-between text-sm">
             <span>Envío</span>
-            <span>
-              {fulfillmentMethod !== "SHIPPING"
-                ? "Sin cargo"
-                : quoting
-                  ? "Cotizando..."
-                  : `$${shippingCost.toFixed(2)}`}
-            </span>
+            <span>{fulfillmentMethod === "SHIPPING" ? "A coordinar por WhatsApp" : "Sin cargo"}</span>
           </p>
           {appliedCoupon && (
             <p className="flex justify-between text-sm">
@@ -547,9 +401,7 @@ export function CheckoutForm({
         <div className="sticky bottom-0 border-t border-border bg-background px-4 py-3 -mx-4 sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0">
           <button
             type="submit"
-            disabled={
-              submitting || (fulfillmentMethod === "SHIPPING" && (quoting || Boolean(shippingError)))
-            }
+            disabled={submitting}
             className="w-full rounded border border-accent px-8 py-3 font-display text-lg hover:bg-accent hover:text-background disabled:opacity-50 sm:w-fit"
           >
             {submitting ? "Confirmando..." : "Confirmar pedido"}
