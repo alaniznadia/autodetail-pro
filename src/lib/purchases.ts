@@ -13,6 +13,10 @@ export type CreatePurchaseOrderInput = {
   createdById: string;
   notes?: string;
   items: PurchaseItemInput[];
+  // Presentes cuando la compra se cargó importando un remito/ticket en vez
+  // de a mano (ver /admin/compras/importar).
+  sourceFileUrl?: string;
+  sourceType?: string;
 };
 
 /**
@@ -34,6 +38,8 @@ export async function createPurchaseOrder(input: CreatePurchaseOrderInput) {
         locationId: input.locationId,
         createdById: input.createdById,
         notes: input.notes,
+        sourceFileUrl: input.sourceFileUrl,
+        sourceType: input.sourceType,
         status: "RECEIVED",
         items: {
           createMany: {

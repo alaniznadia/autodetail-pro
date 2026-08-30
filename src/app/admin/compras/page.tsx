@@ -17,12 +17,20 @@ export default async function AdminPurchasesPage() {
     <div>
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold">Compras</h1>
-        <Link
-          href="/admin/compras/nueva"
-          className="rounded border border-accent px-4 py-2 font-display text-sm hover:bg-accent hover:text-background"
-        >
-          + Nueva compra
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            href="/admin/compras/importar"
+            className="rounded border border-border px-4 py-2 font-display text-sm hover:border-accent"
+          >
+            Importar remito o ticket
+          </Link>
+          <Link
+            href="/admin/compras/nueva"
+            className="rounded border border-accent px-4 py-2 font-display text-sm hover:bg-accent hover:text-background"
+          >
+            + Nueva compra
+          </Link>
+        </div>
       </div>
 
       <div className="mt-8 overflow-x-auto rounded border border-border">

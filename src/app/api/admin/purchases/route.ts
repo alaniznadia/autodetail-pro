@@ -7,6 +7,8 @@ import { createPurchaseOrder } from "@/lib/purchases";
 const schema = z.object({
   supplierId: z.string().min(1),
   notes: z.string().optional(),
+  sourceFileUrl: z.string().url().optional(),
+  sourceType: z.enum(["REMITO_PDF", "TICKET_PHOTO"]).optional(),
   items: z
     .array(
       z.object({
@@ -56,6 +58,8 @@ export async function POST(req: NextRequest) {
       locationId: mainLocation.id,
       createdById: session.user.id,
       notes: parsed.data.notes,
+      sourceFileUrl: parsed.data.sourceFileUrl,
+      sourceType: parsed.data.sourceType,
       items: parsed.data.items,
     });
     return NextResponse.json({ purchaseOrder }, { status: 201 });

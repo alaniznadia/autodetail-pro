@@ -336,6 +336,11 @@ model PurchaseOrder {
   createdBy   User                @relation(fields: [createdById], references: [id])
   status      String              @default("RECEIVED") // simple por ahora: DRAFT | RECEIVED
   notes       String?
+  // Si la compra se cargó importando un remito en PDF o una foto de ticket
+  // (en vez de carga manual), acá queda el archivo original y su tipo, para
+  // poder volver a mirarlo ante cualquier diferencia con lo recibido.
+  sourceFileUrl String?
+  sourceType    String? // REMITO_PDF | TICKET_PHOTO | null (carga manual)
   createdAt   DateTime            @default(now())
   items       PurchaseOrderItem[]
 

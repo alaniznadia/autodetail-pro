@@ -88,6 +88,24 @@ mismo tiempo (dos cajeros, o un cajero y un cliente online, vendiendo el
 La tienda pública no cachea el catálogo de forma estática (`dynamic =
 "force-dynamic"` en la home) para reflejar el stock real en cada request.
 
+## Importar stock desde remito o foto de ticket
+
+Desde `/admin/compras/importar` se puede subir el PDF de un remito o una
+foto del ticket de un proveedor: la IA de Claude (Anthropic) lee el
+documento y devuelve los ítems (producto, cantidad, costo unitario), que
+se matchean automáticamente contra las variantes existentes por SKU,
+código de barras o similitud de nombre (`src/lib/product-matching.ts`).
+El admin revisa las coincidencias sugeridas, las corrige si hace falta
+(o marca una línea como "omitir"), y al confirmar se registra como una
+compra normal (`createPurchaseOrder`): mismo ingreso de stock atómico y
+mismo historial que cargar la compra a mano.
+
+Para habilitarlo, generá una API key en
+https://console.anthropic.com/settings/keys y cargala en
+`ANTHROPIC_API_KEY`. Sin esa variable, la importación de remitos devuelve
+un error explícito al leer el archivo; la carga manual de compras
+(`/admin/compras/nueva`) sigue funcionando igual.
+
 ## Mercado Pago (Checkout Pro)
 
 El checkout online ya integra Mercado Pago; para probarlo en desarrollo:
