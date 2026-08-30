@@ -11,6 +11,8 @@ type Variant = {
   stock: number;
 };
 
+const money = (n: number) => "$" + Math.round(n).toLocaleString("es-AR");
+
 export function AddToCart({
   productSlug,
   productName,
@@ -48,58 +50,75 @@ export function AddToCart({
   }
 
   return (
-    <div className="mt-6 flex flex-col gap-4">
-      {variants.length > 1 && (
+    <div className="flex flex-col gap-4">
+      <p className="text-[30px] tracking-[-0.02em]">{selected ? money(Number(selected.price)) : ""}</p>
+
+      {variants.length > 1 ? (
         <div>
-          <label htmlFor="variant" className="block font-display text-sm">
-            Presentación
-          </label>
-          <select
-            id="variant"
-            value={variantId}
-            onChange={(e) => {
-              setVariantId(e.target.value);
-              setAdded(false);
-            }}
-            className="mt-1 w-full max-w-xs rounded border border-border bg-background px-3 py-2"
-          >
+          <p className="mb-2 text-[10px] uppercase tracking-[0.14em] text-foreground/45">Presentación</p>
+          <div className="flex flex-wrap gap-2">
             {variants.map((v) => (
-              <option key={v.id} value={v.id} disabled={v.stock <= 0}>
-                {v.name} — ${v.price} {v.stock <= 0 ? "(sin stock)" : ""}
-              </option>
+              <button
+                key={v.id}
+                type="button"
+                onClick={() => {
+                  setVariantId(v.id);
+                  setAdded(false);
+                }}
+                disabled={v.stock <= 0}
+                className={`store-frame px-3.5 py-1.5 text-[13px] disabled:cursor-not-allowed disabled:opacity-40 ${
+                  v.id === variantId
+                    ? "border-accent text-accent"
+                    : "border-border text-foreground/70 hover:bg-foreground/5"
+                }`}
+              >
+                {v.name}
+              </button>
             ))}
-          </select>
+          </div>
         </div>
-      )}
+      ) : null}
 
-      <p className="font-display text-2xl">${selected?.price}</p>
-      <p className="text-sm text-foreground/60">
-        {outOfStock ? "Sin stock disponible" : `Stock disponible: ${selected.stock}`}
-      </p>
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="store-frame flex h-[46px] items-center border-border">
+          <button
+            type="button"
+            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+            aria-label="Quitar uno"
+            className="h-11 w-11 text-lg"
+          >
+            −
+          </button>
+          <span className="w-9 text-center text-[15px]" aria-live="polite">
+            {quantity}
+          </span>
+          <button
+            type="button"
+            onClick={() => setQuantity((q) => Math.min(selected?.stock ?? q, q + 1))}
+            aria-label="Agregar uno"
+            className="h-11 w-11 text-lg"
+          >
+            +
+          </button>
+        </div>
 
-      <div className="flex items-center gap-3">
-        <label htmlFor="quantity" className="font-display text-sm">
-          Cantidad
-        </label>
-        <input
-          id="quantity"
-          type="number"
-          min={1}
-          max={selected?.stock ?? 1}
-          value={quantity}
-          onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
-          className="w-20 rounded border border-border bg-background px-2 py-1.5 text-center"
-        />
+        <button
+          type="button"
+          onClick={handleAdd}
+          disabled={outOfStock}
+          className="store-frame h-[46px] border-accent px-7 text-sm text-accent hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-45"
+        >
+          Agregar al carrito
+        </button>
+
+        <span className={`text-xs ${selected && selected.stock > 0 && selected.stock <= 5 ? "text-accent" : "text-foreground/50"}`}>
+          {outOfStock
+            ? "Sin stock disponible"
+            : selected.stock <= 5
+              ? `Quedan ${selected.stock}`
+              : "En stock · sale hoy"}
+        </span>
       </div>
-
-      <button
-        type="button"
-        onClick={handleAdd}
-        disabled={outOfStock}
-        className="w-fit rounded border border-accent px-6 py-3 font-display text-sm hover:bg-accent hover:text-background disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        Agregar al carrito
-      </button>
 
       {added && (
         <p role="status" className="text-sm">
@@ -107,7 +126,7 @@ export function AddToCart({
           <button
             type="button"
             onClick={() => router.push("/carrito")}
-            className="underline underline-offset-4"
+            className="text-accent underline underline-offset-4"
           >
             Ver carrito
           </button>

@@ -1,10 +1,9 @@
-import { getStoreTheme } from "@/lib/store-theme";
+import { getStoreTheme, type HeadingFontValue, type BodyFontValue, type CardShadowValue } from "@/lib/store-theme";
 import { prisma } from "@/lib/prisma";
-import { StoreThemeForm } from "@/components/admin/store-theme-form";
 import { SiteImageUpload } from "@/components/admin/site-image-upload";
 import { StoreBannersManager } from "@/components/admin/store-banners-manager";
 import { AboutForm } from "@/components/admin/about-form";
-import { CatalogStyleForm } from "@/components/admin/catalog-style-form";
+import { AppearanceForm } from "@/components/admin/appearance-form";
 
 export const dynamic = "force-dynamic";
 
@@ -20,21 +19,27 @@ export default async function AdminAppearancePage() {
         <h1 className="font-display text-2xl font-bold">Apariencia de la tienda</h1>
         <p className="mt-2 max-w-xl text-sm text-foreground/70">
           Estos cambios se aplican a la tienda pública (no al panel de administración
-          ni al punto de venta).
+          ni al punto de venta). Por defecto la tienda usa el diseño oscuro Nocturne,
+          pero podés personalizar cualquier color, tipografía o relieve — la vista
+          previa de la derecha se actualiza al toque, antes de guardar.
         </p>
       </div>
 
       <section>
-        <h2 className="font-display text-lg">Tipografía y colores</h2>
+        <h2 className="font-display text-lg">Colores, tipografía y relieve</h2>
         <div className="mt-4">
-          <StoreThemeForm
+          <AppearanceForm
             initial={{
-              headingFont: theme.headingFont,
-              bodyFont: theme.bodyFont,
+              headingFont: theme.headingFont as HeadingFontValue,
+              bodyFont: theme.bodyFont as BodyFontValue,
               baseFontSizePx: theme.baseFontSizePx,
               backgroundColor: theme.backgroundColor,
               textColor: theme.textColor,
               accentColor: theme.accentColor,
+              surfaceColor: theme.surfaceColor,
+              cardRadiusPx: theme.cardRadiusPx,
+              cardBorderWidthPx: theme.cardBorderWidthPx,
+              cardShadow: theme.cardShadow as CardShadowValue,
             }}
           />
         </div>
@@ -57,23 +62,6 @@ export default async function AdminAppearancePage() {
             kind="logo"
             label="Logo del encabezado"
             currentUrl={theme.logoUrl}
-          />
-        </div>
-      </section>
-
-      <section>
-        <h2 className="font-display text-lg">Tarjetas del catálogo</h2>
-        <p className="mt-1 max-w-xl text-sm text-foreground/70">
-          Color, tipografía y tamaño del nombre, precio y botón &quot;Comprar&quot; que
-          se ven en el catálogo y en los destacados de la home.
-        </p>
-        <div className="mt-4">
-          <CatalogStyleForm
-            initial={{
-              catalogButtonColor: theme.catalogButtonColor,
-              catalogFont: theme.catalogFont,
-              catalogFontSizePx: theme.catalogFontSizePx,
-            }}
           />
         </div>
       </section>

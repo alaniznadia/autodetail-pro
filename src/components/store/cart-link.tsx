@@ -10,9 +10,9 @@ export function CartLink() {
     <Link
       href="/carrito"
       aria-label={`Ver carrito de compras (${itemCount} ${itemCount === 1 ? "producto" : "productos"})`}
-      className="font-display text-sm hover:text-foreground/80"
+      className="store-frame inline-flex items-center gap-1.5 border-accent px-3.5 py-1.5 text-sm text-accent hover:bg-accent/10"
     >
-      Carrito{itemCount > 0 ? ` (${itemCount})` : ""}
+      Carrito{itemCount > 0 ? ` · ${itemCount}` : ""}
     </Link>
   );
 }

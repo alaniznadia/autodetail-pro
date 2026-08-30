@@ -1,7 +1,8 @@
 import { SiteHeader } from "@/components/store/site-header";
 import { SiteFooter } from "@/components/store/site-footer";
 import { CartProvider } from "@/components/store/cart-context";
-import { getStoreTheme, findHeadingFont, findBodyFont } from "@/lib/store-theme";
+import { getStoreTheme, findHeadingFont, findBodyFont, cardShadowValue } from "@/lib/store-theme";
+import { mixHex } from "@/lib/color";
 import { MobileStoreBar } from "@/components/store/mobile-store-ui";
 
 export const dynamic = "force-dynamic";
@@ -12,16 +13,26 @@ export default async function StoreLayout({ children }: { children: React.ReactN
   const bodyFont = findBodyFont(theme.bodyFont);
   const fontsHref = `https://fonts.googleapis.com/css2?family=${headingFont.google}&family=${bodyFont.google}&display=swap`;
 
-  // Estas variables son las mismas que usa todo el resto de la tienda
-  // (Tailwind bg-background/text-foreground y la clase .font-display, ver
-  // globals.css); al redefinirlas acá, solo se pisan para este subárbol —
-  // el panel de admin y el POS no se ven afectados.
+  // El diseño Nocturne queda como default (ver DEFAULT_STORE_THEME); estas
+  // variables son las mismas que usa todo el resto de la tienda (Tailwind
+  // bg-background/text-foreground/border-border/bg-surface, ver
+  // globals.css), así que personalizar desde /admin/apariencia alcanza y
+  // sobra sin tocar los componentes.
   const themeStyle = {
     "--background": theme.backgroundColor,
     "--foreground": theme.textColor,
     "--accent": theme.accentColor,
+    "--surface": theme.surfaceColor,
+    // Borde y "muted" no son personalizables directo: se derivan del
+    // texto sobre el fondo, para que siempre se vean bien sin importar
+    // qué combinación de colores se elija.
+    "--border": mixHex(theme.textColor, theme.backgroundColor, 0.18),
+    "--muted": mixHex(theme.textColor, theme.backgroundColor, 0.08),
     "--font-condensed": `"${headingFont.family}"`,
     "--font-body": `"${bodyFont.family}"`,
+    "--store-radius": `${theme.cardRadiusPx}px`,
+    "--store-border-width": `${theme.cardBorderWidthPx}px`,
+    "--store-shadow": cardShadowValue(theme.cardShadow),
     fontSize: `${theme.baseFontSizePx}px`,
   } as React.CSSProperties;
 

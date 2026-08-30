@@ -5,6 +5,7 @@ import {
   STORE_THEME_ID,
   HEADING_FONTS,
   BODY_FONTS,
+  CARD_SHADOWS,
   getStoreTheme,
 } from "@/lib/store-theme";
 
@@ -14,9 +15,13 @@ const schema = z.object({
   headingFont: z.enum(HEADING_FONTS.map((f) => f.value) as [string, ...string[]]),
   bodyFont: z.enum(BODY_FONTS.map((f) => f.value) as [string, ...string[]]),
   baseFontSizePx: z.coerce.number().int().min(14).max(20),
-  backgroundColor: z.string().regex(HEX_COLOR, "Tiene que ser un color hexadecimal, ej: #0a0a0a"),
-  textColor: z.string().regex(HEX_COLOR, "Tiene que ser un color hexadecimal, ej: #f5f5f5"),
-  accentColor: z.string().regex(HEX_COLOR, "Tiene que ser un color hexadecimal, ej: #ffffff"),
+  backgroundColor: z.string().regex(HEX_COLOR, "Tiene que ser un color hexadecimal, ej: #161826"),
+  textColor: z.string().regex(HEX_COLOR, "Tiene que ser un color hexadecimal, ej: #e9e9ed"),
+  accentColor: z.string().regex(HEX_COLOR, "Tiene que ser un color hexadecimal, ej: #9184d9"),
+  surfaceColor: z.string().regex(HEX_COLOR, "Tiene que ser un color hexadecimal, ej: #232532"),
+  cardRadiusPx: z.coerce.number().int().min(0).max(32),
+  cardBorderWidthPx: z.coerce.number().int().min(0).max(4),
+  cardShadow: z.enum(CARD_SHADOWS.map((s) => s.value) as [string, ...string[]]),
 });
 
 export async function GET() {

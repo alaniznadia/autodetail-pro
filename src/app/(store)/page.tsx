@@ -2,8 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { HeroCarousel } from "@/components/store/hero-carousel";
-import { getStoreTheme, resolveCatalogCardStyle } from "@/lib/store-theme";
-import { QuickAddButton } from "@/components/store/quick-add-button";
+import { ProductCard, type CatalogProduct } from "@/components/store/product-card";
 
 // El stock y el catálogo cambian en tiempo real (ventas online + POS),
 // así que esta página no se debe pre-renderizar como estática.
@@ -35,7 +34,23 @@ export default async function HomePage() {
     take: 8,
   });
 
-  const cardStyle = resolveCatalogCardStyle(await getStoreTheme());
+  const featured: CatalogProduct[] = featuredProducts.map((product) => {
+    const variant = product.variants[0];
+    const image = product.images[0];
+    const stock = variant?.stockItems.reduce((sum, s) => sum + s.quantity, 0) ?? 0;
+    return {
+      id: product.id,
+      slug: product.slug,
+      sku: variant?.sku ?? "",
+      name: product.name,
+      variantId: variant?.id ?? "",
+      variantName: variant?.name ?? "",
+      variantLabel: variant && variant.name !== "Único" ? variant.name : null,
+      price: variant?.price.toString() ?? "0",
+      stock,
+      imageUrl: image?.url ?? null,
+    };
+  });
 
   return (
     <div>
@@ -83,57 +98,16 @@ export default async function HomePage() {
 
       <section className="mx-auto max-w-6xl px-4 py-14">
         <h2 className="font-display text-2xl font-semibold">Destacados</h2>
-        {featuredProducts.length === 0 ? (
+        {featured.length === 0 ? (
           <p className="mt-6 text-foreground/60">
             Todavía no hay productos cargados. Cargalos desde el panel de administración.
           </p>
         ) : (
-          <ul className="mt-6 grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3 md:grid-cols-4">
-            {featuredProducts.map((product) => {
-              const variant = product.variants[0];
-              const image = product.images[0];
-              const stock = variant?.stockItems.reduce((sum, s) => sum + s.quantity, 0) ?? 0;
-              return (
-                <li
-                  key={product.id}
-                  className="rounded border border-border p-3 transition hover:border-accent"
-                >
-                  <Link href={`/producto/${product.slug}`} className="group block">
-                    <div className="aspect-square overflow-hidden rounded bg-white">
-                      {image && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={image.url}
-                          alt={image.altText}
-                          className="h-full w-full object-contain transition group-hover:scale-105"
-                        />
-                      )}
-                    </div>
-                    <p className="mt-2 font-display text-sm" style={cardStyle.textStyle}>
-                      {product.name}
-                    </p>
-                    {variant && (
-                      <p className="text-sm text-foreground/70" style={cardStyle.textStyle}>
-                        ${variant.price.toString()}
-                      </p>
-                    )}
-                  </Link>
-                  {variant && (
-                    <QuickAddButton
-                      variantId={variant.id}
-                      productSlug={product.slug}
-                      productName={product.name}
-                      variantName={variant.name}
-                      price={variant.price.toString()}
-                      imageUrl={image?.url}
-                      disabled={stock <= 0}
-                      color={cardStyle.buttonColor}
-                    />
-                  )}
-                </li>
-              );
-            })}
-          </ul>
+          <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3 md:grid-cols-4">
+            {featured.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
         )}
       </section>
     </div>
