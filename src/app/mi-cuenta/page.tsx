@@ -8,6 +8,7 @@ import { getStoreSettings } from "@/lib/store-settings";
 import { getBalance } from "@/lib/loyalty";
 import { LoyaltyBalanceCard } from "@/components/store/loyalty-ui";
 import { ProductCard, type CatalogProduct } from "@/components/store/product-card";
+import { CartProvider } from "@/components/store/cart-context";
 
 export const dynamic = "force-dynamic";
 
@@ -116,11 +117,17 @@ export default async function MyAccountPage() {
       {favoriteProducts.length > 0 && (
         <>
           <h2 className="mt-10 font-display text-lg">Mis favoritos</h2>
-          <div className="mt-4 grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3">
-            {favoriteProducts.map((product) => (
-              <ProductCard key={product.id} product={product} loggedIn />
-            ))}
-          </div>
+          {/* Esta ruta no cuelga de (store)/layout.tsx, así que no hay un
+              CartProvider más arriba; ProductCard lo necesita para el botón
+              "Agregar" (useCart). Mismo localStorage que usa la tienda, así
+              que agregar desde acá deja el carrito consistente al volver. */}
+          <CartProvider>
+            <div className="mt-4 grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3">
+              {favoriteProducts.map((product) => (
+                <ProductCard key={product.id} product={product} loggedIn />
+              ))}
+            </div>
+          </CartProvider>
         </>
       )}
 

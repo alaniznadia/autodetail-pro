@@ -6,7 +6,7 @@ import { ProductCard, type CatalogProduct } from "@/components/store/product-car
 const STORAGE_KEY = "epicshine_recently_viewed";
 
 export function RecentlyViewed({ excludeSlug }: { excludeSlug?: string }) {
-  const [products, setProducts] = useState<CatalogProduct[] | null>(null);
+  const [products, setProducts] = useState<CatalogProduct[]>([]);
 
   useEffect(() => {
     let slugs: string[] = [];
@@ -17,17 +17,14 @@ export function RecentlyViewed({ excludeSlug }: { excludeSlug?: string }) {
       slugs = [];
     }
     if (excludeSlug) slugs = slugs.filter((s) => s !== excludeSlug);
-    if (slugs.length === 0) {
-      setProducts([]);
-      return;
-    }
+    if (slugs.length === 0) return;
     fetch(`/api/products/recently-viewed?slugs=${slugs.map(encodeURIComponent).join(",")}`)
       .then((res) => res.json())
       .then((data) => setProducts(data.products ?? []))
       .catch(() => setProducts([]));
   }, [excludeSlug]);
 
-  if (!products || products.length === 0) return null;
+  if (products.length === 0) return null;
 
   return (
     <section className="mx-auto max-w-6xl border-b border-border px-4 py-14">

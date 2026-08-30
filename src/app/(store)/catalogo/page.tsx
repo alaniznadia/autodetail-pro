@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { CatalogView } from "@/components/store/catalog-view";
@@ -95,10 +96,10 @@ export default async function CatalogPage({
   return (
     <div className="mx-auto max-w-[1240px] px-4 pb-2 pt-8 sm:px-8">
       <nav className="mb-4 text-xs text-foreground/62" aria-label="Ruta">
-        <a href="/" className="hover:text-foreground">Inicio</a>{" / "}
+        <Link href="/" className="hover:text-foreground">Inicio</Link>{" / "}
         {activeCategoryName ? (
           <>
-            <a href="/catalogo" className="hover:text-foreground">Catálogo</a>
+            <Link href="/catalogo" className="hover:text-foreground">Catálogo</Link>
             {" / "}
             {activeCategoryName}
           </>
