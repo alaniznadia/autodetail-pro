@@ -9,10 +9,10 @@ export default function PrivacyPolicyPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
       <h1 className="font-display text-2xl font-bold">Política de privacidad</h1>
-      <p className="mt-2 text-sm text-foreground/60">Última actualización: agosto de 2026</p>
+      <p className="mt-2 text-sm text-foreground/78">Última actualización: agosto de 2026</p>
 
-      <div className="mt-8 flex flex-col gap-6 text-sm leading-relaxed text-foreground/80">
-        <p className="rounded border border-border bg-muted p-4 text-xs text-foreground/60">
+      <div className="mt-8 flex flex-col gap-6 text-sm leading-relaxed text-foreground/90">
+        <p className="rounded border border-border bg-muted p-4 text-xs text-foreground/78">
           Esta página es una plantilla de referencia basada en la Ley 25.326 de Protección de
           Datos Personales. Antes de publicarla en producción conviene que la revise un abogado y
           se complete con los datos reales de la empresa.

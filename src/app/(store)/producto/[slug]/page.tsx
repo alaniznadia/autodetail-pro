@@ -131,7 +131,7 @@ export default async function ProductPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <nav className="mb-6 text-xs text-foreground/45" aria-label="Ruta">
+      <nav className="mb-6 text-xs text-foreground/62" aria-label="Ruta">
         <a href="/catalogo" className="hover:text-foreground">Catálogo</a> / {product.category.name} / {product.name}
       </nav>
 
@@ -142,20 +142,20 @@ export default async function ProductPage({
 
         <div className="flex min-w-0 flex-1 flex-col gap-4">
           <div>
-            <p className="text-[11px] uppercase tracking-[0.16em] text-accent">{product.category.name}</p>
+            <p className="text-[12.5px] uppercase tracking-[0.16em] text-accent">{product.category.name}</p>
             <h1 className="mt-2.5 text-[28px] font-medium leading-[1.1] tracking-[-0.025em] sm:text-[34px]">
               {product.name}
             </h1>
             {averageRating && (
-              <p className="mt-2 text-sm text-foreground/70">
+              <p className="mt-2 text-sm text-foreground/85">
                 <span aria-hidden="true">{"★".repeat(Math.round(averageRating))}</span>
                 <span className="sr-only">{averageRating.toFixed(1)} de 5 estrellas</span>{" "}
                 {averageRating.toFixed(1)} ({reviewCount} {reviewCount === 1 ? "reseña" : "reseñas"})
               </p>
             )}
-            {product.brand && <p className="mt-1 text-sm text-foreground/60">{product.brand}</p>}
+            {product.brand && <p className="mt-1 text-sm text-foreground/78">{product.brand}</p>}
             {product.description && (
-              <p className="mt-2.5 max-w-[520px] text-sm leading-[1.65] text-foreground/60 text-pretty">
+              <p className="mt-2.5 max-w-[520px] text-sm leading-[1.65] text-foreground/78 text-pretty">
                 {product.description}
               </p>
             )}
@@ -169,7 +169,7 @@ export default async function ProductPage({
               variants={variants}
             />
           ) : (
-            <p className="text-foreground/60">Este producto no tiene stock cargado.</p>
+            <p className="text-foreground/78">Este producto no tiene stock cargado.</p>
           )}
         </div>
       </div>
@@ -184,7 +184,7 @@ export default async function ProductPage({
               initial={myReview ? { rating: myReview.rating, comment: myReview.comment } : undefined}
             />
             {myReview && !myReview.approved && (
-              <p className="mt-2 text-xs text-foreground/60">
+              <p className="mt-2 text-xs text-foreground/78">
                 Tu reseña está pendiente de aprobación y todavía no es visible para otros clientes.
               </p>
             )}
@@ -192,7 +192,7 @@ export default async function ProductPage({
         )}
 
         {approvedReviews.length === 0 ? (
-          <p className="mt-4 text-sm text-foreground/60">Todavía no hay reseñas.</p>
+          <p className="mt-4 text-sm text-foreground/78">Todavía no hay reseñas.</p>
         ) : (
           <ul className="mt-4 flex flex-col gap-4">
             {approvedReviews.map((review) => (
@@ -201,11 +201,11 @@ export default async function ProductPage({
                   <span className="font-display">{review.customer.name ?? "Cliente"}</span>
                   <span aria-label={`${review.rating} de 5 estrellas`} className="text-accent">
                     {"★".repeat(review.rating)}
-                    <span className="text-foreground/30">{"★".repeat(5 - review.rating)}</span>
+                    <span className="text-foreground/45">{"★".repeat(5 - review.rating)}</span>
                   </span>
                 </div>
-                {review.comment && <p className="mt-2 text-foreground/80">{review.comment}</p>}
-                <p className="mt-2 text-xs text-foreground/50">
+                {review.comment && <p className="mt-2 text-foreground/90">{review.comment}</p>}
+                <p className="mt-2 text-xs text-foreground/70">
                   {review.createdAt.toLocaleDateString("es-AR")}
                 </p>
               </li>

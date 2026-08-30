@@ -28,7 +28,7 @@ export function OrderTracking({
   if (status === "CANCELLED" || status === "REFUNDED") {
     return (
       <div className="rounded border border-border p-4">
-        <p className="text-sm text-foreground/70">
+        <p className="text-sm text-foreground/85">
           Este pedido está <span className="text-accent">{ORDER_STATUS_LABEL[status]}</span>.
         </p>
       </div>
@@ -55,8 +55,8 @@ export function OrderTracking({
               ) : null}
             </div>
             <div className="pb-6">
-              <p className={`text-sm ${done ? "text-foreground" : "text-foreground/45"}`}>{step.label}</p>
-              <p className="text-xs text-foreground/50">
+              <p className={`text-sm ${done ? "text-foreground" : "text-foreground/62"}`}>{step.label}</p>
+              <p className="text-xs text-foreground/70">
                 {at ? at.toLocaleString("es-AR", { dateStyle: "short", timeStyle: "short" }) : "Pendiente"}
               </p>
             </div>

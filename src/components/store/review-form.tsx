@@ -52,7 +52,7 @@ export function ReviewForm({
               onClick={() => setRating(value)}
               aria-label={`${value} de 5 estrellas`}
               aria-pressed={rating === value}
-              className={`text-2xl ${value <= rating ? "text-accent" : "text-foreground/30"}`}
+              className={`text-2xl ${value <= rating ? "text-accent" : "text-foreground/45"}`}
             >
               ★
             </button>

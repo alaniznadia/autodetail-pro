@@ -379,7 +379,7 @@ export function CheckoutForm({
                     className="store-frame h-11 w-full border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
                   />
                 </Field>
-                <p className="text-xs text-foreground/50 sm:col-span-2">
+                <p className="text-xs text-foreground/70 sm:col-span-2">
                   El costo de envío se calcula según el peso de tu compra; todavía no está
                   integrada la cotización en vivo de Correo Argentino/Andreani, así que el envío
                   lo coordinamos por WhatsApp una vez confirmado el pedido.
@@ -410,7 +410,7 @@ export function CheckoutForm({
               />
             </div>
             {paymentMethod !== "MERCADO_PAGO" && (
-              <p className="mt-3 text-xs text-foreground/50">
+              <p className="mt-3 text-xs text-foreground/70">
                 Coordinamos el pago por WhatsApp o lo abonás al retirar/recibir.
               </p>
             )}
@@ -430,7 +430,7 @@ export function CheckoutForm({
         </div>
 
         <aside className="store-frame flex w-full shrink-0 flex-col gap-4 self-start border-border p-5 lg:sticky lg:top-[88px] lg:w-[320px]">
-          <p className="text-[10px] uppercase tracking-[0.14em] text-foreground/45">Tu pedido</p>
+          <p className="text-[11.5px] uppercase tracking-[0.14em] text-foreground/62">Tu pedido</p>
 
           <div className="flex flex-col gap-2">
             <label htmlFor="coupon" className="sr-only">
@@ -547,7 +547,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Field({ label, htmlFor, children }: { label: string; htmlFor: string; children: React.ReactNode }) {
   return (
     <div>
-      <label htmlFor={htmlFor} className="mb-1 block text-xs text-foreground/60">
+      <label htmlFor={htmlFor} className="mb-1 block text-xs text-foreground/78">
         {label}
       </label>
       {children}
@@ -571,7 +571,7 @@ function Choice({
   return (
     <label
       className={`store-frame flex flex-1 cursor-pointer items-center justify-between gap-2 px-4 py-3 text-sm ${
-        checked ? "border-accent text-accent" : "border-border text-foreground/80 hover:bg-foreground/5"
+        checked ? "border-accent text-accent" : "border-border text-foreground/90 hover:bg-foreground/5"
       }`}
     >
       <span className="flex items-center gap-2">
@@ -586,7 +586,7 @@ function Choice({
 function SummaryRow({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
     <div className="flex items-baseline justify-between">
-      <span className="text-foreground/60">{label}</span>
+      <span className="text-foreground/78">{label}</span>
       <span className={accent ? "text-accent" : ""}>{value}</span>
     </div>
   );

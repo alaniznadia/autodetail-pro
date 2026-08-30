@@ -47,7 +47,7 @@ export function CartView({
     return (
       <div className="mx-auto max-w-[560px] px-4 py-20 text-center">
         <h1 className="text-2xl font-medium">Tu carrito está vacío</h1>
-        <p className="mt-2 text-sm text-foreground/60">Todavía no agregaste productos.</p>
+        <p className="mt-2 text-sm text-foreground/78">Todavía no agregaste productos.</p>
         <Link
           href="/catalogo"
           className="store-frame mt-8 inline-block border-accent px-7 py-3 text-sm text-accent hover:bg-accent/10"
@@ -72,16 +72,16 @@ export function CartView({
             <li key={item.variantId} className="flex items-center gap-4 p-4">
               <CartItemThumb imageUrl={item.imageUrl} />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[13.5px]">
+                <p className="truncate text-[15px]">
                   {item.productName}
                   {item.variantName && item.variantName !== "Único" ? ` · ${item.variantName}` : ""}
                 </p>
-                <p className="text-[12px] text-foreground/50">{money(Number(item.price))} c/u</p>
+                <p className="text-[13.5px] text-foreground/70">{money(Number(item.price))} c/u</p>
                 <button
                   type="button"
                   onClick={() => removeItem(item.variantId)}
                   aria-label={`Quitar ${item.productName} del carrito`}
-                  className="mt-1 text-xs text-foreground/50 underline underline-offset-2 hover:text-foreground"
+                  className="mt-1 text-xs text-foreground/70 underline underline-offset-2 hover:text-foreground"
                 >
                   Quitar
                 </button>
@@ -105,7 +105,7 @@ export function CartView({
                   +
                 </button>
               </div>
-              <p className="w-20 shrink-0 text-right text-[13.5px]">
+              <p className="w-20 shrink-0 text-right text-[15px]">
                 {money(Number(item.price) * item.quantity)}
               </p>
             </li>
@@ -115,7 +115,7 @@ export function CartView({
 
       <aside className="store-frame flex w-full shrink-0 flex-col gap-4 self-start border-border p-5 lg:sticky lg:top-[88px] lg:w-[320px]">
         <form onSubmit={applyCoupon} className="flex flex-col gap-2">
-          <label htmlFor="coupon" className="text-[10px] uppercase tracking-[0.14em] text-foreground/45">
+          <label htmlFor="coupon" className="text-[11.5px] uppercase tracking-[0.14em] text-foreground/62">
             Cupón de descuento
           </label>
           <div className="flex gap-2">
@@ -147,7 +147,7 @@ export function CartView({
         <div className="flex flex-col gap-2 text-sm">
           <Row label="Subtotal" value={money(subtotal)} />
           {discount > 0 ? <Row label="Descuento" value={`−${money(discount)}`} accent /> : null}
-          <p className="text-xs text-foreground/50">El envío se calcula en el checkout.</p>
+          <p className="text-xs text-foreground/70">El envío se calcula en el checkout.</p>
         </div>
 
         <hr className="h-px border-0 bg-[linear-gradient(to_right,transparent,var(--color-border)_12px,var(--color-border)_calc(100%-12px),transparent)]" />
@@ -158,7 +158,7 @@ export function CartView({
         </div>
 
         {freeShippingFrom && missingForFreeShipping > 0 ? (
-          <p className="text-xs text-foreground/50">
+          <p className="text-xs text-foreground/70">
             Te faltan {money(missingForFreeShipping)} para envío gratis.
           </p>
         ) : null}
@@ -171,7 +171,7 @@ export function CartView({
         </Link>
 
         {loyaltyEnabled && pointsEarned > 0 ? (
-          <p className="text-xs text-foreground/50">Sumás {pointsEarned} puntos con esta compra.</p>
+          <p className="text-xs text-foreground/70">Sumás {pointsEarned} puntos con esta compra.</p>
         ) : null}
       </aside>
     </div>
@@ -202,7 +202,7 @@ function CartItemThumb({ imageUrl }: { imageUrl?: string }) {
 function Row({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
     <div className="flex items-baseline justify-between">
-      <span className="text-foreground/60">{label}</span>
+      <span className="text-foreground/78">{label}</span>
       <span className={accent ? "text-accent" : ""}>{value}</span>
     </div>
   );

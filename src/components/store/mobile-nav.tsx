@@ -22,7 +22,7 @@ export function MobileNav({ categories }: { categories: Category[] }) {
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-controls="mobile-catalog-panel"
-        className="flex items-center gap-1.5 rounded border border-border px-3 py-1.5 font-display text-sm text-foreground/80 hover:text-foreground"
+        className="flex items-center gap-1.5 rounded border border-border px-3 py-1.5 font-display text-sm text-foreground/90 hover:text-foreground"
       >
         Catálogo
         <svg
@@ -51,7 +51,7 @@ export function MobileNav({ categories }: { categories: Category[] }) {
               <Link
                 href="/catalogo"
                 onClick={close}
-                className="block px-4 py-2 font-display text-sm text-foreground/80 hover:text-foreground"
+                className="block px-4 py-2 font-display text-sm text-foreground/90 hover:text-foreground"
               >
                 Ver todo
               </Link>
@@ -61,7 +61,7 @@ export function MobileNav({ categories }: { categories: Category[] }) {
                 <Link
                   href={`/catalogo?categoria=${category.slug}`}
                   onClick={close}
-                  className="block px-4 py-2 text-sm text-foreground/70 hover:text-foreground"
+                  className="block px-4 py-2 text-sm text-foreground/85 hover:text-foreground"
                 >
                   {category.name}
                 </Link>

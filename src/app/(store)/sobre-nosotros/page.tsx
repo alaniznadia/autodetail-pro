@@ -26,9 +26,9 @@ export default async function AboutPage() {
       )}
 
       {theme.aboutContent ? (
-        <div className="mt-8 whitespace-pre-line text-foreground/80">{theme.aboutContent}</div>
+        <div className="mt-8 whitespace-pre-line text-foreground/90">{theme.aboutContent}</div>
       ) : (
-        <p className="mt-8 text-foreground/60">
+        <p className="mt-8 text-foreground/78">
           Todavía no cargamos esta sección. Volvé pronto.
         </p>
       )}
