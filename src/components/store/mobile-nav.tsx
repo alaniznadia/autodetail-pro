@@ -67,15 +67,6 @@ export function MobileNav({ categories }: { categories: Category[] }) {
                 </Link>
               </li>
             ))}
-            <li className="mt-1 border-t border-border pt-1">
-              <Link
-                href="/sobre-nosotros"
-                onClick={close}
-                className="block px-4 py-2 font-display text-sm text-foreground/80 hover:text-foreground"
-              >
-                Sobre nosotros
-              </Link>
-            </li>
           </ul>
         </div>
       )}
