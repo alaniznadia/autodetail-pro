@@ -49,7 +49,7 @@ export function CashRegisterMobilePanel({
   ];
 
   return (
-    <div className="noc mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 px-4 py-4 lg:min-h-0 lg:max-w-3xl lg:py-8">
+    <div className="noc mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 px-4 py-4 lg:min-h-0 lg:max-w-none lg:px-10 lg:py-8">
       <div>
         <h1 className="text-lg font-medium">Caja del día</h1>
         <p className="text-[12.5px] text-noc-muted">
@@ -57,22 +57,24 @@ export function CashRegisterMobilePanel({
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2 lg:gap-x-8">
-        {rows.map(([label, value]) => (
-          <div key={label} className="flex justify-between border-b border-noc-divider pb-2.5">
-            <span className="text-sm text-noc-muted">{label}</span>
-            <span className="text-sm font-medium">{money(value)}</span>
-          </div>
-        ))}
-      </div>
-      <div className="flex items-baseline justify-between border-t border-noc-divider pt-3 lg:border-t-0 lg:pt-0">
-        <span className="text-sm font-medium">Total del turno</span>
-        <span className="text-2xl font-medium">{money(total)}</span>
+      <div>
+        <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-4 lg:gap-x-8">
+          {rows.map(([label, value]) => (
+            <div key={label} className="flex justify-between border-b border-noc-divider pb-2.5">
+              <span className="text-sm text-noc-muted">{label}</span>
+              <span className="text-sm font-medium">{money(value)}</span>
+            </div>
+          ))}
+        </div>
+        <div className="mt-3 flex items-baseline justify-between border-t border-noc-divider pt-3">
+          <span className="text-sm font-medium">Total del turno</span>
+          <span className="text-2xl font-medium">{money(total)}</span>
+        </div>
       </div>
 
       <hr className="noc-rule" />
 
-      <div className="lg:grid lg:grid-cols-2 lg:gap-8">
+      <div className="lg:grid lg:grid-cols-3 lg:gap-10">
         <div className="flex flex-col gap-4">
           <div>
             <label htmlFor="counted-cash" className="mb-1 block text-xs text-noc-muted">
