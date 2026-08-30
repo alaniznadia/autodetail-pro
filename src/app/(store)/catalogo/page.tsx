@@ -31,9 +31,16 @@ export const metadata: Metadata = {
 export default async function CatalogPage({
   searchParams,
 }: {
-  searchParams: Promise<{ categoria?: string; q?: string; orden?: string; stock?: string }>;
+  searchParams: Promise<{
+    categoria?: string;
+    q?: string;
+    orden?: string;
+    stock?: string;
+    precioMin?: string;
+    precioMax?: string;
+  }>;
 }) {
-  const { categoria, q, orden, stock } = await searchParams;
+  const { categoria, q, orden, stock, precioMin, precioMax } = await searchParams;
 
   const [session, categories, products, promoCoupon] = await Promise.all([
     auth(),
@@ -89,6 +96,8 @@ export default async function CatalogPage({
   });
 
   if (stock === "1") items = items.filter((p) => p.stock > 0);
+  if (precioMin) items = items.filter((p) => Number(p.price) >= Number(precioMin));
+  if (precioMax) items = items.filter((p) => Number(p.price) <= Number(precioMax));
   if (orden === "precio-asc") items = [...items].sort((a, b) => Number(a.price) - Number(b.price));
   if (orden === "precio-desc") items = [...items].sort((a, b) => Number(b.price) - Number(a.price));
 
