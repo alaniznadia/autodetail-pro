@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/components/store/cart-context";
 import { useAdaptiveFrameBg } from "@/components/store/use-adaptive-frame-bg";
+import { FavoriteButton } from "@/components/store/favorite-button";
 
 export type CatalogProduct = {
   id: string;
@@ -17,11 +18,14 @@ export type CatalogProduct = {
   price: string;
   stock: number;
   imageUrl: string | null;
+  rating?: number | null;
+  reviewCount?: number;
+  favorited?: boolean;
 };
 
 const money = (n: number) => "$" + Math.round(n).toLocaleString("es-AR");
 
-export function ProductCard({ product }: { product: CatalogProduct }) {
+export function ProductCard({ product, loggedIn = false }: { product: CatalogProduct; loggedIn?: boolean }) {
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
   const { bg, imgRef } = useAdaptiveFrameBg();
@@ -54,6 +58,12 @@ export function ProductCard({ product }: { product: CatalogProduct }) {
             Sin stock
           </span>
         ) : null}
+        <FavoriteButton
+          productId={product.id}
+          initialFavorited={product.favorited ?? false}
+          loggedIn={loggedIn}
+          className="absolute right-2 top-2 bg-background/80 p-1.5"
+        />
       </Link>
 
       <div>
@@ -64,6 +74,15 @@ export function ProductCard({ product }: { product: CatalogProduct }) {
           {product.variantLabel ? `${product.variantLabel} · ` : ""}
           {product.sku}
         </p>
+        {product.rating != null && (
+          <p className="mt-0.5 text-[12.5px] text-foreground/78">
+            <span aria-hidden="true" className="text-accent">
+              {"★".repeat(Math.round(product.rating))}
+            </span>
+            <span className="sr-only">{product.rating.toFixed(1)} de 5 estrellas</span>{" "}
+            {product.rating.toFixed(1)} ({product.reviewCount})
+          </p>
+        )}
       </div>
 
       <div className="mt-auto flex flex-col gap-2">

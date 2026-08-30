@@ -55,6 +55,25 @@ export async function previewCoupon(code: string, subtotal: Prisma.Decimal) {
  * condicionado que usa el descuento de stock) y devuelve el descuento a
  * aplicar. Debe llamarse dentro de la transacción que crea el pedido.
  */
+/**
+ * Cupón para promocionar en el catálogo (no requiere estar logueado ni
+ * conocer el código de antemano). Se toma el más nuevo entre los vigentes
+ * por fecha y con usos disponibles; no revela cupones privados que ya
+ * agotaron su cupo o todavía no empezaron/ya vencieron.
+ */
+export async function getActivePromoCoupon() {
+  const now = new Date();
+  const coupons = await prisma.coupon.findMany({
+    where: {
+      active: true,
+      OR: [{ startsAt: null }, { startsAt: { lte: now } }],
+      AND: [{ OR: [{ expiresAt: null }, { expiresAt: { gte: now } }] }],
+    },
+    orderBy: { createdAt: "desc" },
+  });
+  return coupons.find((c) => c.maxUses === null || c.usedCount < c.maxUses) ?? null;
+}
+
 export async function claimCoupon(tx: Prisma.TransactionClient, code: string, subtotal: Prisma.Decimal) {
   const coupon = await findValidCoupon(tx, code, subtotal);
 

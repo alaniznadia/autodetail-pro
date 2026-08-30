@@ -1,6 +1,7 @@
 import { SiteHeader } from "@/components/store/site-header";
 import { SiteFooter } from "@/components/store/site-footer";
 import { CartProvider } from "@/components/store/cart-context";
+import { CartToast } from "@/components/store/cart-toast";
 import { getStoreTheme } from "@/lib/store-theme";
 import { deriveLightPalette } from "@/lib/color";
 import { STORE_THEME_INIT_SCRIPT } from "@/lib/store-panel-theme";
@@ -88,6 +89,7 @@ export default async function StoreLayout({ children }: { children: React.ReactN
         </main>
         <SiteFooter />
         <MobileStoreBar />
+        <CartToast />
       </div>
       <script dangerouslySetInnerHTML={{ __html: STORE_THEME_INIT_SCRIPT }} />
     </CartProvider>

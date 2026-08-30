@@ -7,6 +7,10 @@ import { AddToCart } from "@/components/store/add-to-cart";
 import { ProductGallery } from "@/components/store/product-gallery";
 import { ReviewForm } from "@/components/store/review-form";
 import { BackButton } from "@/components/back-button";
+import { ProductCard, type CatalogProduct } from "@/components/store/product-card";
+import { FavoriteButton } from "@/components/store/favorite-button";
+import { TrackRecentlyViewed } from "@/components/store/track-recently-viewed";
+import { getFavoritedProductIds } from "@/lib/favorites";
 import { SITE_URL } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
@@ -97,6 +101,47 @@ export default async function ProductPage({
     ? product.reviews.find((r) => r.customerId === session.user.id)
     : undefined;
 
+  const relatedProducts = await prisma.product.findMany({
+    where: { active: true, categoryId: product.categoryId, id: { not: product.id } },
+    include: {
+      variants: { where: { active: true }, take: 1, include: { stockItems: true } },
+      images: { take: 1 },
+      reviews: { where: { approved: true }, select: { rating: true } },
+    },
+    take: 8,
+  });
+
+  const favoritedIds = await getFavoritedProductIds(session?.user?.id, [
+    product.id,
+    ...relatedProducts.map((p) => p.id),
+  ]);
+
+  const suggestions: CatalogProduct[] = relatedProducts.map((p) => {
+    const variant = p.variants[0];
+    const image = p.images[0];
+    const stock = variant?.stockItems.reduce((sum, s) => sum + s.quantity, 0) ?? 0;
+    const relatedReviewCount = p.reviews.length;
+    const relatedRating =
+      relatedReviewCount > 0
+        ? p.reviews.reduce((sum, r) => sum + r.rating, 0) / relatedReviewCount
+        : null;
+    return {
+      id: p.id,
+      slug: p.slug,
+      sku: variant?.sku ?? "",
+      name: p.name,
+      variantId: variant?.id ?? "",
+      variantName: variant?.name ?? "",
+      variantLabel: variant && variant.name !== "Único" ? variant.name : null,
+      price: variant?.price.toString() ?? "0",
+      stock,
+      imageUrl: image?.url ?? null,
+      rating: relatedRating,
+      reviewCount: relatedReviewCount,
+      favorited: favoritedIds.has(p.id),
+    };
+  });
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -133,6 +178,7 @@ export default async function ProductPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <BackButton className="mb-3 text-sm text-foreground/70" />
+      <TrackRecentlyViewed slug={product.slug} />
       <nav className="mb-6 text-xs text-foreground/62" aria-label="Ruta">
         <a href="/catalogo" className="hover:text-foreground">Catálogo</a> / {product.category.name} / {product.name}
       </nav>
@@ -163,18 +209,37 @@ export default async function ProductPage({
             )}
           </div>
 
-          {variants.length > 0 ? (
-            <AddToCart
-              productSlug={product.slug}
-              productName={product.name}
-              imageUrl={product.images[0]?.url}
-              variants={variants}
+          <div className="flex items-start gap-3">
+            {variants.length > 0 ? (
+              <AddToCart
+                productSlug={product.slug}
+                productName={product.name}
+                imageUrl={product.images[0]?.url}
+                variants={variants}
+              />
+            ) : (
+              <p className="text-foreground/78">Este producto no tiene stock cargado.</p>
+            )}
+            <FavoriteButton
+              productId={product.id}
+              initialFavorited={favoritedIds.has(product.id)}
+              loggedIn={!!session?.user}
+              className="store-frame mt-1 border-border p-2.5"
             />
-          ) : (
-            <p className="text-foreground/78">Este producto no tiene stock cargado.</p>
-          )}
+          </div>
         </div>
       </div>
+
+      {suggestions.length > 0 && (
+        <div className="mt-12 border-t border-border pt-10">
+          <h2 className="font-display text-2xl font-semibold">También te puede interesar</h2>
+          <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3 md:grid-cols-4">
+            {suggestions.map((item) => (
+              <ProductCard key={item.id} product={item} loggedIn={!!session?.user} />
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="mt-12 max-w-2xl border-t border-border pt-10">
         <h2 className="text-lg font-medium">Reseñas</h2>

@@ -1,8 +1,11 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 import { HeroCarousel } from "@/components/store/hero-carousel";
 import { ProductCard, type CatalogProduct } from "@/components/store/product-card";
+import { RecentlyViewed } from "@/components/store/recently-viewed";
+import { getFavoritedProductIds } from "@/lib/favorites";
 
 // El stock y el catálogo cambian en tiempo real (ventas online + POS),
 // así que esta página no se debe pre-renderizar como estática.
@@ -13,6 +16,7 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
+  const session = await auth();
   const banners = await prisma.storeBanner.findMany({
     where: { active: true },
     orderBy: { position: "asc" },
@@ -29,15 +33,26 @@ export default async function HomePage() {
     include: {
       variants: { where: { active: true }, take: 1, include: { stockItems: true } },
       images: { take: 1 },
+      reviews: { where: { approved: true }, select: { rating: true } },
     },
     orderBy: { createdAt: "desc" },
     take: 8,
   });
 
+  const favoritedIds = await getFavoritedProductIds(
+    session?.user?.id,
+    featuredProducts.map((p) => p.id)
+  );
+
   const featured: CatalogProduct[] = featuredProducts.map((product) => {
     const variant = product.variants[0];
     const image = product.images[0];
     const stock = variant?.stockItems.reduce((sum, s) => sum + s.quantity, 0) ?? 0;
+    const reviewCount = product.reviews.length;
+    const rating =
+      reviewCount > 0
+        ? product.reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
+        : null;
     return {
       id: product.id,
       slug: product.slug,
@@ -49,6 +64,9 @@ export default async function HomePage() {
       price: variant?.price.toString() ?? "0",
       stock,
       imageUrl: image?.url ?? null,
+      rating,
+      reviewCount,
+      favorited: favoritedIds.has(product.id),
     };
   });
 
@@ -79,6 +97,8 @@ export default async function HomePage() {
         </section>
       )}
 
+      <RecentlyViewed />
+
       {categories.length > 0 && (
         <section className="mx-auto max-w-6xl border-b border-border px-4 py-14">
           <h2 className="text-xs uppercase tracking-[0.14em] text-foreground/62">Categorías</h2>
@@ -106,7 +126,7 @@ export default async function HomePage() {
         ) : (
           <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3 md:grid-cols-4">
             {featured.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard key={product.id} product={product} loggedIn={!!session?.user} />
             ))}
           </div>
         )}

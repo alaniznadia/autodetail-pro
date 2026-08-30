@@ -1,9 +1,24 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 import { CatalogView } from "@/components/store/catalog-view";
 import type { CatalogProduct } from "@/components/store/product-card";
 import { MobileFilterChips } from "@/components/store/mobile-store-ui";
 import { BackButton } from "@/components/back-button";
+import { getActivePromoCoupon } from "@/lib/coupons";
+import { getFavoritedProductIds } from "@/lib/favorites";
+
+const money = (n: number) => "$" + Math.round(n).toLocaleString("es-AR");
+
+function couponLabel(coupon: { percentOff: number | null; amountOff: unknown; minOrderTotal: unknown }) {
+  const parts: string[] = [];
+  if (coupon.percentOff) parts.push(`${coupon.percentOff}% OFF`);
+  if (coupon.amountOff) parts.push(`${money(Number(coupon.amountOff))} OFF`);
+  let label = parts.join(" + ") || "Descuento especial";
+  if (coupon.minOrderTotal) label += ` en compras desde ${money(Number(coupon.minOrderTotal))}`;
+  return label;
+}
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +35,8 @@ export default async function CatalogPage({
 }) {
   const { categoria, q, orden, stock } = await searchParams;
 
-  const [categories, products] = await Promise.all([
+  const [session, categories, products, promoCoupon] = await Promise.all([
+    auth(),
     prisma.category.findMany({ orderBy: { name: "asc" } }),
     prisma.product.findMany({
       where: {
@@ -31,18 +47,30 @@ export default async function CatalogPage({
       include: {
         variants: { where: { active: true }, take: 1, include: { stockItems: true } },
         images: { take: 1 },
+        reviews: { where: { approved: true }, select: { rating: true } },
       },
       orderBy:
         orden === "precio-asc" || orden === "precio-desc"
           ? undefined
           : { name: "asc" },
     }),
+    getActivePromoCoupon(),
   ]);
+
+  const favoritedIds = await getFavoritedProductIds(
+    session?.user?.id,
+    products.map((p) => p.id)
+  );
 
   let items: CatalogProduct[] = products.map((product) => {
     const variant = product.variants[0];
     const image = product.images[0];
     const productStock = variant?.stockItems.reduce((sum, s) => sum + s.quantity, 0) ?? 0;
+    const reviewCount = product.reviews.length;
+    const rating =
+      reviewCount > 0
+        ? product.reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
+        : null;
     return {
       id: product.id,
       slug: product.slug,
@@ -54,6 +82,9 @@ export default async function CatalogPage({
       price: variant?.price.toString() ?? "0",
       stock: productStock,
       imageUrl: image?.url ?? null,
+      rating,
+      reviewCount,
+      favorited: favoritedIds.has(product.id),
     };
   });
 
@@ -61,10 +92,30 @@ export default async function CatalogPage({
   if (orden === "precio-asc") items = [...items].sort((a, b) => Number(a.price) - Number(b.price));
   if (orden === "precio-desc") items = [...items].sort((a, b) => Number(b.price) - Number(a.price));
 
+  const activeCategoryName = categoria ? categories.find((c) => c.slug === categoria)?.name : undefined;
+
   return (
     <div className="mx-auto max-w-[1240px] px-4 pb-2 pt-8 sm:px-8">
       <BackButton className="mb-3 text-sm text-foreground/70" />
-      <h1 className="mb-4 text-2xl font-medium tracking-[-0.02em]">Catálogo</h1>
+      <nav className="mb-4 text-xs text-foreground/62" aria-label="Ruta">
+        <Link href="/" className="hover:text-foreground">Inicio</Link>{" / "}
+        {activeCategoryName ? (
+          <>
+            <Link href="/catalogo" className="hover:text-foreground">Catálogo</Link>
+            {" / "}
+            {activeCategoryName}
+          </>
+        ) : (
+          "Catálogo"
+        )}
+      </nav>
+      <h1 className="mb-4 text-3xl font-bold tracking-[-0.02em] sm:text-4xl">Catálogo</h1>
+      {promoCoupon && (
+        <p className="store-frame mb-6 border-accent bg-accent/10 px-4 py-2.5 text-sm text-foreground">
+          🎟️ Usá el cupón <strong className="font-bold">{promoCoupon.code}</strong> y obtené{" "}
+          {couponLabel(promoCoupon)}
+        </p>
+      )}
       <div className="mb-6 sm:hidden">
         <MobileFilterChips
           categories={categories.map((c) => ({ slug: c.slug, name: c.name }))}
@@ -75,6 +126,7 @@ export default async function CatalogPage({
         products={items}
         categories={categories.map((c) => ({ slug: c.slug, name: c.name }))}
         activeCategory={categoria}
+        loggedIn={!!session?.user}
       />
     </div>
   );
