@@ -136,7 +136,7 @@ export default async function ProductPage({
 
       <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
         <div className="flex w-full shrink-0 flex-col gap-3 lg:w-[520px]">
-          <div className="relative aspect-square overflow-hidden rounded border border-border bg-surface">
+          <div className="store-frame relative aspect-square overflow-hidden border-border bg-surface">
             {product.images[0] && (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -154,7 +154,7 @@ export default async function ProductPage({
                   key={img.id}
                   src={img.url}
                   alt=""
-                  className="aspect-square overflow-hidden rounded border border-border object-cover"
+                  className="store-frame aspect-square overflow-hidden border-border object-cover"
                 />
               ))}
             </div>
@@ -217,7 +217,7 @@ export default async function ProductPage({
         ) : (
           <ul className="mt-4 flex flex-col gap-4">
             {approvedReviews.map((review) => (
-              <li key={review.id} className="rounded border border-border p-4 text-sm">
+              <li key={review.id} className="store-frame border-border p-4 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="font-display">{review.customer.name ?? "Cliente"}</span>
                   <span aria-label={`${review.rating} de 5 estrellas`} className="text-accent">

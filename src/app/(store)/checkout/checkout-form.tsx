@@ -154,7 +154,7 @@ export function CheckoutForm({
         <h1 className="text-2xl font-medium">No tenés productos en el carrito</h1>
         <Link
           href="/catalogo"
-          className="mt-6 inline-block rounded border border-accent px-6 py-3 text-sm text-accent hover:bg-accent/10"
+          className="store-frame mt-6 inline-block border-accent px-6 py-3 text-sm text-accent hover:bg-accent/10"
         >
           Ver catálogo
         </Link>
@@ -264,7 +264,7 @@ export function CheckoutForm({
                   required
                   value={guestName}
                   onChange={(e) => setGuestName(e.target.value)}
-                  className="h-11 w-full rounded border border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
+                  className="store-frame h-11 w-full border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
                 />
               </Field>
               <Field label="Email" htmlFor="guestEmail">
@@ -274,7 +274,7 @@ export function CheckoutForm({
                   required
                   value={guestEmail}
                   onChange={(e) => setGuestEmail(e.target.value)}
-                  className="h-11 w-full rounded border border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
+                  className="store-frame h-11 w-full border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
                 />
               </Field>
               <Field label="Teléfono" htmlFor="guestPhone">
@@ -284,7 +284,7 @@ export function CheckoutForm({
                   required
                   value={guestPhone}
                   onChange={(e) => setGuestPhone(e.target.value)}
-                  className="h-11 w-full rounded border border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
+                  className="store-frame h-11 w-full border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
                 />
               </Field>
             </div>
@@ -331,7 +331,7 @@ export function CheckoutForm({
                       required
                       value={address.street}
                       onChange={(e) => setAddress((a) => ({ ...a, street: e.target.value }))}
-                      className="h-11 w-full rounded border border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
+                      className="store-frame h-11 w-full border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
                     />
                   </Field>
                 </div>
@@ -341,7 +341,7 @@ export function CheckoutForm({
                     required
                     value={address.number}
                     onChange={(e) => setAddress((a) => ({ ...a, number: e.target.value }))}
-                    className="h-11 w-full rounded border border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
+                    className="store-frame h-11 w-full border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
                   />
                 </Field>
                 <Field label="Piso/depto (opcional)" htmlFor="floorApt">
@@ -349,7 +349,7 @@ export function CheckoutForm({
                     id="floorApt"
                     value={address.floorApt}
                     onChange={(e) => setAddress((a) => ({ ...a, floorApt: e.target.value }))}
-                    className="h-11 w-full rounded border border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
+                    className="store-frame h-11 w-full border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
                   />
                 </Field>
                 <Field label="Ciudad" htmlFor="city">
@@ -358,7 +358,7 @@ export function CheckoutForm({
                     required
                     value={address.city}
                     onChange={(e) => setAddress((a) => ({ ...a, city: e.target.value }))}
-                    className="h-11 w-full rounded border border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
+                    className="store-frame h-11 w-full border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
                   />
                 </Field>
                 <Field label="Provincia" htmlFor="province">
@@ -367,7 +367,7 @@ export function CheckoutForm({
                     required
                     value={address.province}
                     onChange={(e) => setAddress((a) => ({ ...a, province: e.target.value }))}
-                    className="h-11 w-full rounded border border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
+                    className="store-frame h-11 w-full border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
                   />
                 </Field>
                 <Field label="Código postal" htmlFor="postalCode">
@@ -376,7 +376,7 @@ export function CheckoutForm({
                     required
                     value={address.postalCode}
                     onChange={(e) => setAddress((a) => ({ ...a, postalCode: e.target.value }))}
-                    className="h-11 w-full rounded border border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
+                    className="store-frame h-11 w-full border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
                   />
                 </Field>
                 <p className="text-xs text-foreground/50 sm:col-span-2">
@@ -429,7 +429,7 @@ export function CheckoutForm({
           )}
         </div>
 
-        <aside className="flex w-full shrink-0 flex-col gap-4 self-start rounded border border-border p-5 lg:sticky lg:top-[88px] lg:w-[320px]">
+        <aside className="store-frame flex w-full shrink-0 flex-col gap-4 self-start border-border p-5 lg:sticky lg:top-[88px] lg:w-[320px]">
           <p className="text-[10px] uppercase tracking-[0.14em] text-foreground/45">Tu pedido</p>
 
           <div className="flex flex-col gap-2">
@@ -446,13 +446,13 @@ export function CheckoutForm({
                   setCouponError(null);
                 }}
                 placeholder="Cupón de descuento"
-                className="h-10 flex-1 rounded border border-border bg-background px-3 text-sm uppercase outline-none focus-visible:border-accent"
+                className="store-frame h-10 flex-1 border-border bg-background px-3 text-sm uppercase outline-none focus-visible:border-accent"
               />
               <button
                 type="button"
                 onClick={handleApplyCoupon}
                 disabled={!couponCode || applyingCoupon}
-                className="h-10 shrink-0 rounded border border-border px-4 text-sm hover:border-accent disabled:opacity-50"
+                className="store-frame h-10 shrink-0 border-border px-4 text-sm hover:border-accent disabled:opacity-50"
               >
                 {applyingCoupon ? "Validando…" : "Aplicar"}
               </button>
@@ -513,7 +513,7 @@ export function CheckoutForm({
             disabled={
               submitting || (fulfillmentMethod === "SHIPPING" && (quoting || Boolean(shippingError)))
             }
-            className="hidden h-[46px] rounded border border-accent text-sm text-accent hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-45 sm:block"
+            className="store-frame hidden h-[46px] border-accent text-sm text-accent hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-45 sm:block"
           >
             {submitting ? "Confirmando…" : "Confirmar pedido"}
           </button>
@@ -525,7 +525,7 @@ export function CheckoutForm({
             disabled={
               submitting || (fulfillmentMethod === "SHIPPING" && (quoting || Boolean(shippingError)))
             }
-            className="flex h-[46px] w-full items-center justify-center rounded border border-accent text-sm text-accent hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-45"
+            className="store-frame flex h-[46px] w-full items-center justify-center border-accent text-sm text-accent hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-45"
           >
             {submitting ? "Confirmando…" : `Confirmar · $${total.toFixed(2)}`}
           </button>
@@ -570,7 +570,7 @@ function Choice({
 }) {
   return (
     <label
-      className={`flex flex-1 cursor-pointer items-center justify-between gap-2 rounded border px-4 py-3 text-sm ${
+      className={`store-frame flex flex-1 cursor-pointer items-center justify-between gap-2 px-4 py-3 text-sm ${
         checked ? "border-accent text-accent" : "border-border text-foreground/80 hover:bg-foreground/5"
       }`}
     >

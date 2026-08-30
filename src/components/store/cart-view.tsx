@@ -49,7 +49,7 @@ export function CartView({
         <p className="mt-2 text-sm text-foreground/60">Todavía no agregaste productos.</p>
         <Link
           href="/catalogo"
-          className="mt-8 inline-block rounded border border-accent px-7 py-3 text-sm text-accent hover:bg-accent/10"
+          className="store-frame mt-8 inline-block border-accent px-7 py-3 text-sm text-accent hover:bg-accent/10"
         >
           Ver catálogo
         </Link>
@@ -66,10 +66,10 @@ export function CartView({
     <div className="mx-auto flex max-w-[1100px] flex-col gap-9 px-4 pb-14 sm:px-8 lg:flex-row">
       <div className="min-w-0 flex-1">
         <h1 className="mb-6 text-2xl font-medium tracking-[-0.02em]">Tu carrito</h1>
-        <ul className="flex flex-col divide-y divide-border rounded border border-border">
+        <ul className="store-frame flex flex-col divide-y divide-border border-border">
           {items.map((item) => (
             <li key={item.variantId} className="flex items-center gap-4 p-4">
-              <div className="h-16 w-16 shrink-0 overflow-hidden rounded border border-border bg-surface">
+              <div className="store-frame h-16 w-16 shrink-0 overflow-hidden border-border bg-surface">
                 {item.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={item.imageUrl} alt="" className="h-full w-full object-cover" />
@@ -90,7 +90,7 @@ export function CartView({
                   Quitar
                 </button>
               </div>
-              <div className="flex h-10 items-center rounded border border-border">
+              <div className="store-frame flex h-10 items-center border-border">
                 <button
                   type="button"
                   onClick={() => updateQuantity(item.variantId, item.quantity - 1)}
@@ -117,7 +117,7 @@ export function CartView({
         </ul>
       </div>
 
-      <aside className="flex w-full shrink-0 flex-col gap-4 self-start rounded border border-border p-5 lg:sticky lg:top-[88px] lg:w-[320px]">
+      <aside className="store-frame flex w-full shrink-0 flex-col gap-4 self-start border-border p-5 lg:sticky lg:top-[88px] lg:w-[320px]">
         <form onSubmit={applyCoupon} className="flex flex-col gap-2">
           <label htmlFor="coupon" className="text-[10px] uppercase tracking-[0.14em] text-foreground/45">
             Cupón de descuento
@@ -128,12 +128,12 @@ export function CartView({
               value={couponCode}
               onChange={(e) => setCouponCode(e.target.value)}
               placeholder="CÓDIGO"
-              className="h-10 flex-1 rounded border border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
+              className="store-frame h-10 flex-1 border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
             />
             <button
               type="submit"
               disabled={couponState.status === "loading"}
-              className="h-10 shrink-0 rounded border border-border px-4 text-sm hover:bg-foreground/5 disabled:opacity-50"
+              className="store-frame h-10 shrink-0 border-border px-4 text-sm hover:bg-foreground/5 disabled:opacity-50"
             >
               Aplicar
             </button>
@@ -169,7 +169,7 @@ export function CartView({
 
         <Link
           href="/checkout"
-          className="mt-2 flex h-[46px] items-center justify-center rounded border border-accent text-sm text-accent hover:bg-accent/10"
+          className="store-frame mt-2 flex h-[46px] items-center justify-center border-accent text-sm text-accent hover:bg-accent/10"
         >
           Finalizar compra
         </Link>

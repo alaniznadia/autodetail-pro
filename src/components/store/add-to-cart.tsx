@@ -66,10 +66,10 @@ export function AddToCart({
                   setAdded(false);
                 }}
                 disabled={v.stock <= 0}
-                className={`rounded px-3.5 py-1.5 text-[13px] disabled:cursor-not-allowed disabled:opacity-40 ${
+                className={`store-frame px-3.5 py-1.5 text-[13px] disabled:cursor-not-allowed disabled:opacity-40 ${
                   v.id === variantId
-                    ? "border border-accent text-accent"
-                    : "border border-border text-foreground/70 hover:bg-foreground/5"
+                    ? "border-accent text-accent"
+                    : "border-border text-foreground/70 hover:bg-foreground/5"
                 }`}
               >
                 {v.name}
@@ -80,7 +80,7 @@ export function AddToCart({
       ) : null}
 
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex h-[46px] items-center rounded border border-border">
+        <div className="store-frame flex h-[46px] items-center border-border">
           <button
             type="button"
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
@@ -106,7 +106,7 @@ export function AddToCart({
           type="button"
           onClick={handleAdd}
           disabled={outOfStock}
-          className="h-[46px] rounded border border-accent px-7 text-sm text-accent hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-45"
+          className="store-frame h-[46px] border-accent px-7 text-sm text-accent hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-45"
         >
           Agregar al carrito
         </button>

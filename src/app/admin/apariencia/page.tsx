@@ -1,8 +1,9 @@
-import { getStoreTheme } from "@/lib/store-theme";
+import { getStoreTheme, type HeadingFontValue, type BodyFontValue, type CardShadowValue } from "@/lib/store-theme";
 import { prisma } from "@/lib/prisma";
 import { SiteImageUpload } from "@/components/admin/site-image-upload";
 import { StoreBannersManager } from "@/components/admin/store-banners-manager";
 import { AboutForm } from "@/components/admin/about-form";
+import { AppearanceForm } from "@/components/admin/appearance-form";
 
 export const dynamic = "force-dynamic";
 
@@ -18,10 +19,31 @@ export default async function AdminAppearancePage() {
         <h1 className="font-display text-2xl font-bold">Apariencia de la tienda</h1>
         <p className="mt-2 max-w-xl text-sm text-foreground/70">
           Estos cambios se aplican a la tienda pública (no al panel de administración
-          ni al punto de venta). El color y la tipografía de la tienda son fijos (diseño
-          Nocturne) y ya no se personalizan desde acá.
+          ni al punto de venta). Por defecto la tienda usa el diseño oscuro Nocturne,
+          pero podés personalizar cualquier color, tipografía o relieve — la vista
+          previa de la derecha se actualiza al toque, antes de guardar.
         </p>
       </div>
+
+      <section>
+        <h2 className="font-display text-lg">Colores, tipografía y relieve</h2>
+        <div className="mt-4">
+          <AppearanceForm
+            initial={{
+              headingFont: theme.headingFont as HeadingFontValue,
+              bodyFont: theme.bodyFont as BodyFontValue,
+              baseFontSizePx: theme.baseFontSizePx,
+              backgroundColor: theme.backgroundColor,
+              textColor: theme.textColor,
+              accentColor: theme.accentColor,
+              surfaceColor: theme.surfaceColor,
+              cardRadiusPx: theme.cardRadiusPx,
+              cardBorderWidthPx: theme.cardBorderWidthPx,
+              cardShadow: theme.cardShadow as CardShadowValue,
+            }}
+          />
+        </div>
+      </section>
 
       <section>
         <h2 className="font-display text-lg">Ícono y logo</h2>

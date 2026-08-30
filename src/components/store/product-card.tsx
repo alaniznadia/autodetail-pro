@@ -27,7 +27,7 @@ export function ProductCard({ product }: { product: CatalogProduct }) {
     <article className="flex flex-col gap-2.5">
       <Link
         href={`/producto/${product.slug}`}
-        className="relative block aspect-square overflow-hidden rounded border border-border bg-surface"
+        className="store-frame relative block aspect-square overflow-hidden border-border bg-surface"
       >
         {product.imageUrl ? (
           <Image
@@ -75,7 +75,7 @@ export function ProductCard({ product }: { product: CatalogProduct }) {
               imageUrl: product.imageUrl ?? undefined,
             })
           }
-          className="rounded border border-accent px-2.5 py-1.5 text-xs text-accent hover:bg-accent/10 disabled:cursor-not-allowed disabled:border-border disabled:text-foreground/40"
+          className="store-frame border-accent px-2.5 py-1.5 text-xs text-accent hover:bg-accent/10 disabled:cursor-not-allowed disabled:border-border disabled:text-foreground/40"
         >
           Agregar
         </button>

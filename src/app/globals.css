@@ -7,6 +7,12 @@
   --muted: #1a1a1a;
   --border: #2a2a2a;
   --surface: #1a1a1a;
+  /* "Relieve" de tarjetas/imágenes/botones: personalizable desde
+     /admin/apariencia (ver (store)/layout.tsx); estos son el fallback
+     fuera de la tienda. */
+  --store-radius: 8px;
+  --store-border-width: 1px;
+  --store-shadow: none;
 }
 
 @theme inline {
@@ -62,6 +68,16 @@ body {
   font-family: var(--font-condensed), Arial, sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.03em;
+}
+
+/* Tarjetas/imágenes/botones de la tienda cuyo relieve (esquinas, grosor de
+   borde, sombra) sale del tema — ver --store-radius/--store-border-width/
+   --store-shadow más arriba. El color de fondo/borde se sigue poniendo con
+   las clases de Tailwind de siempre (bg-surface, border-border, etc.). */
+.store-frame {
+  border-radius: var(--store-radius);
+  border-width: var(--store-border-width);
+  box-shadow: var(--store-shadow);
 }
 
 /* Foco visible siempre: accesibilidad de navegación por teclado */
