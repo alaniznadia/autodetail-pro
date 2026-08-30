@@ -49,64 +49,68 @@ export function CashRegisterMobilePanel({
   ];
 
   return (
-    <div className="noc mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 px-4 py-4">
+    <div className="noc mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 px-4 py-4 lg:min-h-0 lg:max-w-3xl lg:py-8">
       <div>
         <h1 className="text-lg font-medium">Caja del día</h1>
-        <p className="text-[11px] text-noc-muted">
+        <p className="text-[12.5px] text-noc-muted">
           Abierta {openedAt} · {locationName} · {operator}
         </p>
       </div>
 
-      <div className="flex flex-col gap-2.5">
+      <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2 lg:gap-x-8">
         {rows.map(([label, value]) => (
           <div key={label} className="flex justify-between border-b border-noc-divider pb-2.5">
             <span className="text-sm text-noc-muted">{label}</span>
             <span className="text-sm font-medium">{money(value)}</span>
           </div>
         ))}
-        <div className="flex items-baseline justify-between">
-          <span className="text-sm font-medium">Total del turno</span>
-          <span className="text-2xl font-medium">{money(total)}</span>
-        </div>
+      </div>
+      <div className="flex items-baseline justify-between border-t border-noc-divider pt-3 lg:border-t-0 lg:pt-0">
+        <span className="text-sm font-medium">Total del turno</span>
+        <span className="text-2xl font-medium">{money(total)}</span>
       </div>
 
       <hr className="noc-rule" />
 
-      <div>
-        <label htmlFor="counted-cash" className="mb-1 block text-xs text-noc-muted">
-          Efectivo contado en caja
-        </label>
-        <input
-          id="counted-cash"
-          inputMode="decimal"
-          value={counted}
-          onChange={(e) => setCounted(e.target.value)}
-          placeholder={money(totals.cashTotal)}
-          className="noc-input"
-        />
+      <div className="lg:grid lg:grid-cols-2 lg:gap-8">
+        <div className="flex flex-col gap-4">
+          <div>
+            <label htmlFor="counted-cash" className="mb-1 block text-xs text-noc-muted">
+              Efectivo contado en caja
+            </label>
+            <input
+              id="counted-cash"
+              inputMode="decimal"
+              value={counted}
+              onChange={(e) => setCounted(e.target.value)}
+              placeholder={money(totals.cashTotal)}
+              className="noc-input"
+            />
+          </div>
+
+          <p className="rounded-lg bg-noc-surface p-3 text-[13.5px] leading-relaxed text-noc-muted">
+            {counted === ""
+              ? "Contá el efectivo antes de cerrar: al cerrar se guarda el arqueo por método de pago."
+              : diff === 0
+                ? "Sin diferencia contra lo registrado."
+                : `Diferencia de ${money(Math.abs(diff))} ${diff > 0 ? "de más" : "de menos"} contra lo registrado.`}
+          </p>
+        </div>
+
+        {lowStock.length > 0 && (
+          <section className="mt-4 flex flex-col gap-2 lg:mt-0">
+            <h2 className="text-[11.5px] font-medium uppercase tracking-[0.12em] text-noc-muted">
+              Alertas de stock
+            </h2>
+            {lowStock.map((item) => (
+              <p key={item.id} className="flex items-center gap-2 text-[14.5px]">
+                <span className="noc-tag noc-tag-accent">{item.quantity}</span>
+                {item.name}
+              </p>
+            ))}
+          </section>
+        )}
       </div>
-
-      <p className="rounded-lg bg-noc-surface p-3 text-[12px] leading-relaxed text-noc-muted">
-        {counted === ""
-          ? "Contá el efectivo antes de cerrar: al cerrar se guarda el arqueo por método de pago."
-          : diff === 0
-            ? "Sin diferencia contra lo registrado."
-            : `Diferencia de ${money(Math.abs(diff))} ${diff > 0 ? "de más" : "de menos"} contra lo registrado.`}
-      </p>
-
-      {lowStock.length > 0 && (
-        <section className="flex flex-col gap-2">
-          <h2 className="text-[10px] font-medium uppercase tracking-[0.12em] text-noc-muted">
-            Alertas de stock
-          </h2>
-          {lowStock.map((item) => (
-            <p key={item.id} className="flex items-center gap-2 text-[13px]">
-              <span className="noc-tag noc-tag-accent">{item.quantity}</span>
-              {item.name}
-            </p>
-          ))}
-        </section>
-      )}
 
       <button
         type="button"
@@ -119,7 +123,7 @@ export function CashRegisterMobilePanel({
             setClosing(false);
           }
         }}
-        className="noc-btn noc-btn-primary mt-auto h-12 w-full text-base"
+        className="noc-btn noc-btn-primary mt-auto h-12 w-full text-base lg:mt-4 lg:w-auto lg:min-w-[240px] lg:self-end"
       >
         {closing ? "Cerrando…" : "Cerrar caja"}
       </button>

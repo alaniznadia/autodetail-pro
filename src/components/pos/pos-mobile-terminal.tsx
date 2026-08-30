@@ -178,104 +178,110 @@ export function PosMobileTerminal({
   }
 
   return (
-    <div className="noc mx-auto flex min-h-dvh w-full max-w-md flex-col">
-      {/* Encabezado: marca + sucursal activa */}
-      <header className="flex items-center gap-3 bg-[#1b1d2b] px-4 pb-3 pt-4">
-        <span className="mr-auto text-xs font-medium uppercase tracking-[0.16em] text-noc-accent">
-          Epic Shine · POS
-        </span>
-        <label className="sr-only" htmlFor="pos-location">
-          Sucursal
-        </label>
-        <select
-          id="pos-location"
-          value={locationId}
-          onChange={(e) => setLocationId(e.target.value)}
-          className="noc-input min-h-9 w-auto py-1 text-sm"
-        >
-          {locations.map((l) => (
-            <option key={l.id} value={l.id}>
-              {l.name}
-            </option>
-          ))}
-        </select>
-      </header>
-
-      {/* Búsqueda / escaneo */}
-      <div className="flex flex-col gap-2 px-4 pt-3">
-        <label className="sr-only" htmlFor="pos-search">
-          Buscar producto (nombre, SKU o código de barras)
-        </label>
-        <input
-          id="pos-search"
-          ref={inputRef}
-          value={query}
-          onChange={(e) => handleSearch(e.target.value)}
-          onKeyDown={handleKeyDown}
-          inputMode="search"
-          autoFocus
-          placeholder="Escaneá o escribí — nombre, SKU o código"
-          className="noc-input"
-        />
-        {results.length > 0 && (
-          <ul className="overflow-hidden rounded-lg border border-noc-divider">
-            {results.map((r) => (
-              <li key={r.id} className="border-b border-noc-divider last:border-0">
-                <button
-                  type="button"
-                  onClick={() => addToCart(r)}
-                  className="flex w-full items-center gap-3 px-3 py-2.5 text-left"
-                >
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-medium">{r.name}</span>
-                    <span className="block text-[11px] text-noc-muted">{r.sku}</span>
-                  </span>
-                  <span className="shrink-0 text-right">
-                    <span className="block text-sm font-medium">{money(Number(r.price))}</span>
-                    <span className="block text-[10px] text-noc-muted">stock {r.stock}</span>
-                  </span>
-                </button>
-              </li>
+    <div className="noc mx-auto flex min-h-dvh w-full max-w-md flex-col lg:max-w-6xl lg:flex-row lg:items-start lg:gap-6 lg:py-6">
+      {/* Columna izquierda: búsqueda + carrito (ocupa el ancho disponible en escritorio) */}
+      <div className="flex min-w-0 flex-1 flex-col">
+        {/* Encabezado: marca + sucursal activa */}
+        <header className="flex items-center gap-3 bg-[#1b1d2b] px-4 pb-3 pt-4 lg:rounded-t-lg">
+          <span className="mr-auto whitespace-nowrap text-xs font-medium uppercase tracking-[0.16em] text-noc-accent">
+            Epic Shine · POS
+          </span>
+          <label className="sr-only" htmlFor="pos-location">
+            Sucursal
+          </label>
+          <select
+            id="pos-location"
+            value={locationId}
+            onChange={(e) => setLocationId(e.target.value)}
+            className="noc-input min-h-9 w-auto py-1 text-sm"
+          >
+            {locations.map((l) => (
+              <option key={l.id} value={l.id}>
+                {l.name}
+              </option>
             ))}
-          </ul>
-        )}
+          </select>
+        </header>
+
+        {/* Búsqueda / escaneo */}
+        <div className="flex flex-col gap-2 px-4 pt-3">
+          <label className="sr-only" htmlFor="pos-search">
+            Buscar producto (nombre, SKU o código de barras)
+          </label>
+          <input
+            id="pos-search"
+            ref={inputRef}
+            value={query}
+            onChange={(e) => handleSearch(e.target.value)}
+            onKeyDown={handleKeyDown}
+            inputMode="search"
+            autoFocus
+            placeholder="Escaneá o escribí — nombre, SKU o código"
+            className="noc-input"
+          />
+          {results.length > 0 && (
+            <ul className="overflow-hidden rounded-lg border border-noc-divider lg:grid lg:grid-cols-2">
+              {results.map((r) => (
+                <li key={r.id} className="border-b border-noc-divider last:border-0 lg:border-b-0 lg:odd:border-r">
+                  <button
+                    type="button"
+                    onClick={() => addToCart(r)}
+                    className="flex w-full items-center gap-3 px-3 py-2.5 text-left"
+                  >
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-medium">{r.name}</span>
+                      <span className="block text-[12.5px] text-noc-muted">{r.sku}</span>
+                    </span>
+                    <span className="shrink-0 text-right">
+                      <span className="block text-sm font-medium">{money(Number(r.price))}</span>
+                      <span className="block text-[11.5px] text-noc-muted">stock {r.stock}</span>
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {/* Venta actual */}
+        <div className="flex flex-1 flex-col gap-3 overflow-y-auto px-4 py-3 lg:overflow-visible">
+          <p className="text-[11.5px] font-medium uppercase tracking-[0.12em] text-noc-muted">
+            Venta actual
+          </p>
+          {cart.length === 0 && <p className="text-sm text-noc-muted">Sin productos todavía.</p>}
+          {cart.map((line) => (
+            <div key={line.id} className="flex items-center gap-2 border-b border-noc-divider pb-2.5">
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium">{line.name}</p>
+                <p className="text-[12.5px] text-noc-muted">{line.sku}</p>
+              </div>
+              <button
+                type="button"
+                aria-label={`Quitar uno de ${line.name}`}
+                onClick={() => updateQuantity(line.id, line.quantity - 1)}
+                className="noc-btn noc-btn-secondary h-11 w-11 min-h-0 px-0"
+              >
+                –
+              </button>
+              <span className="w-5 text-center text-sm font-medium">{line.quantity}</span>
+              <button
+                type="button"
+                aria-label={`Agregar uno de ${line.name}`}
+                onClick={() => updateQuantity(line.id, line.quantity + 1)}
+                className="noc-btn noc-btn-secondary h-11 w-11 min-h-0 px-0"
+              >
+                +
+              </button>
+              <span className="w-20 text-right text-sm font-medium">
+                {money(Number(line.price) * line.quantity)}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Venta actual */}
-      <div className="flex flex-1 flex-col gap-3 overflow-y-auto px-4 py-3">
-        <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-noc-muted">
-          Venta actual
-        </p>
-        {cart.length === 0 && <p className="text-sm text-noc-muted">Sin productos todavía.</p>}
-        {cart.map((line) => (
-          <div key={line.id} className="flex items-center gap-2 border-b border-noc-divider pb-2.5">
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium">{line.name}</p>
-              <p className="text-[11px] text-noc-muted">{line.sku}</p>
-            </div>
-            <button
-              type="button"
-              aria-label={`Quitar uno de ${line.name}`}
-              onClick={() => updateQuantity(line.id, line.quantity - 1)}
-              className="noc-btn noc-btn-secondary h-11 w-11 min-h-0 px-0"
-            >
-              –
-            </button>
-            <span className="w-5 text-center text-sm font-medium">{line.quantity}</span>
-            <button
-              type="button"
-              aria-label={`Agregar uno de ${line.name}`}
-              onClick={() => updateQuantity(line.id, line.quantity + 1)}
-              className="noc-btn noc-btn-secondary h-11 w-11 min-h-0 px-0"
-            >
-              +
-            </button>
-            <span className="w-20 text-right text-sm font-medium">
-              {money(Number(line.price) * line.quantity)}
-            </span>
-          </div>
-        ))}
-
+      {/* Columna derecha en escritorio: cupón, descuento, pago y total (barra fija abajo en celular) */}
+      <div className="flex w-full flex-col gap-3 px-4 py-3 lg:w-[360px] lg:shrink-0 lg:gap-4 lg:px-0 lg:py-0">
         {/* Cupón + descuento manual */}
         <div className="flex gap-2">
           <label className="sr-only" htmlFor="pos-coupon">
@@ -301,9 +307,9 @@ export function PosMobileTerminal({
             Aplicar
           </button>
         </div>
-        {couponError && <p className="text-[11px] text-noc-accent-soft">{couponError}</p>}
+        {couponError && <p className="text-[12.5px] text-noc-accent-soft">{couponError}</p>}
         {appliedCoupon && (
-          <p className="text-[11px] text-noc-accent-soft">
+          <p className="text-[12.5px] text-noc-accent-soft">
             Cupón {appliedCoupon.code}: -{money(appliedCoupon.discount)}
           </p>
         )}
@@ -327,7 +333,7 @@ export function PosMobileTerminal({
 
         {/* Método de pago */}
         <fieldset>
-          <legend className="mb-2 text-[10px] font-medium uppercase tracking-[0.12em] text-noc-muted">
+          <legend className="mb-2 text-[11.5px] font-medium uppercase tracking-[0.12em] text-noc-muted">
             Método de pago
           </legend>
           <div className="grid grid-cols-3 gap-2">
@@ -361,32 +367,32 @@ export function PosMobileTerminal({
             )}
           </p>
         )}
-      </div>
 
-      {/* Total fijo abajo */}
-      <div className="sticky bottom-0 flex flex-col gap-1.5 border-t border-noc-divider bg-noc-bg px-4 pb-[calc(env(safe-area-inset-bottom)+12px)] pt-3">
-        <div className="flex justify-between text-xs text-noc-muted">
-          <span>Subtotal</span>
-          <span>{money(subtotal)}</span>
-        </div>
-        {totalDiscount > 0 && (
-          <div className="flex justify-between text-xs text-noc-accent-soft">
-            <span>Descuento</span>
-            <span>-{money(totalDiscount)}</span>
+        {/* Total: barra fija abajo en celular, tarjeta normal en escritorio */}
+        <div className="sticky bottom-0 -mx-4 flex flex-col gap-1.5 border-t border-noc-divider bg-noc-bg px-4 pb-[calc(env(safe-area-inset-bottom)+12px)] pt-3 lg:static lg:mx-0 lg:rounded-lg lg:border lg:border-noc-divider lg:bg-noc-surface lg:p-4">
+          <div className="flex justify-between text-xs text-noc-muted">
+            <span>Subtotal</span>
+            <span>{money(subtotal)}</span>
           </div>
-        )}
-        <div className="flex items-baseline justify-between">
-          <span className="text-sm font-medium">Total</span>
-          <span className="text-2xl font-medium">{money(total)}</span>
+          {totalDiscount > 0 && (
+            <div className="flex justify-between text-xs text-noc-accent-soft">
+              <span>Descuento</span>
+              <span>-{money(totalDiscount)}</span>
+            </div>
+          )}
+          <div className="flex items-baseline justify-between">
+            <span className="text-sm font-medium">Total</span>
+            <span className="text-2xl font-medium">{money(total)}</span>
+          </div>
+          <button
+            type="button"
+            onClick={confirmSale}
+            disabled={cart.length === 0 || submitting}
+            className="noc-btn noc-btn-primary h-12 w-full text-base"
+          >
+            {submitting ? "Procesando…" : "Confirmar venta"}
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={confirmSale}
-          disabled={cart.length === 0 || submitting}
-          className="noc-btn noc-btn-primary h-12 w-full text-base"
-        >
-          {submitting ? "Procesando…" : "Confirmar venta"}
-        </button>
       </div>
     </div>
   );

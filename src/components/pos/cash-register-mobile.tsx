@@ -90,7 +90,7 @@ export function CashRegisterMobile({ locationId }: { locationId: string }) {
 
   if (!state?.session) {
     return (
-      <div className="noc mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 px-4 py-4">
+      <div className="noc mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 px-4 py-4 lg:max-w-lg lg:py-8">
         <h1 className="text-lg font-medium">Caja del día</h1>
         <p className="text-sm text-noc-muted">No hay ninguna caja abierta.</p>
         {error && <p className="text-sm text-noc-accent-soft">{error}</p>}
