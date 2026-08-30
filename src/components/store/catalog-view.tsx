@@ -41,7 +41,31 @@ export function CatalogView({
 
   return (
     <div className="mx-auto flex max-w-[1240px] flex-col gap-9 px-4 pb-14 sm:flex-row sm:gap-9 sm:px-8">
-      <aside className="hidden w-[190px] shrink-0 flex-col gap-6 self-start sm:sticky sm:top-[88px] sm:flex">
+      <div className="min-w-0 flex-1 sm:order-1">
+        <div className="mb-4 flex items-baseline gap-3 text-xs text-foreground/50">
+          <span>
+            {products.length} {products.length === 1 ? "producto" : "productos"}
+          </span>
+        </div>
+
+        {products.length === 0 ? (
+          <p className="py-14 text-sm text-foreground/55">
+            No encontramos productos con esos filtros.{" "}
+            <Link href="/catalogo" className="text-accent underline-offset-2 hover:underline">
+              Ver todo el catálogo
+            </Link>
+            .
+          </p>
+        ) : (
+          <div className="grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
+            {products.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      <aside className="hidden w-[190px] shrink-0 flex-col gap-6 self-start sm:sticky sm:top-[88px] sm:order-2 sm:flex">
         <Filter title="Categoría">
           <FilterLink label="Todo" active={!activeCat} onClick={() => setParam("categoria", null)} />
           {categories.map((c) => (
@@ -81,30 +105,6 @@ export function CatalogView({
           ))}
         </Filter>
       </aside>
-
-      <div className="min-w-0 flex-1">
-        <div className="mb-4 flex items-baseline gap-3 text-xs text-foreground/50">
-          <span>
-            {products.length} {products.length === 1 ? "producto" : "productos"}
-          </span>
-        </div>
-
-        {products.length === 0 ? (
-          <p className="py-14 text-sm text-foreground/55">
-            No encontramos productos con esos filtros.{" "}
-            <Link href="/catalogo" className="text-accent underline-offset-2 hover:underline">
-              Ver todo el catálogo
-            </Link>
-            .
-          </p>
-        ) : (
-          <div className="grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
-            {products.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </div>
-        )}
-      </div>
     </div>
   );
 }
