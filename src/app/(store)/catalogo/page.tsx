@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { CatalogView } from "@/components/store/catalog-view";
 import type { CatalogProduct } from "@/components/store/product-card";
 import { MobileFilterChips } from "@/components/store/mobile-store-ui";
+import { BackButton } from "@/components/back-button";
 import { getActivePromoCoupon } from "@/lib/coupons";
 import { getFavoritedProductIds } from "@/lib/favorites";
 
@@ -95,6 +96,7 @@ export default async function CatalogPage({
 
   return (
     <div className="mx-auto max-w-[1240px] px-4 pb-2 pt-8 sm:px-8">
+      <BackButton className="mb-3 text-sm text-foreground/70" />
       <nav className="mb-4 text-xs text-foreground/62" aria-label="Ruta">
         <Link href="/" className="hover:text-foreground">Inicio</Link>{" / "}
         {activeCategoryName ? (

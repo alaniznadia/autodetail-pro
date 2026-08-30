@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth, signOut } from "@/lib/auth";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { BackButton } from "@/components/back-button";
 import { PANEL_THEME_INIT_SCRIPT } from "@/lib/panel-theme";
 
 const NAV = [
@@ -64,7 +65,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </form>
         </div>
       </aside>
-      <main className="flex-1 p-6 print:p-0">{children}</main>
+      <main className="flex-1 p-6 print:p-0">
+        <BackButton className="print:hidden mb-4 text-sm text-foreground/70" />
+        {children}
+      </main>
     </div>
   );
 }

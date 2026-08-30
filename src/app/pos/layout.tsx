@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth, signOut } from "@/lib/auth";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { BackButton } from "@/components/back-button";
 import { PANEL_THEME_INIT_SCRIPT } from "@/lib/panel-theme";
 
 export default async function PosLayout({ children }: { children: React.ReactNode }) {
@@ -45,7 +46,12 @@ export default async function PosLayout({ children }: { children: React.ReactNod
           </form>
         </div>
       </header>
-      <main className="p-0 md:p-4 print:p-0">{children}</main>
+      <main className="p-0 md:p-4 print:p-0">
+        <div className="print:hidden px-4 pt-3 md:px-0 md:pt-0">
+          <BackButton className="text-sm text-foreground/70" />
+        </div>
+        {children}
+      </main>
     </div>
   );
 }
