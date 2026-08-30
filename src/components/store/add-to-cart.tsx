@@ -157,7 +157,7 @@ export function AddToCart({
                 value={notifyEmail}
                 onChange={(e) => setNotifyEmail(e.target.value)}
                 placeholder="tu@email.com"
-                className="w-full rounded border border-border bg-transparent px-3 py-2 text-sm outline-none focus:border-accent"
+                className="w-full min-w-0 rounded border border-border bg-transparent px-3 py-2 text-sm outline-none focus:border-accent"
               />
               <button
                 type="submit"

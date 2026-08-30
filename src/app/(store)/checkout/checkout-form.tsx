@@ -459,7 +459,7 @@ export function CheckoutForm({
                   setCouponError(null);
                 }}
                 placeholder="Cupón de descuento"
-                className="store-frame h-10 flex-1 border-border bg-background px-3 text-[18px] uppercase outline-none focus-visible:border-accent"
+                className="store-frame h-10 min-w-0 flex-1 border-border bg-background px-3 text-[18px] uppercase outline-none focus-visible:border-accent"
               />
               <button
                 type="button"
