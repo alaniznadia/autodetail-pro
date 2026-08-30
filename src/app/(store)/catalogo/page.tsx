@@ -3,6 +3,18 @@ import { prisma } from "@/lib/prisma";
 import { CatalogView } from "@/components/store/catalog-view";
 import type { CatalogProduct } from "@/components/store/product-card";
 import { MobileFilterChips } from "@/components/store/mobile-store-ui";
+import { getActivePromoCoupon } from "@/lib/coupons";
+
+const money = (n: number) => "$" + Math.round(n).toLocaleString("es-AR");
+
+function couponLabel(coupon: { percentOff: number | null; amountOff: unknown; minOrderTotal: unknown }) {
+  const parts: string[] = [];
+  if (coupon.percentOff) parts.push(`${coupon.percentOff}% OFF`);
+  if (coupon.amountOff) parts.push(`${money(Number(coupon.amountOff))} OFF`);
+  let label = parts.join(" + ") || "Descuento especial";
+  if (coupon.minOrderTotal) label += ` en compras desde ${money(Number(coupon.minOrderTotal))}`;
+  return label;
+}
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +31,7 @@ export default async function CatalogPage({
 }) {
   const { categoria, q, orden, stock } = await searchParams;
 
-  const [categories, products] = await Promise.all([
+  const [categories, products, promoCoupon] = await Promise.all([
     prisma.category.findMany({ orderBy: { name: "asc" } }),
     prisma.product.findMany({
       where: {
@@ -37,6 +49,7 @@ export default async function CatalogPage({
           ? undefined
           : { name: "asc" },
     }),
+    getActivePromoCoupon(),
   ]);
 
   let items: CatalogProduct[] = products.map((product) => {
@@ -85,6 +98,12 @@ export default async function CatalogPage({
         )}
       </nav>
       <h1 className="mb-4 text-3xl font-bold tracking-[-0.02em] sm:text-4xl">Catálogo</h1>
+      {promoCoupon && (
+        <p className="store-frame mb-6 border-accent bg-accent/10 px-4 py-2.5 text-sm text-foreground">
+          🎟️ Usá el cupón <strong className="font-bold">{promoCoupon.code}</strong> y obtené{" "}
+          {couponLabel(promoCoupon)}
+        </p>
+      )}
       <div className="mb-6 sm:hidden">
         <MobileFilterChips
           categories={categories.map((c) => ({ slug: c.slug, name: c.name }))}
