@@ -151,10 +151,10 @@ export function CheckoutForm({
   if (items.length === 0) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <h1 className="text-2xl font-medium">No tenés productos en el carrito</h1>
+        <h1 className="text-[28px] font-medium">No tenés productos en el carrito</h1>
         <Link
           href="/catalogo"
-          className="store-frame mt-6 inline-block border-accent px-6 py-3 text-sm text-accent hover:bg-accent/10"
+          className="store-frame mt-6 inline-block border-accent px-6 py-3 text-[18px] text-accent hover:bg-accent/10"
         >
           Ver catálogo
         </Link>
@@ -250,7 +250,7 @@ export function CheckoutForm({
 
   return (
     <div className="mx-auto max-w-[1100px] px-4 pb-28 pt-8 sm:px-8 sm:pb-14">
-      <h1 className="mb-4 text-2xl font-medium tracking-[-0.02em]">Finalizar compra</h1>
+      <h1 className="mb-4 text-[28px] font-medium tracking-[-0.02em]">Finalizar compra</h1>
 
       <MobileCheckoutSteps step={checkoutStep} />
 
@@ -264,7 +264,7 @@ export function CheckoutForm({
                   required
                   value={guestName}
                   onChange={(e) => setGuestName(e.target.value)}
-                  className="store-frame h-11 w-full border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
+                  className="store-frame h-11 w-full border-border bg-background px-3 text-[18px] outline-none focus-visible:border-accent"
                 />
               </Field>
               <Field label="Email" htmlFor="guestEmail">
@@ -274,7 +274,7 @@ export function CheckoutForm({
                   required
                   value={guestEmail}
                   onChange={(e) => setGuestEmail(e.target.value)}
-                  className="store-frame h-11 w-full border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
+                  className="store-frame h-11 w-full border-border bg-background px-3 text-[18px] outline-none focus-visible:border-accent"
                 />
               </Field>
               <Field label="Teléfono" htmlFor="guestPhone">
@@ -284,7 +284,7 @@ export function CheckoutForm({
                   required
                   value={guestPhone}
                   onChange={(e) => setGuestPhone(e.target.value)}
-                  className="store-frame h-11 w-full border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
+                  className="store-frame h-11 w-full border-border bg-background px-3 text-[18px] outline-none focus-visible:border-accent"
                 />
               </Field>
             </div>
@@ -317,7 +317,7 @@ export function CheckoutForm({
             </div>
 
             {fulfillmentMethod === "SHIPPING" && shippingError && (
-              <p role="alert" className="mt-3 text-sm text-red-400">
+              <p role="alert" className="mt-3 text-[18px] text-red-400">
                 {shippingError}
               </p>
             )}
@@ -331,7 +331,7 @@ export function CheckoutForm({
                       required
                       value={address.street}
                       onChange={(e) => setAddress((a) => ({ ...a, street: e.target.value }))}
-                      className="store-frame h-11 w-full border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
+                      className="store-frame h-11 w-full border-border bg-background px-3 text-[18px] outline-none focus-visible:border-accent"
                     />
                   </Field>
                 </div>
@@ -341,7 +341,7 @@ export function CheckoutForm({
                     required
                     value={address.number}
                     onChange={(e) => setAddress((a) => ({ ...a, number: e.target.value }))}
-                    className="store-frame h-11 w-full border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
+                    className="store-frame h-11 w-full border-border bg-background px-3 text-[18px] outline-none focus-visible:border-accent"
                   />
                 </Field>
                 <Field label="Piso/depto (opcional)" htmlFor="floorApt">
@@ -349,7 +349,7 @@ export function CheckoutForm({
                     id="floorApt"
                     value={address.floorApt}
                     onChange={(e) => setAddress((a) => ({ ...a, floorApt: e.target.value }))}
-                    className="store-frame h-11 w-full border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
+                    className="store-frame h-11 w-full border-border bg-background px-3 text-[18px] outline-none focus-visible:border-accent"
                   />
                 </Field>
                 <Field label="Ciudad" htmlFor="city">
@@ -358,7 +358,7 @@ export function CheckoutForm({
                     required
                     value={address.city}
                     onChange={(e) => setAddress((a) => ({ ...a, city: e.target.value }))}
-                    className="store-frame h-11 w-full border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
+                    className="store-frame h-11 w-full border-border bg-background px-3 text-[18px] outline-none focus-visible:border-accent"
                   />
                 </Field>
                 <Field label="Provincia" htmlFor="province">
@@ -367,7 +367,7 @@ export function CheckoutForm({
                     required
                     value={address.province}
                     onChange={(e) => setAddress((a) => ({ ...a, province: e.target.value }))}
-                    className="store-frame h-11 w-full border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
+                    className="store-frame h-11 w-full border-border bg-background px-3 text-[18px] outline-none focus-visible:border-accent"
                   />
                 </Field>
                 <Field label="Código postal" htmlFor="postalCode">
@@ -376,10 +376,10 @@ export function CheckoutForm({
                     required
                     value={address.postalCode}
                     onChange={(e) => setAddress((a) => ({ ...a, postalCode: e.target.value }))}
-                    className="store-frame h-11 w-full border-border bg-background px-3 text-sm outline-none focus-visible:border-accent"
+                    className="store-frame h-11 w-full border-border bg-background px-3 text-[18px] outline-none focus-visible:border-accent"
                   />
                 </Field>
-                <p className="text-xs text-foreground/70 sm:col-span-2">
+                <p className="text-[16px] text-foreground/70 sm:col-span-2">
                   El costo de envío se calcula según el peso de tu compra; todavía no está
                   integrada la cotización en vivo de Correo Argentino/Andreani, así que el envío
                   lo coordinamos por WhatsApp una vez confirmado el pedido.
@@ -410,7 +410,7 @@ export function CheckoutForm({
               />
             </div>
             {paymentMethod !== "MERCADO_PAGO" && (
-              <p className="mt-3 text-xs text-foreground/70">
+              <p className="mt-3 text-[16px] text-foreground/70">
                 Coordinamos el pago por WhatsApp o lo abonás al retirar/recibir.
               </p>
             )}
@@ -430,7 +430,7 @@ export function CheckoutForm({
         </div>
 
         <aside className="store-frame flex w-full shrink-0 flex-col gap-4 self-start border-border p-5 lg:sticky lg:top-[88px] lg:w-[320px]">
-          <p className="text-[11.5px] uppercase tracking-[0.14em] text-foreground/62">Tu pedido</p>
+          <p className="text-[15.5px] uppercase tracking-[0.14em] text-foreground/62">Tu pedido</p>
 
           <div className="flex flex-col gap-2">
             <label htmlFor="coupon" className="sr-only">
@@ -446,20 +446,20 @@ export function CheckoutForm({
                   setCouponError(null);
                 }}
                 placeholder="Cupón de descuento"
-                className="store-frame h-10 flex-1 border-border bg-background px-3 text-sm uppercase outline-none focus-visible:border-accent"
+                className="store-frame h-10 flex-1 border-border bg-background px-3 text-[18px] uppercase outline-none focus-visible:border-accent"
               />
               <button
                 type="button"
                 onClick={handleApplyCoupon}
                 disabled={!couponCode || applyingCoupon}
-                className="store-frame h-10 shrink-0 border-border px-4 text-sm hover:border-accent disabled:opacity-50"
+                className="store-frame h-10 shrink-0 border-border px-4 text-[18px] hover:border-accent disabled:opacity-50"
               >
                 {applyingCoupon ? "Validando…" : "Aplicar"}
               </button>
             </div>
-            {couponError && <p className="text-xs text-red-400">{couponError}</p>}
+            {couponError && <p className="text-[16px] text-red-400">{couponError}</p>}
             {appliedCoupon && (
-              <p className="text-xs text-accent">
+              <p className="text-[16px] text-accent">
                 Cupón {appliedCoupon.code} aplicado: -${appliedCoupon.discount.toFixed(2)}
               </p>
             )}
@@ -467,7 +467,7 @@ export function CheckoutForm({
 
           <hr className="h-px border-0 bg-[linear-gradient(to_right,transparent,var(--color-border)_12px,var(--color-border)_calc(100%-12px),transparent)]" />
 
-          <div className="flex flex-col gap-2 text-sm">
+          <div className="flex flex-col gap-2 text-[18px]">
             <SummaryRow label="Subtotal" value={`$${subtotal.toFixed(2)}`} />
             <SummaryRow
               label="Envío"
@@ -490,12 +490,12 @@ export function CheckoutForm({
           <hr className="h-px border-0 bg-[linear-gradient(to_right,transparent,var(--color-border)_12px,var(--color-border)_calc(100%-12px),transparent)]" />
 
           <div className="flex items-baseline justify-between">
-            <span className="text-sm">Total</span>
-            <span className="text-xl tracking-[-0.02em]">${total.toFixed(2)}</span>
+            <span className="text-[18px]">Total</span>
+            <span className="text-[24px] tracking-[-0.02em]">${total.toFixed(2)}</span>
           </div>
 
           {error && (
-            <p role="alert" className="text-sm text-red-400">
+            <p role="alert" className="text-[18px] text-red-400">
               {error}
               {failedOrderId && (
                 <>
@@ -513,7 +513,7 @@ export function CheckoutForm({
             disabled={
               submitting || (fulfillmentMethod === "SHIPPING" && (quoting || Boolean(shippingError)))
             }
-            className="store-frame hidden h-[46px] border-accent text-sm text-accent hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-45 sm:block"
+            className="store-frame hidden h-[46px] border-accent text-[18px] text-accent hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-45 sm:block"
           >
             {submitting ? "Confirmando…" : "Confirmar pedido"}
           </button>
@@ -525,7 +525,7 @@ export function CheckoutForm({
             disabled={
               submitting || (fulfillmentMethod === "SHIPPING" && (quoting || Boolean(shippingError)))
             }
-            className="store-frame flex h-[46px] w-full items-center justify-center border-accent text-sm text-accent hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-45"
+            className="store-frame flex h-[46px] w-full items-center justify-center border-accent text-[18px] text-accent hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-45"
           >
             {submitting ? "Confirmando…" : `Confirmar · $${total.toFixed(2)}`}
           </button>
@@ -538,7 +538,7 @@ export function CheckoutForm({
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <fieldset className="flex flex-col gap-3">
-      <legend className="mb-1 text-base font-medium">{title}</legend>
+      <legend className="mb-1 text-[20px] font-medium">{title}</legend>
       {children}
     </fieldset>
   );
@@ -547,7 +547,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Field({ label, htmlFor, children }: { label: string; htmlFor: string; children: React.ReactNode }) {
   return (
     <div>
-      <label htmlFor={htmlFor} className="mb-1 block text-xs text-foreground/78">
+      <label htmlFor={htmlFor} className="mb-1 block text-[16px] text-foreground/78">
         {label}
       </label>
       {children}
@@ -570,7 +570,7 @@ function Choice({
 }) {
   return (
     <label
-      className={`store-frame flex flex-1 cursor-pointer items-center justify-between gap-2 px-4 py-3 text-sm ${
+      className={`store-frame flex flex-1 cursor-pointer items-center justify-between gap-2 px-4 py-3 text-[18px] ${
         checked ? "border-accent text-accent" : "border-border text-foreground/90 hover:bg-foreground/5"
       }`}
     >
@@ -578,7 +578,7 @@ function Choice({
         <input type="radio" name={name} checked={checked} onChange={onChange} className="accent-accent" />
         {label}
       </span>
-      {hint ? <span className="text-xs opacity-80">{hint}</span> : null}
+      {hint ? <span className="text-[16px] opacity-80">{hint}</span> : null}
     </label>
   );
 }

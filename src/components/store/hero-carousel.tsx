@@ -47,7 +47,7 @@ export function HeroCarousel({ banners }: { banners: Banner[] }) {
             type="button"
             onClick={() => setIndex((i) => (i - 1 + banners.length) % banners.length)}
             aria-label="Anterior"
-            className="absolute left-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-background/70 text-lg hover:bg-background"
+            className="absolute left-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-background/70 text-[22px] hover:bg-background"
           >
             ‹
           </button>
@@ -55,7 +55,7 @@ export function HeroCarousel({ banners }: { banners: Banner[] }) {
             type="button"
             onClick={() => setIndex((i) => (i + 1) % banners.length)}
             aria-label="Siguiente"
-            className="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-background/70 text-lg hover:bg-background"
+            className="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-background/70 text-[22px] hover:bg-background"
           >
             ›
           </button>

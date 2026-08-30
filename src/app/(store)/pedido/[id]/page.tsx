@@ -44,7 +44,7 @@ export default async function OrderConfirmationPage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
-      <h1 className="text-2xl font-medium tracking-[-0.02em]">¡Gracias por tu pedido!</h1>
+      <h1 className="text-[28px] font-medium tracking-[-0.02em]">¡Gracias por tu pedido!</h1>
       <p className="mt-2 text-foreground/85">
         Pedido #{order.orderNumber} — estado: {ORDER_STATUS_LABEL[order.status] ?? order.status}
       </p>
@@ -55,7 +55,7 @@ export default async function OrderConfirmationPage({
 
       <ul className="mt-6 divide-y divide-border rounded border border-border">
         {order.items.map((item) => (
-          <li key={item.id} className="flex justify-between p-4 text-sm">
+          <li key={item.id} className="flex justify-between p-4 text-[18px]">
             <span>
               {item.variant.product.name} — {item.variant.name} x{item.quantity}
             </span>
@@ -64,7 +64,7 @@ export default async function OrderConfirmationPage({
         ))}
       </ul>
 
-      <div className="mt-4 rounded border border-border p-4 text-sm">
+      <div className="mt-4 rounded border border-border p-4 text-[18px]">
         <p className="flex justify-between">
           <span>Subtotal</span>
           <span>${order.subtotal.toString()}</span>
@@ -79,13 +79,13 @@ export default async function OrderConfirmationPage({
             <span>-${order.discountTotal.toString()}</span>
           </p>
         )}
-        <p className="mt-2 flex justify-between text-lg">
+        <p className="mt-2 flex justify-between text-[22px]">
           <span>Total</span>
           <span>${order.total.toString()}</span>
         </p>
       </div>
 
-      <p className="mt-6 text-sm text-foreground/85">
+      <p className="mt-6 text-[18px] text-foreground/85">
         {order.fulfillmentMethod === "STORE_PICKUP"
           ? "Retirás tu pedido en el local. Te contactaremos por WhatsApp para coordinar."
           : `Enviamos a ${order.address?.street} ${order.address?.number}, ${order.address?.city}. Te contactaremos para coordinar el pago y el envío.`}

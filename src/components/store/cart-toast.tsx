@@ -22,7 +22,7 @@ export function CartToast() {
       aria-live="polite"
       className="pointer-events-none fixed inset-x-0 bottom-20 z-50 flex justify-center px-4 sm:bottom-6"
     >
-      <div className="store-frame pointer-events-auto flex items-center gap-2 border-accent bg-surface px-4 py-2.5 text-sm text-foreground shadow-lg">
+      <div className="store-frame pointer-events-auto flex items-center gap-2 border-accent bg-surface px-4 py-2.5 text-[18px] text-foreground shadow-lg">
         <span aria-hidden="true" className="text-accent">✓</span>
         {notice.message}
       </div>

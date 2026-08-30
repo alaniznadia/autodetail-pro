@@ -96,8 +96,8 @@ export default async function CatalogPage({
 
   return (
     <div className="mx-auto max-w-[1240px] px-4 pb-2 pt-8 sm:px-8">
-      <BackButton className="mb-3 text-sm text-foreground/70" />
-      <nav className="mb-4 text-xs text-foreground/62" aria-label="Ruta">
+      <BackButton className="mb-3 text-[18px] text-foreground/70" />
+      <nav className="mb-4 text-[16px] text-foreground/62" aria-label="Ruta">
         <Link href="/" className="hover:text-foreground">Inicio</Link>{" / "}
         {activeCategoryName ? (
           <>
@@ -109,9 +109,9 @@ export default async function CatalogPage({
           "Catálogo"
         )}
       </nav>
-      <h1 className="mb-4 text-3xl font-bold tracking-[-0.02em] sm:text-4xl">Catálogo</h1>
+      <h1 className="mb-4 text-[34px] font-bold tracking-[-0.02em] sm:text-[40px]">Catálogo</h1>
       {promoCoupon && (
-        <p className="store-frame mb-6 border-accent bg-accent/10 px-4 py-2.5 text-sm text-foreground">
+        <p className="store-frame mb-6 border-accent bg-accent/10 px-4 py-2.5 text-[18px] text-foreground">
           🎟️ Usá el cupón <strong className="font-bold">{promoCoupon.code}</strong> y obtené{" "}
           {couponLabel(promoCoupon)}
         </p>

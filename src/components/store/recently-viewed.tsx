@@ -28,7 +28,7 @@ export function RecentlyViewed({ excludeSlug }: { excludeSlug?: string }) {
 
   return (
     <section className="mx-auto max-w-6xl border-b border-border px-4 py-14">
-      <h2 className="font-display text-2xl font-semibold">Recién vistos</h2>
+      <h2 className="font-display text-[28px] font-semibold">Recién vistos</h2>
       <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3 md:grid-cols-4">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />

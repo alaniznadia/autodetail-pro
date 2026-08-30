@@ -49,12 +49,12 @@ export function ProductCard({ product, loggedIn = false }: { product: CatalogPro
           />
         ) : null}
         {low ? (
-          <span className="absolute left-2 top-2 rounded bg-accent/25 px-2 py-0.5 text-[12.5px] text-foreground">
+          <span className="absolute left-2 top-2 rounded bg-accent/25 px-2 py-0.5 text-[16.5px] text-foreground">
             últimas {product.stock}
           </span>
         ) : null}
         {product.stock === 0 ? (
-          <span className="absolute left-2 top-2 rounded bg-background/80 px-2 py-0.5 text-[12.5px] text-foreground/85">
+          <span className="absolute left-2 top-2 rounded bg-background/80 px-2 py-0.5 text-[16.5px] text-foreground/85">
             Sin stock
           </span>
         ) : null}
@@ -67,15 +67,15 @@ export function ProductCard({ product, loggedIn = false }: { product: CatalogPro
       </Link>
 
       <div>
-        <Link href={`/producto/${product.slug}`} className="text-[15.5px] font-bold">
+        <Link href={`/producto/${product.slug}`} className="text-[19.5px] font-bold">
           {product.name}
         </Link>
-        <p className="text-[13px] text-foreground/70">
+        <p className="text-[17px] text-foreground/70">
           {product.variantLabel ? `${product.variantLabel} · ` : ""}
           {product.sku}
         </p>
         {product.rating != null && (
-          <p className="mt-0.5 text-[12.5px] text-foreground/78">
+          <p className="mt-0.5 text-[16.5px] text-foreground/78">
             <span aria-hidden="true" className="text-accent">
               {"★".repeat(Math.round(product.rating))}
             </span>
@@ -86,7 +86,7 @@ export function ProductCard({ product, loggedIn = false }: { product: CatalogPro
       </div>
 
       <div className="mt-auto flex flex-col gap-2">
-        <span className="text-[17px] font-bold">{money(Number(product.price))}</span>
+        <span className="text-[21px] font-bold">{money(Number(product.price))}</span>
         <div className="flex items-center gap-2">
           <div className="store-frame flex h-9 shrink-0 items-center border-border">
             <button
@@ -94,11 +94,11 @@ export function ProductCard({ product, loggedIn = false }: { product: CatalogPro
               onClick={() => setQuantity((q) => Math.max(1, q - 1))}
               aria-label="Quitar uno"
               disabled={product.stock === 0}
-              className="h-9 w-8 text-sm disabled:cursor-not-allowed disabled:text-foreground/45"
+              className="h-9 w-8 text-[18px] disabled:cursor-not-allowed disabled:text-foreground/45"
             >
               −
             </button>
-            <span className="w-6 text-center text-[14.5px]" aria-live="polite">
+            <span className="w-6 text-center text-[18.5px]" aria-live="polite">
               {quantity}
             </span>
             <button
@@ -106,7 +106,7 @@ export function ProductCard({ product, loggedIn = false }: { product: CatalogPro
               onClick={() => setQuantity((q) => Math.min(product.stock || q, q + 1))}
               aria-label="Agregar uno"
               disabled={product.stock === 0}
-              className="h-9 w-8 text-sm disabled:cursor-not-allowed disabled:text-foreground/45"
+              className="h-9 w-8 text-[18px] disabled:cursor-not-allowed disabled:text-foreground/45"
             >
               +
             </button>
@@ -128,7 +128,7 @@ export function ProductCard({ product, loggedIn = false }: { product: CatalogPro
               );
               setQuantity(1);
             }}
-            className="store-frame h-9 flex-1 border-accent px-2.5 text-xs text-accent hover:bg-accent/10 disabled:cursor-not-allowed disabled:border-border disabled:text-foreground/55"
+            className="store-frame h-9 flex-1 border-accent px-2.5 text-[16px] text-accent hover:bg-accent/10 disabled:cursor-not-allowed disabled:border-border disabled:text-foreground/55"
           >
             Agregar
           </button>

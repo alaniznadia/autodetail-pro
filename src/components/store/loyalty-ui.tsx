@@ -24,8 +24,8 @@ export function LoyaltyBalanceCard({
   return (
     <section className="flex flex-col gap-2 rounded-lg border border-border p-4">
       <div className="flex items-baseline justify-between">
-        <h2 className="font-display text-base">Puntos Epic Shine</h2>
-        <span className="rounded border border-accent px-2 py-0.5 text-xs text-accent">
+        <h2 className="font-display text-[20px]">Puntos Epic Shine</h2>
+        <span className="rounded border border-accent px-2 py-0.5 text-[16px] text-accent">
           {balance} pts
         </span>
       </div>
@@ -39,7 +39,7 @@ export function LoyaltyBalanceCard({
       >
         <div className="h-full bg-accent" style={{ width: `${pct}%` }} />
       </div>
-      <p className="text-xs text-foreground/78">
+      <p className="text-[16px] text-foreground/78">
         {missing === 0
           ? `Podés canjear ${money(balance * pointValue)} en tu próxima compra.`
           : `${missing} pts más y tenés ${money(nextRewardAt * pointValue)} de descuento.`}
@@ -68,7 +68,7 @@ export function LoyaltyRedeemField({
 
   if (!canRedeem) {
     return (
-      <p className="text-xs text-foreground/78">
+      <p className="text-[16px] text-foreground/78">
         Tenés {balance} pts. El canje mínimo es de {minRedeem} pts.
       </p>
     );
@@ -76,7 +76,7 @@ export function LoyaltyRedeemField({
 
   return (
     <div className="flex flex-col gap-2">
-      <label htmlFor="loyalty-points" className="text-xs text-foreground/85">
+      <label htmlFor="loyalty-points" className="text-[16px] text-foreground/85">
         Canjear puntos (tenés {balance})
       </label>
       <input
@@ -93,7 +93,7 @@ export function LoyaltyRedeemField({
         }}
         className="accent-[var(--accent)]"
       />
-      <p className="text-xs text-foreground/78">
+      <p className="text-[16px] text-foreground/78">
         {points === 0
           ? "No canjear puntos en esta compra."
           : `${points} pts = ${money(points * pointValue)} de descuento.`}

@@ -7,7 +7,7 @@ export function SignOutButton() {
     <button
       type="button"
       onClick={() => signOut({ callbackUrl: "/" })}
-      className="shrink-0 rounded border border-border px-4 py-2 font-display text-sm hover:border-accent"
+      className="shrink-0 rounded border border-border px-4 py-2 font-display text-[18px] hover:border-accent"
     >
       Cerrar sesión
     </button>

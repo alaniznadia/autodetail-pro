@@ -24,7 +24,7 @@ export function NewsletterForm() {
   }
 
   if (status === "done") {
-    return <p className="text-sm text-foreground/85">¡Gracias por suscribirte!</p>;
+    return <p className="text-[18px] text-foreground/85">¡Gracias por suscribirte!</p>;
   }
 
   return (
@@ -39,17 +39,17 @@ export function NewsletterForm() {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="tu@email.com"
-        className="w-full rounded border border-border bg-transparent px-3 py-2 text-sm outline-none focus:border-accent"
+        className="w-full rounded border border-border bg-transparent px-3 py-2 text-[18px] outline-none focus:border-accent"
       />
       <button
         type="submit"
         disabled={status === "submitting"}
-        className="store-frame shrink-0 border-accent px-4 py-2 text-sm text-accent hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-60"
+        className="store-frame shrink-0 border-accent px-4 py-2 text-[18px] text-accent hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {status === "submitting" ? "Enviando…" : "Suscribirme"}
       </button>
       {status === "error" && (
-        <p role="alert" className="text-xs text-red-400">
+        <p role="alert" className="text-[16px] text-red-400">
           No se pudo suscribir, probá de nuevo.
         </p>
       )}

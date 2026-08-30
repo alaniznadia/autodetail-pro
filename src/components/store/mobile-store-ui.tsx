@@ -30,12 +30,12 @@ export function MobileStoreBar({ href = "/carrito", label = "Ver carrito" }: { h
 
   return (
     <div className="sticky bottom-0 z-40 flex items-center gap-3 border-t border-border bg-background px-4 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-3">
-      <p className="flex-1 text-xs text-foreground/78">
+      <p className="flex-1 text-[16px] text-foreground/78">
         {count} {count === 1 ? "producto" : "productos"} · {money(subtotal)}
       </p>
       <Link
         href={href}
-        className="rounded border border-accent px-5 py-3 font-display text-sm hover:bg-accent hover:text-background"
+        className="rounded border border-accent px-5 py-3 font-display text-[18px] hover:bg-accent hover:text-background"
       >
         {label}
       </Link>
@@ -57,7 +57,7 @@ export function MobileFilterChips({
     >
       <Link
         href="/catalogo"
-        className={`shrink-0 rounded-full border px-3 py-1.5 text-xs ${
+        className={`shrink-0 rounded-full border px-3 py-1.5 text-[16px] ${
           !active ? "border-accent text-accent" : "border-border text-foreground/85"
         }`}
       >
@@ -67,7 +67,7 @@ export function MobileFilterChips({
         <Link
           key={c.slug}
           href={`/catalogo?categoria=${c.slug}`}
-          className={`shrink-0 rounded-full border px-3 py-1.5 text-xs ${
+          className={`shrink-0 rounded-full border px-3 py-1.5 text-[16px] ${
             active === c.slug ? "border-accent text-accent" : "border-border text-foreground/85"
           }`}
         >
@@ -91,7 +91,7 @@ export function MobileCheckoutSteps({ step }: { step: 1 | 2 | 3 }) {
               className={`h-0.5 w-full rounded ${done ? "bg-accent" : "bg-border"}`}
               aria-hidden
             />
-            <span className={`text-[12.5px] ${done ? "text-foreground" : "text-foreground/62"}`}>
+            <span className={`text-[16.5px] ${done ? "text-foreground" : "text-foreground/62"}`}>
               {label}
             </span>
           </li>
