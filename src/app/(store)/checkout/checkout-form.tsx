@@ -290,6 +290,7 @@ export function CheckoutForm({
               id="guestPhone"
               type="tel"
               required
+              placeholder="11 2345-6789 (sin 0 ni 15)"
               value={guestPhone}
               onChange={(e) => setGuestPhone(e.target.value)}
               className="mt-1 w-full rounded border border-border bg-background px-3 py-2"

@@ -92,6 +92,7 @@ function RegisterForm() {
             name="phone"
             type="tel"
             autoComplete="tel"
+            placeholder="11 2345-6789 (sin 0 ni 15)"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             className="mt-1 w-full rounded border border-border bg-background px-3 py-2 text-base"
