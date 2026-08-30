@@ -65,7 +65,7 @@ export default async function HomePage() {
             <h1 className="mt-4 max-w-xl text-[40px] font-bold leading-[1.05] tracking-[-0.02em] sm:text-[56px]">
               Cuidado y estética para tu auto, de local.
             </h1>
-            <p className="mt-5 max-w-md text-foreground/65">
+            <p className="mt-5 max-w-md text-foreground/80">
               Productos profesionales para el cuidado y la estética de tu auto.
               Envíos a todo el país o retiro en el local.
             </p>
@@ -81,7 +81,7 @@ export default async function HomePage() {
 
       {categories.length > 0 && (
         <section className="mx-auto max-w-6xl border-b border-border px-4 py-14">
-          <h2 className="text-xs uppercase tracking-[0.14em] text-foreground/45">Categorías</h2>
+          <h2 className="text-xs uppercase tracking-[0.14em] text-foreground/62">Categorías</h2>
           <ul className="mt-5 grid grid-cols-2 gap-3.5 sm:grid-cols-3 md:grid-cols-6">
             {categories.map((category) => (
               <li key={category.id}>
@@ -100,7 +100,7 @@ export default async function HomePage() {
       <section className="mx-auto max-w-6xl px-4 py-14">
         <h2 className="font-display text-2xl font-semibold">Destacados</h2>
         {featured.length === 0 ? (
-          <p className="mt-6 text-foreground/60">
+          <p className="mt-6 text-foreground/78">
             Todavía no hay productos cargados. Cargalos desde el panel de administración.
           </p>
         ) : (

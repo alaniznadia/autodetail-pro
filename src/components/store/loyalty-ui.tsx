@@ -39,7 +39,7 @@ export function LoyaltyBalanceCard({
       >
         <div className="h-full bg-accent" style={{ width: `${pct}%` }} />
       </div>
-      <p className="text-xs text-foreground/60">
+      <p className="text-xs text-foreground/78">
         {missing === 0
           ? `Podés canjear ${money(balance * pointValue)} en tu próxima compra.`
           : `${missing} pts más y tenés ${money(nextRewardAt * pointValue)} de descuento.`}
@@ -68,7 +68,7 @@ export function LoyaltyRedeemField({
 
   if (!canRedeem) {
     return (
-      <p className="text-xs text-foreground/60">
+      <p className="text-xs text-foreground/78">
         Tenés {balance} pts. El canje mínimo es de {minRedeem} pts.
       </p>
     );
@@ -76,7 +76,7 @@ export function LoyaltyRedeemField({
 
   return (
     <div className="flex flex-col gap-2">
-      <label htmlFor="loyalty-points" className="text-xs text-foreground/70">
+      <label htmlFor="loyalty-points" className="text-xs text-foreground/85">
         Canjear puntos (tenés {balance})
       </label>
       <input
@@ -93,7 +93,7 @@ export function LoyaltyRedeemField({
         }}
         className="accent-[var(--accent)]"
       />
-      <p className="text-xs text-foreground/60">
+      <p className="text-xs text-foreground/78">
         {points === 0
           ? "No canjear puntos en esta compra."
           : `${points} pts = ${money(points * pointValue)} de descuento.`}

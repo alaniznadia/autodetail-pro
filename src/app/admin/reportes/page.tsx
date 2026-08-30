@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getSalesReport, getStockValuation } from "@/lib/reports";
 
 export const dynamic = "force-dynamic";
@@ -56,6 +57,22 @@ export default async function ReportsPage({
           Filtrar
         </button>
       </form>
+
+      <div className="mt-4 flex flex-wrap gap-3">
+        <a
+          href={`/api/admin/reportes/exportar?from=${formatDate(from)}&to=${formatDate(to)}`}
+          className="rounded border border-border px-4 py-2 font-display text-sm hover:border-accent"
+        >
+          Exportar Excel (CSV)
+        </a>
+        <Link
+          href={`/admin/reportes/imprimir?from=${formatDate(from)}&to=${formatDate(to)}`}
+          target="_blank"
+          className="rounded border border-border px-4 py-2 font-display text-sm hover:border-accent"
+        >
+          Ver para imprimir / PDF
+        </Link>
+      </div>
 
       <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div className="rounded border border-border p-4">

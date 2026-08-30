@@ -21,20 +21,20 @@ export function mixHex(hexA: string, hexB: string, weight: number) {
 
 /**
  * Deriva un modo claro a partir de los tres colores oscuros configurados,
- * sin que el admin tenga que elegir una segunda paleta a mano: el fondo y
- * el texto se invierten (manteniendo un toque del matiz original) y el
- * acento se mantiene igual, ya suele funcionar en ambos fondos.
+ * sin que el admin tenga que elegir una segunda paleta a mano: el fondo se
+ * deriva del acento (un lavanda muy claro, en vez de blanco puro, para que
+ * el modo claro siga leyéndose "Epic Shine"), el texto se invierte
+ * manteniendo un toque del matiz original, y el acento se mantiene igual,
+ * ya suele funcionar en ambos fondos.
  */
 export function deriveLightPalette({
   background,
-  text,
   accent,
 }: {
   background: string;
-  text: string;
   accent: string;
 }) {
-  const lightBackground = mixHex(text, "#ffffff", 0.08);
+  const lightBackground = mixHex(accent, "#ffffff", 0.07);
   const lightForeground = mixHex(background, "#000000", 0.82);
   return {
     background: lightBackground,

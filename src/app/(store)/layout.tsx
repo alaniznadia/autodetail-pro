@@ -25,7 +25,6 @@ const NOCTURNE = {
 
 const LIGHT = deriveLightPalette({
   background: NOCTURNE.background,
-  text: NOCTURNE.foreground,
   accent: NOCTURNE.accent,
 });
 
@@ -58,6 +57,9 @@ const THEME_STYLE = {
   "--store-border-width": "1px",
   "--store-shadow": "none",
   fontSize: "16px",
+  // Peso medio (no el regular 400 del body por defecto) para que el texto
+  // se lea con más presencia en toda la tienda, sin llegar al bold pleno.
+  fontWeight: 500,
 } as React.CSSProperties;
 
 export default async function StoreLayout({ children }: { children: React.ReactNode }) {

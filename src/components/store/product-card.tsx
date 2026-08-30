@@ -45,12 +45,12 @@ export function ProductCard({ product }: { product: CatalogProduct }) {
           />
         ) : null}
         {low ? (
-          <span className="absolute left-2 top-2 rounded bg-accent/25 px-2 py-0.5 text-[11px] text-foreground">
+          <span className="absolute left-2 top-2 rounded bg-accent/25 px-2 py-0.5 text-[12.5px] text-foreground">
             últimas {product.stock}
           </span>
         ) : null}
         {product.stock === 0 ? (
-          <span className="absolute left-2 top-2 rounded bg-background/80 px-2 py-0.5 text-[11px] text-foreground/70">
+          <span className="absolute left-2 top-2 rounded bg-background/80 px-2 py-0.5 text-[12.5px] text-foreground/85">
             Sin stock
           </span>
         ) : null}
@@ -60,7 +60,7 @@ export function ProductCard({ product }: { product: CatalogProduct }) {
         <Link href={`/producto/${product.slug}`} className="text-[15.5px] font-bold">
           {product.name}
         </Link>
-        <p className="text-[11.5px] text-foreground/50">
+        <p className="text-[13px] text-foreground/70">
           {product.variantLabel ? `${product.variantLabel} · ` : ""}
           {product.sku}
         </p>
@@ -75,11 +75,11 @@ export function ProductCard({ product }: { product: CatalogProduct }) {
               onClick={() => setQuantity((q) => Math.max(1, q - 1))}
               aria-label="Quitar uno"
               disabled={product.stock === 0}
-              className="h-9 w-8 text-sm disabled:cursor-not-allowed disabled:text-foreground/30"
+              className="h-9 w-8 text-sm disabled:cursor-not-allowed disabled:text-foreground/45"
             >
               −
             </button>
-            <span className="w-6 text-center text-[13px]" aria-live="polite">
+            <span className="w-6 text-center text-[14.5px]" aria-live="polite">
               {quantity}
             </span>
             <button
@@ -87,7 +87,7 @@ export function ProductCard({ product }: { product: CatalogProduct }) {
               onClick={() => setQuantity((q) => Math.min(product.stock || q, q + 1))}
               aria-label="Agregar uno"
               disabled={product.stock === 0}
-              className="h-9 w-8 text-sm disabled:cursor-not-allowed disabled:text-foreground/30"
+              className="h-9 w-8 text-sm disabled:cursor-not-allowed disabled:text-foreground/45"
             >
               +
             </button>
@@ -109,7 +109,7 @@ export function ProductCard({ product }: { product: CatalogProduct }) {
               );
               setQuantity(1);
             }}
-            className="store-frame h-9 flex-1 border-accent px-2.5 text-xs text-accent hover:bg-accent/10 disabled:cursor-not-allowed disabled:border-border disabled:text-foreground/40"
+            className="store-frame h-9 flex-1 border-accent px-2.5 text-xs text-accent hover:bg-accent/10 disabled:cursor-not-allowed disabled:border-border disabled:text-foreground/55"
           >
             Agregar
           </button>

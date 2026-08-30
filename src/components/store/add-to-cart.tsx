@@ -55,7 +55,7 @@ export function AddToCart({
 
       {variants.length > 1 ? (
         <div>
-          <p className="mb-2 text-[10px] uppercase tracking-[0.14em] text-foreground/45">Presentación</p>
+          <p className="mb-2 text-[11.5px] uppercase tracking-[0.14em] text-foreground/62">Presentación</p>
           <div className="flex flex-wrap gap-2">
             {variants.map((v) => (
               <button
@@ -66,10 +66,10 @@ export function AddToCart({
                   setAdded(false);
                 }}
                 disabled={v.stock <= 0}
-                className={`store-frame px-3.5 py-1.5 text-[13px] disabled:cursor-not-allowed disabled:opacity-40 ${
+                className={`store-frame px-3.5 py-1.5 text-[14.5px] disabled:cursor-not-allowed disabled:opacity-40 ${
                   v.id === variantId
                     ? "border-accent text-accent"
-                    : "border-border text-foreground/70 hover:bg-foreground/5"
+                    : "border-border text-foreground/85 hover:bg-foreground/5"
                 }`}
               >
                 {v.name}
@@ -111,7 +111,7 @@ export function AddToCart({
           Agregar al carrito
         </button>
 
-        <span className={`text-xs ${selected && selected.stock > 0 && selected.stock <= 5 ? "text-accent" : "text-foreground/50"}`}>
+        <span className={`text-xs ${selected && selected.stock > 0 && selected.stock <= 5 ? "text-accent" : "text-foreground/70"}`}>
           {outOfStock
             ? "Sin stock disponible"
             : selected.stock <= 5

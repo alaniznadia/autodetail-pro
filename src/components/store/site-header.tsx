@@ -34,7 +34,7 @@ export async function SiteHeader({ logoUrl }: { logoUrl: string | null }) {
         </Link>
         <div className="flex items-center gap-3 sm:gap-4">
           <MobileNav categories={categories} />
-          <Link href="/sobre-nosotros" className="font-display text-sm hover:text-foreground/80">
+          <Link href="/sobre-nosotros" className="font-display text-sm hover:text-foreground/90">
             Sobre nosotros
           </Link>
           <StoreThemeToggle />
@@ -42,7 +42,7 @@ export async function SiteHeader({ logoUrl }: { logoUrl: string | null }) {
           <Link
             href={session?.user ? "/mi-cuenta" : "/login"}
             aria-label={session?.user ? "Ver mi cuenta" : "Ingresar a mi cuenta"}
-            className="font-display text-sm hover:text-foreground/80"
+            className="font-display text-sm hover:text-foreground/90"
           >
             Mi cuenta
           </Link>

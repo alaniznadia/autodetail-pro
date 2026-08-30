@@ -45,7 +45,7 @@ export default async function OrderConfirmationPage({
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
       <h1 className="text-2xl font-medium tracking-[-0.02em]">¡Gracias por tu pedido!</h1>
-      <p className="mt-2 text-foreground/70">
+      <p className="mt-2 text-foreground/85">
         Pedido #{order.orderNumber} — estado: {ORDER_STATUS_LABEL[order.status] ?? order.status}
       </p>
 
@@ -85,7 +85,7 @@ export default async function OrderConfirmationPage({
         </p>
       </div>
 
-      <p className="mt-6 text-sm text-foreground/70">
+      <p className="mt-6 text-sm text-foreground/85">
         {order.fulfillmentMethod === "STORE_PICKUP"
           ? "Retirás tu pedido en el local. Te contactaremos por WhatsApp para coordinar."
           : `Enviamos a ${order.address?.street} ${order.address?.number}, ${order.address?.city}. Te contactaremos para coordinar el pago y el envío.`}

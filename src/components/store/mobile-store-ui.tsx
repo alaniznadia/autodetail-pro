@@ -30,7 +30,7 @@ export function MobileStoreBar({ href = "/carrito", label = "Ver carrito" }: { h
 
   return (
     <div className="sticky bottom-0 z-40 flex items-center gap-3 border-t border-border bg-background px-4 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-3">
-      <p className="flex-1 text-xs text-foreground/60">
+      <p className="flex-1 text-xs text-foreground/78">
         {count} {count === 1 ? "producto" : "productos"} · {money(subtotal)}
       </p>
       <Link
@@ -58,7 +58,7 @@ export function MobileFilterChips({
       <Link
         href="/catalogo"
         className={`shrink-0 rounded-full border px-3 py-1.5 text-xs ${
-          !active ? "border-accent text-accent" : "border-border text-foreground/70"
+          !active ? "border-accent text-accent" : "border-border text-foreground/85"
         }`}
       >
         Todo
@@ -68,7 +68,7 @@ export function MobileFilterChips({
           key={c.slug}
           href={`/catalogo?categoria=${c.slug}`}
           className={`shrink-0 rounded-full border px-3 py-1.5 text-xs ${
-            active === c.slug ? "border-accent text-accent" : "border-border text-foreground/70"
+            active === c.slug ? "border-accent text-accent" : "border-border text-foreground/85"
           }`}
         >
           {c.name}
@@ -91,7 +91,7 @@ export function MobileCheckoutSteps({ step }: { step: 1 | 2 | 3 }) {
               className={`h-0.5 w-full rounded ${done ? "bg-accent" : "bg-border"}`}
               aria-hidden
             />
-            <span className={`text-[11px] ${done ? "text-foreground" : "text-foreground/45"}`}>
+            <span className={`text-[12.5px] ${done ? "text-foreground" : "text-foreground/62"}`}>
               {label}
             </span>
           </li>

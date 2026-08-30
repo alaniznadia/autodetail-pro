@@ -42,14 +42,14 @@ export function CatalogView({
   return (
     <div className="mx-auto flex max-w-[1240px] flex-col gap-9 px-4 pb-14 sm:flex-row sm:gap-9 sm:px-8">
       <div className="min-w-0 flex-1 sm:order-1">
-        <div className="mb-4 flex items-baseline gap-3 text-xs text-foreground/50">
+        <div className="mb-4 flex items-baseline gap-3 text-xs text-foreground/70">
           <span>
             {products.length} {products.length === 1 ? "producto" : "productos"}
           </span>
         </div>
 
         {products.length === 0 ? (
-          <p className="py-14 text-sm text-foreground/55">
+          <p className="py-14 text-sm text-foreground/72">
             No encontramos productos con esos filtros.{" "}
             <Link href="/catalogo" className="text-accent underline-offset-2 hover:underline">
               Ver todo el catálogo
@@ -81,7 +81,7 @@ export function CatalogView({
         <Rule />
 
         <Filter title="Disponibilidad">
-          <label className="flex cursor-pointer items-center gap-2 text-[13px] text-foreground/70">
+          <label className="flex cursor-pointer items-center gap-2 text-[14.5px] text-foreground/85">
             <input
               type="checkbox"
               checked={stockOnly}
@@ -112,7 +112,7 @@ export function CatalogView({
 function Filter({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="mb-2.5 text-[10px] uppercase tracking-[0.14em] text-foreground/45">{title}</p>
+      <p className="mb-2.5 text-[11.5px] uppercase tracking-[0.14em] text-foreground/62">{title}</p>
       <div className="flex flex-col gap-1.5">{children}</div>
     </div>
   );
@@ -124,7 +124,7 @@ function FilterLink({ label, active, onClick }: { label: string; active: boolean
       type="button"
       onClick={onClick}
       aria-current={active ? "true" : undefined}
-      className={`text-left text-[13px] ${active ? "text-foreground" : "text-foreground/55 hover:text-foreground"}`}
+      className={`text-left text-[14.5px] ${active ? "text-foreground" : "text-foreground/72 hover:text-foreground"}`}
     >
       {label}
     </button>

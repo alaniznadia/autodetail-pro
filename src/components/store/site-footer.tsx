@@ -9,7 +9,7 @@ const LEGAL_LINKS = [
 export function SiteFooter() {
   return (
     <footer className="mt-auto border-t border-border">
-      <div className="mx-auto max-w-6xl px-4 py-10 text-sm text-foreground/70">
+      <div className="mx-auto max-w-6xl px-4 py-10 text-sm text-foreground/85">
         <p className="font-display text-lg text-foreground">Epic Shine</p>
         <p className="mt-1">Detailing Mode — cuidado y estética automotor.</p>
         <p className="mt-4">
@@ -34,7 +34,7 @@ export function SiteFooter() {
             </Link>
           ))}
         </nav>
-        <p className="mt-6 text-xs text-foreground/50">
+        <p className="mt-6 text-xs text-foreground/70">
           © {new Date().getFullYear()} Epic Shine. Todos los derechos reservados.
         </p>
       </div>
