@@ -148,30 +148,18 @@ model Location {
 // Google Fonts sin validar/escapar nada del lado del cliente.
 // ---------------------------------------------------------------------------
 
+// El color/tipografía/relieve de la tienda pública son fijos (diseño
+// Nocturne, ver src/app/(store)/layout.tsx) — no se guardan acá. Este
+// modelo solo cubre lo que sigue siendo personalizable desde
+// /admin/apariencia.
 model StoreTheme {
-  id              String @id
-  // Los valores por default son los del diseño oscuro "Nocturne" (el mismo
-  // que usa el POS); la tienda se ve así hasta que se personalice acá.
-  headingFont     String   @default("inter")
-  bodyFont        String   @default("inter")
-  baseFontSizePx  Int      @default(16)
-  backgroundColor String   @default("#161826")
-  textColor       String   @default("#e9e9ed")
-  accentColor     String   @default("#9184d9")
-  // Fondo de las tarjetas/imágenes de producto, para que las fotos con
-  // fondo blanco/transparente no choquen contra cualquier backgroundColor
-  // elegido.
-  surfaceColor String @default("#232532")
-  // "Relieve": esquinas, grosor de borde y sombra de tarjetas y botones.
-  cardRadiusPx      Int    @default(8)
-  cardBorderWidthPx Int    @default(1)
-  cardShadow        String @default("none") // "none" | "soft" | "strong"
-  faviconUrl        String? // ícono de la pestaña del navegador
-  logoUrl           String? // logo mostrado en el header de la tienda
-  aboutTitle        String? // título de /sobre-nosotros
-  aboutContent      String? // texto de /sobre-nosotros
-  aboutImageUrl     String?
-  updatedAt         DateTime @updatedAt
+  id            String @id
+  faviconUrl    String? // ícono de la pestaña del navegador
+  logoUrl       String? // logo mostrado en el header de la tienda
+  aboutTitle    String? // título de /sobre-nosotros
+  aboutContent  String? // texto de /sobre-nosotros
+  aboutImageUrl String?
+  updatedAt     DateTime @updatedAt
 }
 
 // Imágenes del carrusel de la home, editables desde /admin/apariencia.
