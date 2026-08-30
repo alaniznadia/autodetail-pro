@@ -18,3 +18,30 @@ export function mixHex(hexA: string, hexB: string, weight: number) {
   const b = ab * weight + bb * (1 - weight);
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
+
+/**
+ * Deriva un modo claro a partir de los tres colores oscuros configurados,
+ * sin que el admin tenga que elegir una segunda paleta a mano: el fondo y
+ * el texto se invierten (manteniendo un toque del matiz original) y el
+ * acento se mantiene igual, ya suele funcionar en ambos fondos.
+ */
+export function deriveLightPalette({
+  background,
+  text,
+  accent,
+}: {
+  background: string;
+  text: string;
+  accent: string;
+}) {
+  const lightBackground = mixHex(text, "#ffffff", 0.08);
+  const lightForeground = mixHex(background, "#000000", 0.82);
+  return {
+    background: lightBackground,
+    foreground: lightForeground,
+    accent,
+    surface: mixHex(lightForeground, lightBackground, 0.05),
+    border: mixHex(lightForeground, lightBackground, 0.16),
+    muted: mixHex(lightForeground, lightBackground, 0.06),
+  };
+}

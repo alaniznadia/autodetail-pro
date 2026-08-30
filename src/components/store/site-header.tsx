@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CartLink } from "@/components/store/cart-link";
 import { MobileNav } from "@/components/store/mobile-nav";
+import { StoreThemeToggle } from "@/components/store/store-theme-toggle";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -35,6 +36,7 @@ export async function SiteHeader({ logoUrl }: { logoUrl: string | null }) {
           </Link>
         </div>
         <div className="flex items-center gap-3 sm:gap-4">
+          <StoreThemeToggle />
           <CartLink />
           <Link
             href={session?.user ? "/mi-cuenta" : "/login"}
