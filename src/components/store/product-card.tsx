@@ -17,6 +17,8 @@ export type CatalogProduct = {
   price: string;
   stock: number;
   imageUrl: string | null;
+  rating?: number | null;
+  reviewCount?: number;
 };
 
 const money = (n: number) => "$" + Math.round(n).toLocaleString("es-AR");
@@ -64,6 +66,15 @@ export function ProductCard({ product }: { product: CatalogProduct }) {
           {product.variantLabel ? `${product.variantLabel} · ` : ""}
           {product.sku}
         </p>
+        {product.rating != null && (
+          <p className="mt-0.5 text-[12.5px] text-foreground/78">
+            <span aria-hidden="true" className="text-accent">
+              {"★".repeat(Math.round(product.rating))}
+            </span>
+            <span className="sr-only">{product.rating.toFixed(1)} de 5 estrellas</span>{" "}
+            {product.rating.toFixed(1)} ({product.reviewCount})
+          </p>
+        )}
       </div>
 
       <div className="mt-auto flex flex-col gap-2">

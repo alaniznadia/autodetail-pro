@@ -29,6 +29,7 @@ export default async function HomePage() {
     include: {
       variants: { where: { active: true }, take: 1, include: { stockItems: true } },
       images: { take: 1 },
+      reviews: { where: { approved: true }, select: { rating: true } },
     },
     orderBy: { createdAt: "desc" },
     take: 8,
@@ -38,6 +39,11 @@ export default async function HomePage() {
     const variant = product.variants[0];
     const image = product.images[0];
     const stock = variant?.stockItems.reduce((sum, s) => sum + s.quantity, 0) ?? 0;
+    const reviewCount = product.reviews.length;
+    const rating =
+      reviewCount > 0
+        ? product.reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
+        : null;
     return {
       id: product.id,
       slug: product.slug,
@@ -49,6 +55,8 @@ export default async function HomePage() {
       price: variant?.price.toString() ?? "0",
       stock,
       imageUrl: image?.url ?? null,
+      rating,
+      reviewCount,
     };
   });
 

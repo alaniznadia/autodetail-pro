@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CartLink } from "@/components/store/cart-link";
+import { HeaderSearch } from "@/components/store/header-search";
 import { MobileNav } from "@/components/store/mobile-nav";
 import { StoreThemeToggle } from "@/components/store/store-theme-toggle";
 import { auth } from "@/lib/auth";
@@ -37,6 +38,7 @@ export async function SiteHeader({ logoUrl }: { logoUrl: string | null }) {
           <Link href="/sobre-nosotros" className="font-display text-sm hover:text-foreground/90">
             Sobre nosotros
           </Link>
+          <HeaderSearch />
           <StoreThemeToggle />
           <CartLink />
           <Link

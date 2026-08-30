@@ -30,6 +30,7 @@ export default async function CatalogPage({
       include: {
         variants: { where: { active: true }, take: 1, include: { stockItems: true } },
         images: { take: 1 },
+        reviews: { where: { approved: true }, select: { rating: true } },
       },
       orderBy:
         orden === "precio-asc" || orden === "precio-desc"
@@ -42,6 +43,11 @@ export default async function CatalogPage({
     const variant = product.variants[0];
     const image = product.images[0];
     const productStock = variant?.stockItems.reduce((sum, s) => sum + s.quantity, 0) ?? 0;
+    const reviewCount = product.reviews.length;
+    const rating =
+      reviewCount > 0
+        ? product.reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
+        : null;
     return {
       id: product.id,
       slug: product.slug,
@@ -53,6 +59,8 @@ export default async function CatalogPage({
       price: variant?.price.toString() ?? "0",
       stock: productStock,
       imageUrl: image?.url ?? null,
+      rating,
+      reviewCount,
     };
   });
 
@@ -60,8 +68,22 @@ export default async function CatalogPage({
   if (orden === "precio-asc") items = [...items].sort((a, b) => Number(a.price) - Number(b.price));
   if (orden === "precio-desc") items = [...items].sort((a, b) => Number(b.price) - Number(a.price));
 
+  const activeCategoryName = categoria ? categories.find((c) => c.slug === categoria)?.name : undefined;
+
   return (
     <div className="mx-auto max-w-[1240px] px-4 pb-2 pt-8 sm:px-8">
+      <nav className="mb-4 text-xs text-foreground/62" aria-label="Ruta">
+        <a href="/" className="hover:text-foreground">Inicio</a>{" / "}
+        {activeCategoryName ? (
+          <>
+            <a href="/catalogo" className="hover:text-foreground">Catálogo</a>
+            {" / "}
+            {activeCategoryName}
+          </>
+        ) : (
+          "Catálogo"
+        )}
+      </nav>
       <h1 className="mb-4 text-3xl font-bold tracking-[-0.02em] sm:text-4xl">Catálogo</h1>
       <div className="mb-6 sm:hidden">
         <MobileFilterChips

@@ -12,6 +12,8 @@ export type CartItem = {
   quantity: number;
 };
 
+export type CartNotice = { id: number; message: string };
+
 type CartContextValue = {
   items: CartItem[];
   addItem: (item: Omit<CartItem, "quantity">, quantity?: number) => void;
@@ -20,6 +22,8 @@ type CartContextValue = {
   clear: () => void;
   subtotal: number;
   itemCount: number;
+  notice: CartNotice | null;
+  dismissNotice: () => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -29,6 +33,7 @@ const STORAGE_KEY = "epicshine_cart";
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
+  const [notice, setNotice] = useState<CartNotice | null>(null);
 
   // Carga inicial desde localStorage: el carrito sobrevive a un refresh o
   // a cerrar el navegador y volver más tarde.
@@ -64,7 +69,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
       return [...prev, { ...item, quantity }];
     });
+    setNotice({ id: Date.now(), message: `${item.productName} agregado al carrito` });
   }, []);
+
+  const dismissNotice = useCallback(() => setNotice(null), []);
 
   const updateQuantity = useCallback((variantId: string, quantity: number) => {
     setItems((prev) => {
@@ -84,7 +92,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <CartContext.Provider
-      value={{ items, addItem, updateQuantity, removeItem, clear, subtotal, itemCount }}
+      value={{ items, addItem, updateQuantity, removeItem, clear, subtotal, itemCount, notice, dismissNotice }}
     >
       {children}
     </CartContext.Provider>

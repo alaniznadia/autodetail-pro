@@ -102,6 +102,7 @@ export default async function ProductPage({
     include: {
       variants: { where: { active: true }, take: 1, include: { stockItems: true } },
       images: { take: 1 },
+      reviews: { where: { approved: true }, select: { rating: true } },
     },
     take: 8,
   });
@@ -110,6 +111,11 @@ export default async function ProductPage({
     const variant = p.variants[0];
     const image = p.images[0];
     const stock = variant?.stockItems.reduce((sum, s) => sum + s.quantity, 0) ?? 0;
+    const relatedReviewCount = p.reviews.length;
+    const relatedRating =
+      relatedReviewCount > 0
+        ? p.reviews.reduce((sum, r) => sum + r.rating, 0) / relatedReviewCount
+        : null;
     return {
       id: p.id,
       slug: p.slug,
@@ -121,6 +127,8 @@ export default async function ProductPage({
       price: variant?.price.toString() ?? "0",
       stock,
       imageUrl: image?.url ?? null,
+      rating: relatedRating,
+      reviewCount: relatedReviewCount,
     };
   });
 
