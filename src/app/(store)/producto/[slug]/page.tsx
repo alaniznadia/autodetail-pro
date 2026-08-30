@@ -7,7 +7,9 @@ import { AddToCart } from "@/components/store/add-to-cart";
 import { ProductGallery } from "@/components/store/product-gallery";
 import { ReviewForm } from "@/components/store/review-form";
 import { ProductCard, type CatalogProduct } from "@/components/store/product-card";
+import { FavoriteButton } from "@/components/store/favorite-button";
 import { TrackRecentlyViewed } from "@/components/store/track-recently-viewed";
+import { getFavoritedProductIds } from "@/lib/favorites";
 import { SITE_URL } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
@@ -108,6 +110,11 @@ export default async function ProductPage({
     take: 8,
   });
 
+  const favoritedIds = await getFavoritedProductIds(session?.user?.id, [
+    product.id,
+    ...relatedProducts.map((p) => p.id),
+  ]);
+
   const suggestions: CatalogProduct[] = relatedProducts.map((p) => {
     const variant = p.variants[0];
     const image = p.images[0];
@@ -130,6 +137,7 @@ export default async function ProductPage({
       imageUrl: image?.url ?? null,
       rating: relatedRating,
       reviewCount: relatedReviewCount,
+      favorited: favoritedIds.has(p.id),
     };
   });
 
@@ -199,16 +207,24 @@ export default async function ProductPage({
             )}
           </div>
 
-          {variants.length > 0 ? (
-            <AddToCart
-              productSlug={product.slug}
-              productName={product.name}
-              imageUrl={product.images[0]?.url}
-              variants={variants}
+          <div className="flex items-start gap-3">
+            {variants.length > 0 ? (
+              <AddToCart
+                productSlug={product.slug}
+                productName={product.name}
+                imageUrl={product.images[0]?.url}
+                variants={variants}
+              />
+            ) : (
+              <p className="text-foreground/78">Este producto no tiene stock cargado.</p>
+            )}
+            <FavoriteButton
+              productId={product.id}
+              initialFavorited={favoritedIds.has(product.id)}
+              loggedIn={!!session?.user}
+              className="store-frame mt-1 border-border p-2.5"
             />
-          ) : (
-            <p className="text-foreground/78">Este producto no tiene stock cargado.</p>
-          )}
+          </div>
         </div>
       </div>
 
@@ -217,7 +233,7 @@ export default async function ProductPage({
           <h2 className="font-display text-2xl font-semibold">También te puede interesar</h2>
           <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3 md:grid-cols-4">
             {suggestions.map((item) => (
-              <ProductCard key={item.id} product={item} />
+              <ProductCard key={item.id} product={item} loggedIn={!!session?.user} />
             ))}
           </div>
         </div>

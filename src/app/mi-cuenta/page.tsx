@@ -7,6 +7,7 @@ import { SignOutButton } from "@/components/store/sign-out-button";
 import { getStoreSettings } from "@/lib/store-settings";
 import { getBalance } from "@/lib/loyalty";
 import { LoyaltyBalanceCard } from "@/components/store/loyalty-ui";
+import { ProductCard, type CatalogProduct } from "@/components/store/product-card";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +16,7 @@ export default async function MyAccountPage() {
   // proxy.ts ya protege /mi-cuenta, esto es solo defensa en profundidad.
   if (!session?.user) redirect("/login");
 
-  const [orders, settings, balance] = await Promise.all([
+  const [orders, settings, balance, favorites] = await Promise.all([
     prisma.order.findMany({
       where: { customerId: session.user.id },
       orderBy: { createdAt: "desc" },
@@ -23,7 +24,49 @@ export default async function MyAccountPage() {
     }),
     getStoreSettings(),
     getBalance(session.user.id),
+    prisma.favorite.findMany({
+      where: { userId: session.user.id },
+      orderBy: { createdAt: "desc" },
+      include: {
+        product: {
+          include: {
+            variants: { where: { active: true }, take: 1, include: { stockItems: true } },
+            images: { take: 1 },
+            reviews: { where: { approved: true }, select: { rating: true } },
+          },
+        },
+      },
+    }),
   ]);
+
+  const favoriteProducts: CatalogProduct[] = favorites
+    .filter((f) => f.product.active)
+    .map((f) => {
+      const product = f.product;
+      const variant = product.variants[0];
+      const image = product.images[0];
+      const stock = variant?.stockItems.reduce((sum, s) => sum + s.quantity, 0) ?? 0;
+      const reviewCount = product.reviews.length;
+      const rating =
+        reviewCount > 0
+          ? product.reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
+          : null;
+      return {
+        id: product.id,
+        slug: product.slug,
+        sku: variant?.sku ?? "",
+        name: product.name,
+        variantId: variant?.id ?? "",
+        variantName: variant?.name ?? "",
+        variantLabel: variant && variant.name !== "Único" ? variant.name : null,
+        price: variant?.price.toString() ?? "0",
+        stock,
+        imageUrl: image?.url ?? null,
+        rating,
+        reviewCount,
+        favorited: true,
+      };
+    });
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
@@ -68,6 +111,17 @@ export default async function MyAccountPage() {
             pointValue={Number(settings.loyaltyPointValue)}
           />
         </div>
+      )}
+
+      {favoriteProducts.length > 0 && (
+        <>
+          <h2 className="mt-10 font-display text-lg">Mis favoritos</h2>
+          <div className="mt-4 grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3">
+            {favoriteProducts.map((product) => (
+              <ProductCard key={product.id} product={product} loggedIn />
+            ))}
+          </div>
+        </>
       )}
 
       <h2 className="mt-10 font-display text-lg">Mis pedidos</h2>

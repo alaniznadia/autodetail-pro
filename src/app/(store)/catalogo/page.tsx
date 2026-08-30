@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 import { CatalogView } from "@/components/store/catalog-view";
 import type { CatalogProduct } from "@/components/store/product-card";
 import { MobileFilterChips } from "@/components/store/mobile-store-ui";
 import { getActivePromoCoupon } from "@/lib/coupons";
+import { getFavoritedProductIds } from "@/lib/favorites";
 
 const money = (n: number) => "$" + Math.round(n).toLocaleString("es-AR");
 
@@ -31,7 +33,8 @@ export default async function CatalogPage({
 }) {
   const { categoria, q, orden, stock } = await searchParams;
 
-  const [categories, products, promoCoupon] = await Promise.all([
+  const [session, categories, products, promoCoupon] = await Promise.all([
+    auth(),
     prisma.category.findMany({ orderBy: { name: "asc" } }),
     prisma.product.findMany({
       where: {
@@ -51,6 +54,11 @@ export default async function CatalogPage({
     }),
     getActivePromoCoupon(),
   ]);
+
+  const favoritedIds = await getFavoritedProductIds(
+    session?.user?.id,
+    products.map((p) => p.id)
+  );
 
   let items: CatalogProduct[] = products.map((product) => {
     const variant = product.variants[0];
@@ -74,6 +82,7 @@ export default async function CatalogPage({
       imageUrl: image?.url ?? null,
       rating,
       reviewCount,
+      favorited: favoritedIds.has(product.id),
     };
   });
 
@@ -114,6 +123,7 @@ export default async function CatalogPage({
         products={items}
         categories={categories.map((c) => ({ slug: c.slug, name: c.name }))}
         activeCategory={categoria}
+        loggedIn={!!session?.user}
       />
     </div>
   );
