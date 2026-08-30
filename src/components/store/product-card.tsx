@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/components/store/cart-context";
@@ -21,13 +22,14 @@ const money = (n: number) => "$" + Math.round(n).toLocaleString("es-AR");
 
 export function ProductCard({ product }: { product: CatalogProduct }) {
   const { addItem } = useCart();
+  const [quantity, setQuantity] = useState(1);
   const low = product.stock > 0 && product.stock <= 5;
 
   return (
     <article className="flex flex-col gap-2.5">
       <Link
         href={`/producto/${product.slug}`}
-        className="store-frame relative block aspect-square overflow-hidden border-border bg-surface"
+        className="store-frame group relative block aspect-square overflow-hidden border-border bg-surface"
       >
         {product.imageUrl ? (
           <Image
@@ -35,7 +37,7 @@ export function ProductCard({ product }: { product: CatalogProduct }) {
             alt={product.name}
             fill
             sizes="(max-width:640px) 50vw, 280px"
-            className="object-cover"
+            className="object-cover transition-transform duration-300 ease-out group-hover:scale-110"
           />
         ) : null}
         {low ? (
@@ -51,7 +53,7 @@ export function ProductCard({ product }: { product: CatalogProduct }) {
       </Link>
 
       <div>
-        <Link href={`/producto/${product.slug}`} className="text-[13.5px]">
+        <Link href={`/producto/${product.slug}`} className="text-[15.5px] font-bold">
           {product.name}
         </Link>
         <p className="text-[11.5px] text-foreground/50">
@@ -60,25 +62,54 @@ export function ProductCard({ product }: { product: CatalogProduct }) {
         </p>
       </div>
 
-      <div className="mt-auto flex items-center gap-2">
-        <span className="flex-1 text-[15px]">{money(Number(product.price))}</span>
-        <button
-          type="button"
-          disabled={product.stock === 0}
-          onClick={() =>
-            addItem({
-              variantId: product.variantId,
-              productSlug: product.slug,
-              productName: product.name,
-              variantName: product.variantName,
-              price: product.price,
-              imageUrl: product.imageUrl ?? undefined,
-            })
-          }
-          className="store-frame border-accent px-2.5 py-1.5 text-xs text-accent hover:bg-accent/10 disabled:cursor-not-allowed disabled:border-border disabled:text-foreground/40"
-        >
-          Agregar
-        </button>
+      <div className="mt-auto flex flex-col gap-2">
+        <span className="text-[17px] font-bold">{money(Number(product.price))}</span>
+        <div className="flex items-center gap-2">
+          <div className="store-frame flex h-9 shrink-0 items-center border-border">
+            <button
+              type="button"
+              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+              aria-label="Quitar uno"
+              disabled={product.stock === 0}
+              className="h-9 w-8 text-sm disabled:cursor-not-allowed disabled:text-foreground/30"
+            >
+              −
+            </button>
+            <span className="w-6 text-center text-[13px]" aria-live="polite">
+              {quantity}
+            </span>
+            <button
+              type="button"
+              onClick={() => setQuantity((q) => Math.min(product.stock || q, q + 1))}
+              aria-label="Agregar uno"
+              disabled={product.stock === 0}
+              className="h-9 w-8 text-sm disabled:cursor-not-allowed disabled:text-foreground/30"
+            >
+              +
+            </button>
+          </div>
+          <button
+            type="button"
+            disabled={product.stock === 0}
+            onClick={() => {
+              addItem(
+                {
+                  variantId: product.variantId,
+                  productSlug: product.slug,
+                  productName: product.name,
+                  variantName: product.variantName,
+                  price: product.price,
+                  imageUrl: product.imageUrl ?? undefined,
+                },
+                quantity
+              );
+              setQuantity(1);
+            }}
+            className="store-frame h-9 flex-1 border-accent px-2.5 text-xs text-accent hover:bg-accent/10 disabled:cursor-not-allowed disabled:border-border disabled:text-foreground/40"
+          >
+            Agregar
+          </button>
+        </div>
       </div>
     </article>
   );
