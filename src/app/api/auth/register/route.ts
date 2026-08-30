@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
 
 const registerSchema = z.object({
   name: z.string().min(1),
@@ -11,6 +12,15 @@ const registerSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  // Frena la creación masiva de cuentas (bots, enumeración de emails):
+  // 5 intentos cada 15 minutos por IP alcanza para un registro normal
+  // (incluido algún reintento por typo) sin abrir la puerta a un script.
+  const { allowed, retryAfterMs } = await checkRateLimit(`register:${getClientIp(req)}`, {
+    limit: 5,
+    windowMs: 15 * 60 * 1000,
+  });
+  if (!allowed) return rateLimitResponse(retryAfterMs);
+
   const body = await req.json();
   const parsed = registerSchema.safeParse(body);
   if (!parsed.success) {

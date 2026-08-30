@@ -2,10 +2,21 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { createPreferenceForOrder } from "@/lib/mercadopago";
+import { checkRateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
 
 const schema = z.object({ orderId: z.string().min(1) });
 
 export async function POST(req: NextRequest) {
+  // Este endpoint no tiene sesión (checkout de invitado) y fetchWithRetry
+  // del checkout puede reintentarlo un par de veces solo, así que el límite
+  // va holgado: frena un script probando orderIds sin bloquear un cliente
+  // real reintentando un pago que falló.
+  const { allowed, retryAfterMs } = await checkRateLimit(`mp-checkout:${getClientIp(req)}`, {
+    limit: 20,
+    windowMs: 10 * 60 * 1000,
+  });
+  if (!allowed) return rateLimitResponse(retryAfterMs);
+
   const body = await req.json();
   const parsed = schema.safeParse(body);
   if (!parsed.success) {

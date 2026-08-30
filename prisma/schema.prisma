@@ -571,3 +571,15 @@ model LoyaltyMovement {
   @@unique([orderId, kind])
   @@index([accountId])
 }
+
+// Limitador de tasa de ventana fija respaldado en esta misma Postgres, sin
+// sumar Redis/KV solo para esto (ver lib/rate-limit.ts). Una fila por
+// combinación endpoint+IP que se reescribe en el lugar en cada request
+// (UPSERT atómico), así que el tamaño de la tabla queda acotado por la
+// cantidad de IPs distintas que pegaron a un endpoint limitado, no por la
+// cantidad de requests.
+model RateLimit {
+  key         String   @id
+  windowStart DateTime
+  count       Int      @default(1)
+}
