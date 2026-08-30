@@ -9,6 +9,7 @@ import { ReviewForm } from "@/components/store/review-form";
 import { BackButton } from "@/components/back-button";
 import { ProductCard, type CatalogProduct } from "@/components/store/product-card";
 import { FavoriteButton } from "@/components/store/favorite-button";
+import { ShareButton } from "@/components/store/share-button";
 import { TrackRecentlyViewed } from "@/components/store/track-recently-viewed";
 import { getFavoritedProductIds } from "@/lib/favorites";
 import { SITE_URL } from "@/lib/site-url";
@@ -224,6 +225,11 @@ export default async function ProductPage({
               productId={product.id}
               initialFavorited={favoritedIds.has(product.id)}
               loggedIn={!!session?.user}
+              className="store-frame mt-1 border-border p-2.5"
+            />
+            <ShareButton
+              url={`${SITE_URL}/producto/${product.slug}`}
+              title={product.name}
               className="store-frame mt-1 border-border p-2.5"
             />
           </div>

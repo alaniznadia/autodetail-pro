@@ -11,6 +11,7 @@ export const DEFAULT_STORE_THEME = {
   aboutTitle: null as string | null,
   aboutContent: null as string | null,
   aboutImageUrl: null as string | null,
+  whatsappNumber: null as string | null,
 };
 
 export async function getStoreTheme() {

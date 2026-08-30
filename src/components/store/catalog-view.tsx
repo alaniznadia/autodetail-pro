@@ -7,6 +7,7 @@
  * (Prisma), igual que el resto del repo.
  */
 
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ProductCard, type CatalogProduct } from "@/components/store/product-card";
@@ -33,11 +34,22 @@ export function CatalogView({
   const activeCat = activeCategory ?? params.get("categoria");
   const activeOrder = params.get("orden") ?? "relevancia";
   const stockOnly = params.get("stock") === "1";
+  const [precioMin, setPrecioMin] = useState(params.get("precioMin") ?? "");
+  const [precioMax, setPrecioMax] = useState(params.get("precioMax") ?? "");
 
   function setParam(key: string, value: string | null) {
     const next = new URLSearchParams(params.toString());
     if (value === null) next.delete(key);
     else next.set(key, value);
+    router.push(`/catalogo?${next.toString()}`);
+  }
+
+  function applyPriceRange() {
+    const next = new URLSearchParams(params.toString());
+    if (precioMin) next.set("precioMin", precioMin);
+    else next.delete("precioMin");
+    if (precioMax) next.set("precioMax", precioMax);
+    else next.delete("precioMax");
     router.push(`/catalogo?${next.toString()}`);
   }
 
@@ -92,6 +104,41 @@ export function CatalogView({
             />
             Solo con stock
           </label>
+        </Filter>
+
+        <Rule />
+
+        <Filter title="Precio">
+          <div className="flex items-center gap-1.5">
+            <input
+              type="number"
+              min={0}
+              inputMode="numeric"
+              placeholder="Mín"
+              value={precioMin}
+              onChange={(e) => setPrecioMin(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && applyPriceRange()}
+              className="w-full min-w-0 rounded border border-border bg-transparent px-2 py-1.5 text-[13px] outline-none focus:border-accent"
+            />
+            <span className="text-foreground/50">–</span>
+            <input
+              type="number"
+              min={0}
+              inputMode="numeric"
+              placeholder="Máx"
+              value={precioMax}
+              onChange={(e) => setPrecioMax(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && applyPriceRange()}
+              className="w-full min-w-0 rounded border border-border bg-transparent px-2 py-1.5 text-[13px] outline-none focus:border-accent"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={applyPriceRange}
+            className="mt-1 text-left text-[13px] text-accent hover:underline"
+          >
+            Aplicar
+          </button>
         </Filter>
 
         <Rule />

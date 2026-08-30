@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { SiteImageUpload } from "@/components/admin/site-image-upload";
 import { StoreBannersManager } from "@/components/admin/store-banners-manager";
 import { AboutForm } from "@/components/admin/about-form";
+import { ContactForm } from "@/components/admin/contact-form";
 
 export const dynamic = "force-dynamic";
 
@@ -68,6 +69,16 @@ export default async function AdminAppearancePage() {
             }}
           />
           <SiteImageUpload kind="about" label="Imagen" currentUrl={theme.aboutImageUrl} />
+        </div>
+      </section>
+
+      <section>
+        <h2 className="font-display text-lg">Contacto</h2>
+        <p className="mt-1 max-w-xl text-sm text-foreground/70">
+          Número para el botón flotante de WhatsApp que ven los clientes en la tienda.
+        </p>
+        <div className="mt-4">
+          <ContactForm initial={theme.whatsappNumber ?? ""} />
         </div>
       </section>
     </div>

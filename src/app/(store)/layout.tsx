@@ -6,6 +6,7 @@ import { getStoreTheme } from "@/lib/store-theme";
 import { deriveLightPalette } from "@/lib/color";
 import { STORE_THEME_INIT_SCRIPT } from "@/lib/store-panel-theme";
 import { MobileStoreBar } from "@/components/store/mobile-store-ui";
+import { WhatsAppButton } from "@/components/store/whatsapp-button";
 
 export const dynamic = "force-dynamic";
 
@@ -90,6 +91,7 @@ export default async function StoreLayout({ children }: { children: React.ReactN
         <SiteFooter />
         <MobileStoreBar />
         <CartToast />
+        {theme.whatsappNumber && <WhatsAppButton number={theme.whatsappNumber} />}
       </div>
       <script dangerouslySetInnerHTML={{ __html: STORE_THEME_INIT_SCRIPT }} />
     </CartProvider>

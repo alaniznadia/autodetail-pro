@@ -29,9 +29,28 @@ export function AddToCart({
   const [variantId, setVariantId] = useState(variants[0]?.id ?? "");
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+  const [notifyEmail, setNotifyEmail] = useState("");
+  const [notifyStatus, setNotifyStatus] = useState<"idle" | "submitting" | "done" | "error">("idle");
 
   const selected = variants.find((v) => v.id === variantId);
   const outOfStock = !selected || selected.stock <= 0;
+
+  async function handleNotifyRequest(e: React.FormEvent) {
+    e.preventDefault();
+    if (!selected) return;
+    setNotifyStatus("submitting");
+    try {
+      const res = await fetch("/api/stock-notifications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ variantId: selected.id, email: notifyEmail }),
+      });
+      if (!res.ok) throw new Error();
+      setNotifyStatus("done");
+    } catch {
+      setNotifyStatus("error");
+    }
+  }
 
   function handleAdd() {
     if (!selected) return;
@@ -64,6 +83,8 @@ export function AddToCart({
                 onClick={() => {
                   setVariantId(v.id);
                   setAdded(false);
+                  setNotifyStatus("idle");
+                  setNotifyEmail("");
                 }}
                 disabled={v.stock <= 0}
                 className={`store-frame px-3.5 py-1.5 text-[14.5px] disabled:cursor-not-allowed disabled:opacity-40 ${
@@ -119,6 +140,41 @@ export function AddToCart({
               : "En stock · sale hoy"}
         </span>
       </div>
+
+      {outOfStock && selected && (
+        <div>
+          {notifyStatus === "done" ? (
+            <p className="text-sm text-accent">Listo, te avisamos por email cuando vuelva a haber stock.</p>
+          ) : (
+            <form onSubmit={handleNotifyRequest} className="flex max-w-xs flex-col gap-2 sm:flex-row">
+              <label htmlFor="notify-email" className="sr-only">
+                Email
+              </label>
+              <input
+                id="notify-email"
+                type="email"
+                required
+                value={notifyEmail}
+                onChange={(e) => setNotifyEmail(e.target.value)}
+                placeholder="tu@email.com"
+                className="w-full rounded border border-border bg-transparent px-3 py-2 text-sm outline-none focus:border-accent"
+              />
+              <button
+                type="submit"
+                disabled={notifyStatus === "submitting"}
+                className="store-frame shrink-0 border-border px-4 py-2 text-sm hover:border-accent disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {notifyStatus === "submitting" ? "Enviando…" : "Avisame"}
+              </button>
+              {notifyStatus === "error" && (
+                <p role="alert" className="text-xs text-red-400">
+                  No se pudo guardar, probá de nuevo.
+                </p>
+              )}
+            </form>
+          )}
+        </div>
+      )}
 
       {added && (
         <p role="status" className="text-sm">
