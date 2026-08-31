@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slugify";
 import {
   extractRowsFromFile,
+  normalizeText,
   parseBulkUpload,
   UnsupportedFileError,
   type BulkProductGroup,
@@ -44,6 +45,39 @@ async function excludeExistingSkus(
     .filter((group) => group.variants.length > 0);
 
   return { groups: filtered, errors };
+}
+
+// Crea las categorías que el archivo referencia y todavía no existen (no
+// hay ninguna pantalla en el panel para darlas de alta a mano). Devuelve
+// los grupos con categoryId siempre resuelto, más los nombres creados.
+async function createMissingCategories(
+  groups: BulkProductGroup[]
+): Promise<{ groups: BulkProductGroup[]; createdCategoryNames: string[] }> {
+  const newNames = new Map<string, string>(); // normalizado -> nombre original
+  for (const group of groups) {
+    if (group.categoryIsNew) newNames.set(normalizeText(group.categoryName), group.categoryName);
+  }
+  if (newNames.size === 0) return { groups, createdCategoryNames: [] };
+
+  const createdIds = new Map<string, string>();
+  for (const name of newNames.values()) {
+    const baseSlug = slugify(name);
+    let slug = baseSlug;
+    let suffix = 1;
+    while (await prisma.category.findUnique({ where: { slug } })) {
+      suffix += 1;
+      slug = `${baseSlug}-${suffix}`;
+    }
+    const category = await prisma.category.create({ data: { name, slug } });
+    createdIds.set(normalizeText(name), category.id);
+  }
+
+  const resolvedGroups = groups.map((group) =>
+    group.categoryIsNew
+      ? { ...group, categoryId: createdIds.get(normalizeText(group.categoryName)), categoryIsNew: false }
+      : group
+  );
+  return { groups: resolvedGroups, createdCategoryNames: Array.from(newNames.values()) };
 }
 
 async function readFileAndParse(req: NextRequest) {
@@ -133,10 +167,16 @@ async function handlePost(req: NextRequest) {
     );
   }
 
+  const { groups, createdCategoryNames } = await createMissingCategories(parsed.groups);
+
   const createdProducts: { id: string; name: string }[] = [];
   const failed: { name: string; error: string }[] = [];
 
-  for (const group of parsed.groups) {
+  for (const group of groups) {
+    if (!group.categoryId) {
+      failed.push({ name: group.name, error: `No se pudo resolver la categoría "${group.categoryName}".` });
+      continue;
+    }
     try {
       const baseSlug = slugify(group.name);
       let slug = baseSlug;
@@ -183,6 +223,7 @@ async function handlePost(req: NextRequest) {
   return NextResponse.json({
     created: createdProducts.length,
     createdProducts,
+    createdCategories: createdCategoryNames,
     failed,
     errors: parsed.errors,
     warnings: parsed.warnings,
