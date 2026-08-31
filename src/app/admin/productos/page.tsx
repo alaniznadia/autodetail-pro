@@ -16,12 +16,20 @@ export default async function AdminProductsPage() {
     <div>
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold">Productos</h1>
-        <Link
-          href="/admin/productos/nuevo"
-          className="rounded border border-accent px-4 py-2 font-display text-sm hover:bg-accent hover:text-background"
-        >
-          + Nuevo producto
-        </Link>
+        <div className="flex gap-3">
+          <Link
+            href="/admin/productos/carga-masiva"
+            className="rounded border border-border px-4 py-2 font-display text-sm hover:border-accent"
+          >
+            Carga masiva
+          </Link>
+          <Link
+            href="/admin/productos/nuevo"
+            className="rounded border border-accent px-4 py-2 font-display text-sm hover:bg-accent hover:text-background"
+          >
+            + Nuevo producto
+          </Link>
+        </div>
       </div>
 
       <div className="mt-6 overflow-x-auto rounded border border-border">
