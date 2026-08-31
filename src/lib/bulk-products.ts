@@ -7,17 +7,49 @@ export class UnsupportedFileError extends Error {}
 // Lectura de archivo -> matriz de celdas (string[][], primera fila = header)
 // ---------------------------------------------------------------------------
 
+// No restringimos por extensión (el selector de archivo acepta cualquier
+// tipo): el formato real se detecta por los primeros bytes del archivo, así
+// funciona aunque el usuario suba un CSV con otra extensión o sin extensión.
 export async function extractRowsFromFile(file: File): Promise<string[][]> {
-  const name = file.name.toLowerCase();
   const buffer = Buffer.from(await file.arrayBuffer());
 
-  if (name.endsWith(".csv")) return parseCsv(buffer.toString("utf-8"));
-  if (name.endsWith(".xlsx")) return readExcelRows(buffer);
-  if (name.endsWith(".pdf")) return readPdfRows(buffer);
+  if (buffer.length === 0) {
+    throw new UnsupportedFileError("El archivo está vacío.");
+  }
+  if (isPdf(buffer)) return readPdfRows(buffer);
+  if (isOldExcelOrOffice(buffer)) {
+    throw new UnsupportedFileError(
+      "Ese formato (Excel viejo .xls u otro documento de Office) no se puede leer directo. Volvé a guardarlo como .xlsx o CSV y subilo de nuevo."
+    );
+  }
+  if (isZip(buffer)) {
+    try {
+      return await readExcelRows(buffer);
+    } catch {
+      throw new UnsupportedFileError(
+        "No se pudo leer el archivo como Excel (.xlsx). Volvé a guardarlo como .xlsx o CSV y subilo de nuevo."
+      );
+    }
+  }
 
-  throw new UnsupportedFileError(
-    "Formato no soportado. Subí un archivo .csv, .xlsx o .pdf."
-  );
+  // Cualquier otra cosa: se intenta como texto delimitado (CSV/TSV/etc.).
+  return parseCsv(buffer.toString("utf-8"));
+}
+
+function isPdf(buffer: Buffer): boolean {
+  return buffer.subarray(0, 4).toString("latin1") === "%PDF";
+}
+
+// Firma ZIP: la usan tanto .xlsx como .docx/.pptx (todos son ZIP por dentro).
+function isZip(buffer: Buffer): boolean {
+  return buffer.length >= 4 && buffer[0] === 0x50 && buffer[1] === 0x4b && buffer[2] === 0x03 && buffer[3] === 0x04;
+}
+
+// Firma OLE2 (Compound File Binary): la usan los Excel/Word/PowerPoint
+// viejos (.xls, .doc, .ppt), formato binario que exceljs no puede leer.
+function isOldExcelOrOffice(buffer: Buffer): boolean {
+  const signature = [0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1];
+  return buffer.length >= 8 && signature.every((byte, i) => buffer[i] === byte);
 }
 
 function parseCsv(text: string): string[][] {
@@ -69,9 +101,13 @@ function parseCsv(text: string): string[][] {
 
 function detectCsvDelimiter(text: string): string {
   const firstLine = text.split(/\r?\n/, 1)[0] ?? "";
-  const commas = (firstLine.match(/,/g) ?? []).length;
-  const semicolons = (firstLine.match(/;/g) ?? []).length;
-  return semicolons > commas ? ";" : ",";
+  const counts: Record<string, number> = {
+    ",": (firstLine.match(/,/g) ?? []).length,
+    ";": (firstLine.match(/;/g) ?? []).length,
+    "\t": (firstLine.match(/\t/g) ?? []).length,
+  };
+  const [best] = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+  return counts[best] > 0 ? best : ",";
 }
 
 // exceljs declara su propio `Buffer` local ("extends ArrayBuffer") en vez de

@@ -48,11 +48,39 @@ export function BulkProductUpload() {
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<PreviewResponse | null>(null);
   const [result, setResult] = useState<CommitResponse | null>(null);
+  const [templateError, setTemplateError] = useState<string | null>(null);
+  const [downloadingTemplate, setDownloadingTemplate] = useState(false);
 
   function resetForNewFile() {
     setPreview(null);
     setResult(null);
     setError(null);
+  }
+
+  async function downloadTemplate() {
+    setDownloadingTemplate(true);
+    setTemplateError(null);
+
+    try {
+      const res = await fetch("/api/admin/products/bulk/template");
+      if (!res.ok) {
+        setTemplateError("No se pudo descargar la plantilla. Probá de nuevo.");
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "plantilla-carga-masiva-productos.csv";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch {
+      setTemplateError("No se pudo descargar la plantilla. Probá de nuevo.");
+    } finally {
+      setDownloadingTemplate(false);
+    }
   }
 
   async function submit(mode: "preview" | "commit") {
@@ -92,21 +120,29 @@ export function BulkProductUpload() {
     <div className="mt-6 flex max-w-3xl flex-col gap-6">
       <div className="rounded border border-border p-4">
         <p className="text-sm text-foreground/70">
-          Subí un archivo CSV, Excel (.xlsx) o PDF con tus productos. Cada fila es una variante;
-          filas con el mismo nombre de producto se agrupan como variantes de un mismo producto.
-          Las columnas obligatorias son <strong>producto</strong>, <strong>categoria</strong>{" "}
-          (debe existir, tal cual se llama en el panel), <strong>sku</strong> y{" "}
-          <strong>precio</strong>. También se reconocen: marca, descripcion, variante, costo,
-          stock, codigo_barras y activo. En PDF solo se pueden leer tablas dibujadas con bordes
-          (por ejemplo, exportadas desde Excel); si el PDF no tiene una tabla así, usá CSV o Excel.
+          Subí cualquier archivo con tus productos: CSV, Excel (.xlsx), PDF, texto delimitado, etc.
+          (el formato se detecta solo, no hace falta que tenga una extensión en particular). Cada
+          fila es una variante; filas con el mismo nombre de producto se agrupan como variantes de
+          un mismo producto. Las columnas obligatorias son <strong>producto</strong>,{" "}
+          <strong>categoria</strong> (debe existir, tal cual se llama en el panel),{" "}
+          <strong>sku</strong> y <strong>precio</strong>. También se reconocen: marca,
+          descripcion, variante, costo, stock, codigo_barras y activo. En PDF solo se pueden leer
+          tablas dibujadas con bordes (por ejemplo, exportadas desde Excel); si el PDF no tiene una
+          tabla así, usá CSV o Excel.
         </p>
-        <a
-          href="/api/admin/products/bulk/template"
-          download
-          className="mt-2 inline-block text-sm underline underline-offset-4"
+        <button
+          type="button"
+          disabled={downloadingTemplate}
+          onClick={downloadTemplate}
+          className="mt-2 text-sm underline underline-offset-4 disabled:opacity-50"
         >
-          Descargar plantilla CSV de ejemplo
-        </a>
+          {downloadingTemplate ? "Descargando..." : "Descargar plantilla CSV de ejemplo"}
+        </button>
+        {templateError && (
+          <p role="alert" className="mt-1 text-sm text-red-400">
+            {templateError}
+          </p>
+        )}
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
@@ -118,7 +154,6 @@ export function BulkProductUpload() {
             id="bulk-file"
             ref={fileInputRef}
             type="file"
-            accept=".csv,.xlsx,.pdf"
             onChange={(e) => {
               setFileName(e.target.files?.[0]?.name ?? null);
               resetForNewFile();
