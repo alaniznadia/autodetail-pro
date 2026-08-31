@@ -210,7 +210,7 @@ type CanonicalField =
   | "codigoBarras"
   | "activo";
 
-const REQUIRED_FIELDS: CanonicalField[] = ["producto", "categoria", "sku", "precio"];
+const REQUIRED_FIELDS: CanonicalField[] = ["producto", "categoria", "precio"];
 
 const FIELD_LABELS: Record<CanonicalField, string> = {
   producto: "producto",
@@ -231,12 +231,15 @@ const FIELD_ALIASES: Record<CanonicalField, string[]> = {
   marca: ["marca", "brand"],
   categoria: ["categoria", "category", "rubro"],
   descripcion: ["descripcion", "description", "detalle"],
-  sku: ["sku", "codigo", "codigo_interno", "code"],
+  // Solo un header explícito "sku" cuenta como SKU: "código"/"code" casi
+  // siempre es el código de barras (ver más abajo), no el identificador
+  // interno. Si no viene, se genera uno a partir del nombre del producto.
+  sku: ["sku"],
   variante: ["variante", "presentacion", "variant", "nombre_variante"],
   precio: ["precio", "precio_venta", "price"],
   costo: ["costo", "precio_costo", "cost", "costo_precio"],
   stock: ["stock", "cantidad", "stock_inicial", "qty", "quantity"],
-  codigoBarras: ["codigo_barras", "barcode", "ean", "cod_barras"],
+  codigoBarras: ["codigo_barras", "barcode", "ean", "cod_barras", "codigo", "codigo_interno", "code"],
   activo: ["activo", "publicado", "active", "estado"],
 };
 
@@ -321,6 +324,22 @@ function parseInteger(raw: string, fallback: number): number {
   return n === null ? fallback : Math.round(n);
 }
 
+// Cuando el archivo no trae SKU (habitual en exports de otros sistemas que
+// solo cargan el código de barras), se genera uno a partir del nombre del
+// producto y la variante, evitando colisiones dentro del mismo archivo.
+function generateSku(productName: string, variantName: string, seenSkus: Set<string>): string {
+  const parts = [productName, variantName].filter((p) => p && normalizeText(p) !== "unico");
+  const base = normalizeText(parts.join(" ")).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").toUpperCase() || "PRODUCTO";
+
+  let candidate = base;
+  let suffix = 1;
+  while (seenSkus.has(normalizeText(candidate))) {
+    suffix += 1;
+    candidate = `${base}-${suffix}`;
+  }
+  return candidate;
+}
+
 function buildHeaderIndex(headerRow: string[]): Partial<Record<CanonicalField, number>> {
   const normalizedHeaders = headerRow.map(normalizeHeader);
   const index: Partial<Record<CanonicalField, number>> = {};
@@ -383,16 +402,18 @@ export function parseBulkUpload(
 
     const productName = cell(row, "producto");
     const categoriaRaw = cell(row, "categoria");
-    const skuRaw = cell(row, "sku");
+    const variantName = cell(row, "variante") || "Único";
     const precioRaw = cell(row, "precio");
 
     if (!productName) {
       errors.push({ row: rowNumber, message: "Falta el nombre del producto." });
       return;
     }
+
+    let skuRaw = cell(row, "sku");
     if (!skuRaw) {
-      errors.push({ row: rowNumber, message: "Falta el SKU." });
-      return;
+      skuRaw = generateSku(productName, variantName, seenSkus);
+      warnings.push({ row: rowNumber, message: `Sin SKU en el archivo, se generó "${skuRaw}" automáticamente.` });
     }
     const skuKey = normalizeText(skuRaw);
     if (seenSkus.has(skuKey)) {
@@ -446,7 +467,7 @@ export function parseBulkUpload(
     group.variants.push({
       sourceRow: rowNumber,
       sku: skuRaw,
-      name: cell(row, "variante") || "Único",
+      name: variantName,
       price,
       costPrice: cost ?? undefined,
       barcode: cell(row, "codigoBarras") || undefined,
