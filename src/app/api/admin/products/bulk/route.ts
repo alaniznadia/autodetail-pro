@@ -9,7 +9,11 @@ import {
   type BulkRowIssue,
 } from "@/lib/bulk-products";
 
-const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10 MB
+// Los serverless functions de Vercel rechazan (antes de que este código
+// corra) cualquier body de más de ~4.5 MB, con un error que no es JSON.
+// Este límite queda bien por debajo para poder mostrar un mensaje claro
+// en vez de que la carga falle de forma confusa.
+const MAX_FILE_BYTES = 4 * 1024 * 1024; // 4 MB
 
 // Descarta del preview las variantes cuyo SKU ya existe en la base (en
 // cualquier producto), para no intentar crearlas dos veces. Si un producto
@@ -51,7 +55,7 @@ async function readFileAndParse(req: NextRequest) {
     throw new BadRequestError("Falta el archivo.");
   }
   if (file.size > MAX_FILE_BYTES) {
-    throw new BadRequestError("El archivo no puede pesar más de 10 MB.");
+    throw new BadRequestError("El archivo no puede pesar más de 4 MB.");
   }
   if (mode !== "preview" && mode !== "commit") {
     throw new BadRequestError("Modo inválido.");
@@ -81,17 +85,26 @@ async function readFileAndParse(req: NextRequest) {
 
 class BadRequestError extends Error {}
 
+// Nunca dejamos que un error inesperado se escape sin capturar: un error no
+// manejado en un route handler puede devolver una respuesta que no es JSON
+// (o vacía), y el cliente no tiene forma de mostrar qué pasó en realidad.
 export async function POST(req: NextRequest) {
-  let parsed: Awaited<ReturnType<typeof readFileAndParse>>;
   try {
-    parsed = await readFileAndParse(req);
+    return await handlePost(req);
   } catch (err) {
     if (err instanceof BadRequestError) {
       return NextResponse.json({ error: err.message }, { status: 400 });
     }
-    throw err;
+    console.error("Error inesperado en carga masiva de productos", err);
+    return NextResponse.json(
+      { error: "Ocurrió un error inesperado procesando la carga masiva." },
+      { status: 500 }
+    );
   }
+}
 
+async function handlePost(req: NextRequest) {
+  const parsed = await readFileAndParse(req);
   const variantCount = parsed.groups.reduce((sum, g) => sum + g.variants.length, 0);
 
   if (parsed.mode === "preview") {
@@ -158,6 +171,7 @@ export async function POST(req: NextRequest) {
 
       createdProducts.push({ id: product.id, name: product.name });
     } catch (err: unknown) {
+      console.error(`Error creando producto "${group.name}" en carga masiva`, err);
       const message =
         err instanceof Error && "code" in err && (err as { code?: string }).code === "P2002"
           ? "SKU o código de barras duplicado."

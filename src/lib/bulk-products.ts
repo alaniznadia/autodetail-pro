@@ -1,5 +1,10 @@
-import ExcelJS from "exceljs";
-import { PDFParse } from "pdf-parse";
+import type ExcelJS from "exceljs";
+
+// exceljs y pdf-parse se importan de forma perezosa (adentro de las
+// funciones que los usan) en vez de al tope del archivo: así, si alguna de
+// las dos falla al cargar en el entorno de producción, no se cae todo este
+// módulo (y con él, cualquier ruta que lo importe, como la plantilla o el
+// parseo de CSV, que no dependen de ninguna de las dos).
 
 export class UnsupportedFileError extends Error {}
 
@@ -117,6 +122,7 @@ function detectCsvDelimiter(text: string): string {
 type ExcelJsLoadInput = Parameters<InstanceType<typeof ExcelJS.Workbook>["xlsx"]["load"]>[0];
 
 async function readExcelRows(buffer: Buffer): Promise<string[][]> {
+  const { default: ExcelJS } = await import("exceljs");
   const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.load(buffer as unknown as ExcelJsLoadInput);
   const sheet = workbook.worksheets[0];
@@ -152,6 +158,7 @@ function excelCellToString(value: ExcelJS.CellValue): string {
 // columnas: si ninguno de los dos caminos encuentra al menos encabezado +
 // una fila, avisamos en vez de devolver un resultado vacío o incorrecto.
 async function readPdfRows(buffer: Buffer): Promise<string[][]> {
+  const { PDFParse } = await import("pdf-parse");
   const parser = new PDFParse({ data: buffer });
   try {
     const tableResult = await parser.getTable();
