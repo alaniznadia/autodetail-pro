@@ -18,6 +18,7 @@ type PreviewGroup = {
   name: string;
   brand?: string;
   categoryName: string;
+  categoryIsNew: boolean;
   active: boolean;
   variants: PreviewVariant[];
 };
@@ -34,6 +35,7 @@ type PreviewResponse = {
 type CommitResponse = {
   created: number;
   createdProducts: { id: string; name: string }[];
+  createdCategories: string[];
   failed: { name: string; error: string }[];
   errors: RowIssue[];
   warnings: RowIssue[];
@@ -130,10 +132,10 @@ export function BulkProductUpload() {
           (el formato se detecta solo, no hace falta que tenga una extensión en particular). Cada
           fila es una variante; filas con el mismo nombre de producto se agrupan como variantes de
           un mismo producto. Las columnas obligatorias son <strong>producto</strong>,{" "}
-          <strong>categoria</strong> (debe existir, tal cual se llama en el panel) y{" "}
-          <strong>precio</strong>. También se reconocen: marca, descripcion, sku (si no viene, se
-          genera uno automático a partir del nombre), variante, costo, stock, codigo_barras y
-          activo. En PDF solo se pueden leer
+          <strong>categoria</strong> y <strong>precio</strong>. Si la categoría no existe todavía
+          en el panel, se crea sola al confirmar la carga. También se reconocen: marca,
+          descripcion, sku (si no viene, se genera uno automático a partir del nombre), variante,
+          costo, stock, codigo_barras y activo. En PDF solo se pueden leer
           tablas dibujadas con bordes (por ejemplo, exportadas desde Excel); si el PDF no tiene una
           tabla así, usá CSV o Excel. El archivo no puede pesar más de 4 MB.
         </p>
@@ -234,7 +236,12 @@ export function BulkProductUpload() {
                   {preview.groups.map((g, i) => (
                     <tr key={i} className="border-b border-border last:border-0">
                       <td className="p-3">{g.name}</td>
-                      <td className="p-3">{g.categoryName}</td>
+                      <td className="p-3">
+                        {g.categoryName}
+                        {g.categoryIsNew && (
+                          <span className="ml-2 text-xs text-yellow-600">(nueva)</span>
+                        )}
+                      </td>
                       <td className="p-3">{g.variants.length}</td>
                       <td className="p-3">{g.active ? "Activo" : "Inactivo"}</td>
                     </tr>
@@ -262,6 +269,11 @@ export function BulkProductUpload() {
           <p className="font-display text-sm">
             Se crearon {result.created} de {result.created + result.failed.length} productos.
           </p>
+          {result.createdCategories.length > 0 && (
+            <p className="text-sm text-foreground/70">
+              Categorías nuevas creadas: {result.createdCategories.join(", ")}.
+            </p>
+          )}
           {result.failed.length > 0 && (
             <ul className="flex flex-col gap-1 text-sm text-red-400">
               {result.failed.map((f, i) => (

@@ -258,8 +258,12 @@ export type BulkVariantInput = {
 export type BulkProductGroup = {
   name: string;
   brand?: string;
-  categoryId: string;
+  // Si la categoría del archivo no existe todavía, categoryId queda sin
+  // definir y categoryIsNew en true: el caller (la API) la crea en el
+  // momento de confirmar la carga.
+  categoryId?: string;
   categoryName: string;
+  categoryIsNew: boolean;
   description?: string;
   active: boolean;
   variants: BulkVariantInput[];
@@ -274,7 +278,7 @@ export type BulkParseResult = {
 
 export type CategoryLookup = { id: string; name: string; slug: string };
 
-function normalizeText(value: string): string {
+export function normalizeText(value: string): string {
   return value
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "")
@@ -421,13 +425,17 @@ export function parseBulkUpload(
       return;
     }
 
-    const categoryId = categoryById.get(normalizeText(categoriaRaw));
-    if (!categoryId) {
-      errors.push({
-        row: rowNumber,
-        message: `La categoría "${categoriaRaw || "(vacía)"}" no existe. Creala primero desde el panel.`,
-      });
+    if (!categoriaRaw) {
+      errors.push({ row: rowNumber, message: "Falta la categoría." });
       return;
+    }
+    const categoryId = categoryById.get(normalizeText(categoriaRaw));
+    const categoryIsNew = categoryId === undefined;
+    if (categoryIsNew) {
+      warnings.push({
+        row: rowNumber,
+        message: `La categoría "${categoriaRaw}" no existe: se va a crear al confirmar la carga.`,
+      });
     }
 
     const price = parseMoney(precioRaw);
@@ -452,12 +460,13 @@ export function parseBulkUpload(
         brand: cell(row, "marca") || undefined,
         categoryId,
         categoryName: categoriaRaw,
+        categoryIsNew,
         description: cell(row, "descripcion") || undefined,
         active: parseBoolean(cell(row, "activo"), true),
         variants: [],
       };
       groups.set(groupKey, group);
-    } else if (group.categoryId !== categoryId) {
+    } else if (normalizeText(group.categoryName) !== normalizeText(categoriaRaw)) {
       warnings.push({
         row: rowNumber,
         message: `"${productName}" ya tenía la categoría "${group.categoryName}"; se ignoró "${categoriaRaw}" de esta fila.`,
