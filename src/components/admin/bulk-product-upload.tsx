@@ -130,9 +130,10 @@ export function BulkProductUpload() {
           (el formato se detecta solo, no hace falta que tenga una extensión en particular). Cada
           fila es una variante; filas con el mismo nombre de producto se agrupan como variantes de
           un mismo producto. Las columnas obligatorias son <strong>producto</strong>,{" "}
-          <strong>categoria</strong> (debe existir, tal cual se llama en el panel),{" "}
-          <strong>sku</strong> y <strong>precio</strong>. También se reconocen: marca,
-          descripcion, variante, costo, stock, codigo_barras y activo. En PDF solo se pueden leer
+          <strong>categoria</strong> (debe existir, tal cual se llama en el panel) y{" "}
+          <strong>precio</strong>. También se reconocen: marca, descripcion, sku (si no viene, se
+          genera uno automático a partir del nombre), variante, costo, stock, codigo_barras y
+          activo. En PDF solo se pueden leer
           tablas dibujadas con bordes (por ejemplo, exportadas desde Excel); si el PDF no tiene una
           tabla así, usá CSV o Excel. El archivo no puede pesar más de 4 MB.
         </p>
