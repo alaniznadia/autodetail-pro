@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { getStoreTheme, resolveCatalogCardStyle } from "@/lib/store-theme";
@@ -13,29 +14,49 @@ export const metadata: Metadata = {
   alternates: { canonical: "/catalogo" },
 };
 
+const PAGE_SIZE = 24;
+
 export default async function CatalogPage({
   searchParams,
 }: {
-  searchParams: Promise<{ categoria?: string; q?: string }>;
+  searchParams: Promise<{ categoria?: string; q?: string; pagina?: string }>;
 }) {
-  const { categoria, q } = await searchParams;
+  const { categoria, q, pagina } = await searchParams;
+  const page = Math.max(1, Number(pagina) || 1);
 
-  const [categories, products, theme] = await Promise.all([
+  const where = {
+    active: true,
+    category: categoria ? { slug: categoria } : undefined,
+    name: q ? { contains: q, mode: "insensitive" as const } : undefined,
+  };
+
+  const [categories, products, totalProducts, theme] = await Promise.all([
     prisma.category.findMany({ orderBy: { name: "asc" } }),
     prisma.product.findMany({
-      where: {
-        active: true,
-        category: categoria ? { slug: categoria } : undefined,
-        name: q ? { contains: q, mode: "insensitive" } : undefined,
-      },
+      where,
       include: {
         variants: { where: { active: true }, take: 1, include: { stockItems: true } },
         images: { take: 1 },
       },
       orderBy: { name: "asc" },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
     }),
+    prisma.product.count({ where }),
     getStoreTheme(),
   ]);
+
+  const totalPages = Math.max(1, Math.ceil(totalProducts / PAGE_SIZE));
+
+  // Conserva categoria/q al cambiar de página; solo pisa "pagina".
+  function pageHref(targetPage: number) {
+    const params = new URLSearchParams();
+    if (categoria) params.set("categoria", categoria);
+    if (q) params.set("q", q);
+    if (targetPage > 1) params.set("pagina", String(targetPage));
+    const qs = params.toString();
+    return qs ? `/catalogo?${qs}` : "/catalogo";
+  }
 
   const cardStyle = resolveCatalogCardStyle(theme);
 
@@ -98,13 +119,14 @@ export default async function CatalogPage({
             return (
               <li key={product.id} className="rounded border border-border p-3 transition hover:border-accent">
                 <Link href={`/producto/${product.slug}`} className="group block">
-                  <div className="aspect-square overflow-hidden rounded bg-white">
+                  <div className="relative aspect-square overflow-hidden rounded bg-white">
                     {image && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                      <Image
                         src={image.url}
                         alt={image.altText}
-                        className="h-full w-full object-contain transition group-hover:scale-105"
+                        fill
+                        sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+                        className="object-contain transition group-hover:scale-105"
                       />
                     )}
                   </div>
@@ -133,6 +155,38 @@ export default async function CatalogPage({
             );
           })}
         </ul>
+      )}
+
+      {totalPages > 1 && (
+        <nav aria-label="Paginación" className="mt-10 flex items-center justify-center gap-4">
+          {page > 1 ? (
+            <Link
+              href={pageHref(page - 1)}
+              className="rounded border border-border px-4 py-2 text-sm hover:border-accent"
+            >
+              ← Anterior
+            </Link>
+          ) : (
+            <span className="rounded border border-border px-4 py-2 text-sm text-foreground/30">
+              ← Anterior
+            </span>
+          )}
+          <span className="text-sm text-foreground/60">
+            Página {page} de {totalPages}
+          </span>
+          {page < totalPages ? (
+            <Link
+              href={pageHref(page + 1)}
+              className="rounded border border-border px-4 py-2 text-sm hover:border-accent"
+            >
+              Siguiente →
+            </Link>
+          ) : (
+            <span className="rounded border border-border px-4 py-2 text-sm text-foreground/30">
+              Siguiente →
+            </span>
+          )}
+        </nav>
       )}
     </div>
   );

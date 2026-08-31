@@ -1,6 +1,8 @@
 import Link from "next/link";
+import Image from "next/image";
 import { CartLink } from "@/components/store/cart-link";
 import { MobileNav } from "@/components/store/mobile-nav";
+import { HeaderSearch } from "@/components/store/header-search";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -35,8 +37,16 @@ export async function SiteHeader({ logoUrl }: { logoUrl: string | null }) {
           <MobileNav categories={categories} />
           <Link href="/" className="flex items-center font-display text-xl font-bold tracking-widest">
             {logoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={logoUrl} alt="Epic Shine" className="h-9 w-auto object-contain" />
+              <span className="relative h-9 w-32">
+                <Image
+                  src={logoUrl}
+                  alt="Epic Shine"
+                  fill
+                  sizes="128px"
+                  className="object-contain object-left"
+                  priority
+                />
+              </span>
             ) : (
               "Epic Shine"
             )}
@@ -54,6 +64,7 @@ export async function SiteHeader({ logoUrl }: { logoUrl: string | null }) {
           ))}
         </nav>
         <div className="flex items-center gap-3 sm:gap-4">
+          <HeaderSearch />
           <CartLink />
           <Link
             href={session?.user ? "/mi-cuenta" : "/login"}

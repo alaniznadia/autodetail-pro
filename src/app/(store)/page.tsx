@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { HeroCarousel } from "@/components/store/hero-carousel";
@@ -14,28 +15,29 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const banners = await prisma.storeBanner.findMany({
-    where: { active: true },
-    orderBy: { position: "asc" },
-  });
+  const [banners, categories, featuredProducts, theme] = await Promise.all([
+    prisma.storeBanner.findMany({
+      where: { active: true },
+      orderBy: { position: "asc" },
+    }),
+    prisma.category.findMany({
+      where: { parentId: null },
+      orderBy: { name: "asc" },
+      take: 6,
+    }),
+    prisma.product.findMany({
+      where: { active: true },
+      include: {
+        variants: { where: { active: true }, take: 1, include: { stockItems: true } },
+        images: { take: 1 },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 8,
+    }),
+    getStoreTheme(),
+  ]);
 
-  const categories = await prisma.category.findMany({
-    where: { parentId: null },
-    orderBy: { name: "asc" },
-    take: 6,
-  });
-
-  const featuredProducts = await prisma.product.findMany({
-    where: { active: true },
-    include: {
-      variants: { where: { active: true }, take: 1, include: { stockItems: true } },
-      images: { take: 1 },
-    },
-    orderBy: { createdAt: "desc" },
-    take: 8,
-  });
-
-  const cardStyle = resolveCatalogCardStyle(await getStoreTheme());
+  const cardStyle = resolveCatalogCardStyle(theme);
 
   return (
     <div>
@@ -99,13 +101,14 @@ export default async function HomePage() {
                   className="rounded border border-border p-3 transition hover:border-accent"
                 >
                   <Link href={`/producto/${product.slug}`} className="group block">
-                    <div className="aspect-square overflow-hidden rounded bg-white">
+                    <div className="relative aspect-square overflow-hidden rounded bg-white">
                       {image && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
+                        <Image
                           src={image.url}
                           alt={image.altText}
-                          className="h-full w-full object-contain transition group-hover:scale-105"
+                          fill
+                          sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+                          className="object-contain transition group-hover:scale-105"
                         />
                       )}
                     </div>

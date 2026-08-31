@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { hasVerifiedPurchase } from "@/lib/reviews";
 import { AddToCart } from "@/components/store/add-to-cart";
+import { ProductGallery } from "@/components/store/product-gallery";
 import { ReviewForm } from "@/components/store/review-form";
 import { SITE_URL } from "@/lib/site-url";
 
@@ -135,16 +136,7 @@ export default async function ProductPage({
       </nav>
 
       <div className="mt-4 grid gap-10 md:grid-cols-2">
-        <div className="aspect-square overflow-hidden rounded bg-white">
-          {product.images[0] && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={product.images[0].url}
-              alt={product.images[0].altText}
-              className="h-full w-full object-contain"
-            />
-          )}
-        </div>
+        <ProductGallery images={product.images} />
 
         <div>
           <h1 className="font-display text-3xl font-bold">{product.name}</h1>

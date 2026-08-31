@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { getStoreTheme } from "@/lib/store-theme";
 
 export const dynamic = "force-dynamic";
@@ -17,12 +18,15 @@ export default async function AboutPage() {
       <h1 className="font-display text-3xl font-bold">{title}</h1>
 
       {theme.aboutImageUrl && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={theme.aboutImageUrl}
-          alt={title}
-          className="mt-8 max-h-96 w-full rounded bg-white object-contain"
-        />
+        <div className="relative mt-8 h-96 w-full rounded bg-white">
+          <Image
+            src={theme.aboutImageUrl}
+            alt={title}
+            fill
+            sizes="(max-width: 768px) 100vw, 768px"
+            className="object-contain"
+          />
+        </div>
       )}
 
       {theme.aboutContent ? (

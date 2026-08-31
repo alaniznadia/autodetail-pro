@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 type Banner = {
   id: string;
@@ -25,21 +26,45 @@ export function HeroCarousel({ banners }: { banners: Banner[] }) {
     return () => clearInterval(timer);
   }, [banners.length]);
 
-  const current = banners[index];
-  if (!current) return null;
-
-  const slide = (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={current.imageUrl}
-      alt={current.altText}
-      className="h-full w-full object-cover"
-    />
-  );
+  if (banners.length === 0) return null;
 
   return (
     <div className="relative h-[420px] overflow-hidden sm:h-[520px]">
-      {current.linkUrl ? <Link href={current.linkUrl}>{slide}</Link> : slide}
+      {/* Los banners están todos montados (con opacidad 0 salvo el actual)
+          en vez de solo el actual, para que next/image ya los haya
+          descargado cuando les toca el turno — si se montara solo el
+          activo, cada avance automático mostraría un parpadeo mientras se
+          pide la imagen siguiente recién al cambiar. */}
+      {banners.map((banner, i) => {
+        const isCurrent = i === index;
+        const slide = (
+          <Image
+            src={banner.imageUrl}
+            alt={banner.altText}
+            fill
+            sizes="100vw"
+            className="object-cover"
+            priority={i === 0}
+          />
+        );
+        return (
+          <div
+            key={banner.id}
+            aria-hidden={!isCurrent}
+            className={`absolute inset-0 transition-opacity duration-500 ${
+              isCurrent ? "opacity-100" : "pointer-events-none opacity-0"
+            }`}
+          >
+            {banner.linkUrl ? (
+              <Link href={banner.linkUrl} className="block h-full w-full" tabIndex={isCurrent ? 0 : -1}>
+                {slide}
+              </Link>
+            ) : (
+              slide
+            )}
+          </div>
+        );
+      })}
 
       {banners.length > 1 && (
         <>
