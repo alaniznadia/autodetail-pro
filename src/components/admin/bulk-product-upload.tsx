@@ -64,7 +64,9 @@ export function BulkProductUpload() {
     try {
       const res = await fetch("/api/admin/products/bulk/template");
       if (!res.ok) {
-        setTemplateError("No se pudo descargar la plantilla. Probá de nuevo.");
+        const data = await res.json().catch(() => null);
+        const detail = typeof data?.error === "string" ? data.error : `código ${res.status}`;
+        setTemplateError(`No se pudo descargar la plantilla (${detail}). Probá de nuevo.`);
         return;
       }
       const blob = await res.blob();
@@ -103,7 +105,11 @@ export function BulkProductUpload() {
     setLoading(false);
 
     if (!res.ok) {
-      setError(typeof data.error === "string" ? data.error : "No se pudo procesar el archivo.");
+      setError(
+        typeof data.error === "string"
+          ? data.error
+          : `No se pudo procesar el archivo (código ${res.status}). Probá de nuevo.`
+      );
       return;
     }
 
@@ -128,7 +134,7 @@ export function BulkProductUpload() {
           <strong>sku</strong> y <strong>precio</strong>. También se reconocen: marca,
           descripcion, variante, costo, stock, codigo_barras y activo. En PDF solo se pueden leer
           tablas dibujadas con bordes (por ejemplo, exportadas desde Excel); si el PDF no tiene una
-          tabla así, usá CSV o Excel.
+          tabla así, usá CSV o Excel. El archivo no puede pesar más de 4 MB.
         </p>
         <button
           type="button"
