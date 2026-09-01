@@ -8,18 +8,29 @@ import { fetchWithRetry } from "@/lib/fetch-retry";
 import { MobileCheckoutSteps } from "@/components/store/mobile-store-ui";
 import { LoyaltyRedeemField } from "@/components/store/loyalty-ui";
 
+type InitialAddress = {
+  street: string;
+  number: string;
+  floorApt: string;
+  city: string;
+  province: string;
+  postalCode: string;
+};
+
 export function CheckoutForm({
   loyaltyEnabled,
   loyaltyBalance,
   loyaltyPointValue,
   loyaltyMinRedeem,
   isLoggedIn,
+  initialAddress,
 }: {
   loyaltyEnabled: boolean;
   loyaltyBalance: number;
   loyaltyPointValue: number;
   loyaltyMinRedeem: number;
   isLoggedIn: boolean;
+  initialAddress?: InitialAddress;
 }) {
   const router = useRouter();
   const { items, subtotal, clear } = useCart();
@@ -36,14 +47,16 @@ export function CheckoutForm({
   const [guestName, setGuestName] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
-  const [address, setAddress] = useState({
-    street: "",
-    number: "",
-    floorApt: "",
-    city: "",
-    province: "",
-    postalCode: "",
-  });
+  const [address, setAddress] = useState(
+    initialAddress ?? {
+      street: "",
+      number: "",
+      floorApt: "",
+      city: "",
+      province: "",
+      postalCode: "",
+    }
+  );
   const [error, setError] = useState<string | null>(null);
   const [failedOrderId, setFailedOrderId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -446,7 +459,7 @@ export function CheckoutForm({
                   setCouponError(null);
                 }}
                 placeholder="Cupón de descuento"
-                className="store-frame h-10 flex-1 border-border bg-background px-3 text-[18px] uppercase outline-none focus-visible:border-accent"
+                className="store-frame h-10 min-w-0 flex-1 border-border bg-background px-3 text-[18px] uppercase outline-none focus-visible:border-accent"
               />
               <button
                 type="button"

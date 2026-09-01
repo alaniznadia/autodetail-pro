@@ -124,7 +124,7 @@ export function CartView({
               value={couponCode}
               onChange={(e) => setCouponCode(e.target.value)}
               placeholder="CÓDIGO"
-              className="store-frame h-10 flex-1 border-border bg-background px-3 text-[18px] outline-none focus-visible:border-accent"
+              className="store-frame h-10 min-w-0 flex-1 border-border bg-background px-3 text-[18px] outline-none focus-visible:border-accent"
             />
             <button
               type="submit"

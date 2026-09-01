@@ -154,13 +154,14 @@ model Location {
 // modelo solo cubre lo que sigue siendo personalizable desde
 // /admin/apariencia.
 model StoreTheme {
-  id            String @id
-  faviconUrl    String? // ícono de la pestaña del navegador
-  logoUrl       String? // logo mostrado en el header de la tienda
-  aboutTitle    String? // título de /sobre-nosotros
-  aboutContent  String? // texto de /sobre-nosotros
-  aboutImageUrl String?
-  updatedAt     DateTime @updatedAt
+  id             String   @id
+  faviconUrl     String? // ícono de la pestaña del navegador
+  logoUrl        String? // logo mostrado en el header de la tienda
+  aboutTitle     String? // título de /sobre-nosotros
+  aboutContent   String? // texto de /sobre-nosotros
+  aboutImageUrl  String?
+  whatsappNumber String? // número (con código de país, sin +) para el botón flotante de contacto
+  updatedAt      DateTime @updatedAt
 }
 
 // Imágenes del carrusel de la home, editables desde /admin/apariencia.
@@ -289,12 +290,28 @@ model ProductVariant {
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
 
-  stockItems     StockItem[]
-  orderItems     OrderItem[]
-  stockMovements StockMovement[]
-  purchaseItems  PurchaseOrderItem[]
+  stockItems         StockItem[]
+  orderItems         OrderItem[]
+  stockMovements     StockMovement[]
+  purchaseItems      PurchaseOrderItem[]
+  stockNotifications StockNotification[]
 
   @@index([productId])
+}
+
+// Pedidos de aviso de reposición ("Avisame cuando haya stock"). Solo
+// registra el pedido; el envío del email cuando vuelve a haber stock
+// queda para un job aparte (no lo cubre este modelo).
+model StockNotification {
+  id         String         @id @default(cuid())
+  variantId  String
+  variant    ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  email      String
+  notifiedAt DateTime?
+  createdAt  DateTime       @default(now())
+
+  @@unique([variantId, email])
+  @@index([variantId])
 }
 
 // Stock por variante y por sucursal. Esta es la tabla que garantiza que
