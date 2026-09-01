@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { ProductsTable } from "@/components/admin/products-table";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +12,15 @@ export default async function AdminProductsPage() {
     },
     orderBy: { createdAt: "desc" },
   });
+
+  const rows = products.map((p) => ({
+    id: p.id,
+    name: p.name,
+    categoryName: p.category.name,
+    variantCount: p.variants.length,
+    totalStock: p.variants.reduce((sum, v) => sum + v.stockItems.reduce((s, si) => s + si.quantity, 0), 0),
+    active: p.active,
+  }));
 
   return (
     <div>
@@ -32,52 +42,7 @@ export default async function AdminProductsPage() {
         </div>
       </div>
 
-      <div className="mt-6 overflow-x-auto rounded border border-border">
-        <table className="w-full min-w-[640px] text-left text-sm">
-          <thead className="border-b border-border text-foreground/60">
-            <tr>
-              <th className="p-3 font-display font-normal">Producto</th>
-              <th className="p-3 font-display font-normal">Categoría</th>
-              <th className="p-3 font-display font-normal">Variantes</th>
-              <th className="p-3 font-display font-normal">Stock total</th>
-              <th className="p-3 font-display font-normal">Estado</th>
-              <th className="p-3"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map((p) => {
-              const totalStock = p.variants.reduce(
-                (sum, v) => sum + v.stockItems.reduce((s, si) => s + si.quantity, 0),
-                0
-              );
-              return (
-                <tr key={p.id} className="border-b border-border last:border-0">
-                  <td className="p-3">{p.name}</td>
-                  <td className="p-3">{p.category.name}</td>
-                  <td className="p-3">{p.variants.length}</td>
-                  <td className="p-3">{totalStock}</td>
-                  <td className="p-3">{p.active ? "Activo" : "Inactivo"}</td>
-                  <td className="p-3 text-right">
-                    <Link
-                      href={`/admin/productos/${p.id}/editar`}
-                      className="underline underline-offset-4"
-                    >
-                      Editar
-                    </Link>
-                  </td>
-                </tr>
-              );
-            })}
-            {products.length === 0 && (
-              <tr>
-                <td colSpan={6} className="p-6 text-center text-foreground/60">
-                  Todavía no cargaste ningún producto.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      <ProductsTable products={rows} />
     </div>
   );
 }

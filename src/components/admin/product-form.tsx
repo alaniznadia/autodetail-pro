@@ -56,6 +56,7 @@ export function ProductForm({
   );
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   function updateVariant(index: number, patch: Partial<VariantForm>) {
     setValues((prev) => ({
@@ -110,6 +111,26 @@ export function ProductForm({
       setError(
         typeof data.error === "string" ? data.error : "No se pudo guardar el producto."
       );
+      return;
+    }
+
+    router.push("/admin/productos");
+    router.refresh();
+  }
+
+  async function handleDelete() {
+    if (!initial?.id) return;
+    if (!confirm(`¿Borrar "${initial.name}"? No se puede deshacer.`)) return;
+
+    setDeleting(true);
+    setError(null);
+
+    const res = await fetch(`/api/admin/products/${initial.id}`, { method: "DELETE" });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setDeleting(false);
+      setError(typeof data.error === "string" ? data.error : "No se pudo borrar el producto.");
       return;
     }
 
@@ -307,13 +328,25 @@ export function ProductForm({
         </p>
       )}
 
-      <button
-        type="submit"
-        disabled={submitting}
-        className="w-fit rounded border border-accent px-6 py-2 font-display text-sm hover:bg-accent hover:text-background disabled:opacity-50"
-      >
-        {submitting ? "Guardando..." : "Guardar"}
-      </button>
+      <div className="flex items-center gap-3">
+        <button
+          type="submit"
+          disabled={submitting || deleting}
+          className="w-fit rounded border border-accent px-6 py-2 font-display text-sm hover:bg-accent hover:text-background disabled:opacity-50"
+        >
+          {submitting ? "Guardando..." : "Guardar"}
+        </button>
+        {isEdit && (
+          <button
+            type="button"
+            disabled={submitting || deleting}
+            onClick={handleDelete}
+            className="w-fit rounded border border-red-400/40 px-6 py-2 font-display text-sm text-red-400 hover:bg-red-400/10 disabled:opacity-50"
+          >
+            {deleting ? "Borrando..." : "Eliminar producto"}
+          </button>
+        )}
+      </div>
     </form>
   );
 }
