@@ -35,6 +35,38 @@ export async function GET(
   return NextResponse.json({ product });
 }
 
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  try {
+    await prisma.product.delete({ where: { id } });
+    return NextResponse.json({ ok: true });
+  } catch (err: unknown) {
+    // P2025: no existía. P2003: alguna variante tiene pedidos o compras
+    // asociadas (la FK es RESTRICT a propósito, para no perder ese
+    // historial); en ese caso sugerimos desactivarlo en vez de borrarlo.
+    if (err instanceof Error && "code" in err) {
+      const code = (err as { code?: string }).code;
+      if (code === "P2025") {
+        return NextResponse.json({ error: "El producto no existe." }, { status: 404 });
+      }
+      if (code === "P2003") {
+        return NextResponse.json(
+          {
+            error:
+              "No se puede borrar: tiene ventas o compras asociadas. Desactivalo en vez de borrarlo si no querés que se siga vendiendo.",
+          },
+          { status: 409 }
+        );
+      }
+    }
+    console.error("Error borrando producto", err);
+    return NextResponse.json({ error: "No se pudo borrar el producto." }, { status: 500 });
+  }
+}
+
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
