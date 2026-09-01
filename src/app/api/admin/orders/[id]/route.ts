@@ -33,31 +33,40 @@ export async function PATCH(
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  const order = await prisma.$transaction(async (tx) => {
-    const existing = await tx.order.findUniqueOrThrow({ where: { id } });
+  let order;
+  try {
+    order = await prisma.$transaction(async (tx) => {
+      const existing = await tx.order.findUniqueOrThrow({ where: { id } });
 
-    const updated = await tx.order.update({
-      where: { id },
-      data: {
-        status: parsed.data.status,
-        statusHistory: {
-          create: { status: parsed.data.status, note: "Actualizado desde el panel" },
+      const updated = await tx.order.update({
+        where: { id },
+        data: {
+          status: parsed.data.status,
+          statusHistory: {
+            create: { status: parsed.data.status, note: "Actualizado desde el panel" },
+          },
         },
-      },
+      });
+
+      // Solo devolvemos stock la primera vez que el pedido entra a un estado
+      // cancelado/reembolsado; si ya estaba en uno de esos estados, no
+      // duplicamos el ingreso. Mismo cuidado con los puntos de fidelidad.
+      if (RESTOCK_STATUSES.has(parsed.data.status) && !RESTOCK_STATUSES.has(existing.status)) {
+        await restockOrderItems(tx, id, existing.locationId, session?.user?.id);
+        await reversePointsForOrder(tx, id);
+      } else if (parsed.data.status === "PAID" && existing.status !== "PAID") {
+        await accruePointsForOrder(tx, id);
+      }
+
+      return updated;
     });
-
-    // Solo devolvemos stock la primera vez que el pedido entra a un estado
-    // cancelado/reembolsado; si ya estaba en uno de esos estados, no
-    // duplicamos el ingreso. Mismo cuidado con los puntos de fidelidad.
-    if (RESTOCK_STATUSES.has(parsed.data.status) && !RESTOCK_STATUSES.has(existing.status)) {
-      await restockOrderItems(tx, id, existing.locationId, session?.user?.id);
-      await reversePointsForOrder(tx, id);
-    } else if (parsed.data.status === "PAID" && existing.status !== "PAID") {
-      await accruePointsForOrder(tx, id);
+  } catch (err: unknown) {
+    if (err instanceof Error && "code" in err && (err as { code?: string }).code === "P2025") {
+      return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 });
     }
-
-    return updated;
-  });
+    console.error("Error actualizando el estado del pedido", err);
+    return NextResponse.json({ error: "No se pudo actualizar el pedido." }, { status: 500 });
+  }
 
   await notifyOrderStatusChanged(order.id);
 
